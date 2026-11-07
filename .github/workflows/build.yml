@@ -14,6 +14,7 @@ on:
       - bootloader/**
       - modules/**
       - images/**
+      - vendor/**
 
 concurrency:
   group: build-${{ github.ref }}
@@ -24,7 +25,7 @@ permissions:
   issues: write
 
 jobs:
-  build:
+  mainline:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 360
     steps:
@@ -70,3 +71,43 @@ jobs:
           VERSION: ${{ steps.source.outputs.version }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: ci/report-failure.sh "$VERSION" "$RUN_URL"
+
+  # Phase 3: manufacturer kernel, U-Boot and boot blobs. The image is kept as a
+  # workflow artifact, ready to write to an SD card.
+  vendor:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - uses: cachix/cachix-action@v16
+        with:
+          name: nixos-a733
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Build manufacturer kernel
+        run: nix build -L .#kernel-vendor
+
+      - name: Build manufacturer boot chain
+        run: nix build -L .#boot-vendor
+
+      - name: Build image
+        run: |
+          nix build -L .#sd-image-vendor -o image
+          cp image/sd-image/*.img.zst nixos-a733-vendor.img.zst
+          sha256sum nixos-a733-vendor.img.zst > nixos-a733-vendor.img.zst.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nixos-a733-vendor-image
+          path: |
+            nixos-a733-vendor.img.zst
+            nixos-a733-vendor.img.zst.sha256
+          retention-days: 30
+
+      - name: Open an issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: ci/report-failure.sh "6.6 vendor" "$RUN_URL"

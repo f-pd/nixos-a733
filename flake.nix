@@ -29,10 +29,12 @@
       nixosModules = {
         hardware = ./modules/hardware.nix;
         sd-image = ./modules/sd-image.nix;
+        vendor = ./modules/vendor.nix;
         default = {
           imports = [
             self.nixosModules.hardware
             self.nixosModules.sd-image
+            self.nixosModules.vendor
           ];
         };
       };
@@ -46,12 +48,25 @@
         ];
       };
 
+      # Phase 3: the same image on the manufacturer's kernel and boot chain.
+      nixosConfigurations.generic-vendor = lib.nixosSystem {
+        modules = [
+          { nixpkgs.hostPlatform = system; }
+          self.nixosModules.default
+          ./images/generic-vendor.nix
+        ];
+      };
+
       # Bootloader pieces are exported only once their sources are pinned in
       # bootloader/sources.json, so evaluation never trips over a placeholder.
       packages.${system} = {
         kernel-source = pkgs.callPackage ./kernel/source.nix { };
         kernel = pkgs.callPackage ./kernel { };
         sd-image-generic = generic.system.build.sdImage;
+
+        kernel-vendor = pkgs.callPackage ./vendor/kernel.nix { };
+        boot-vendor = pkgs.callPackage ./vendor/boot-package.nix { };
+        sd-image-vendor = self.nixosConfigurations.generic-vendor.config.system.build.sdImage;
       }
       // lib.optionalAttrs (pinned "boot0") {
         boot0 = pkgs.callPackage ./bootloader/boot0.nix { };

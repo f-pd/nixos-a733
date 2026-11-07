@@ -1,0 +1,71 @@
+{
+  "comment": "Phase 3 only: the manufacturer's boot chain and kernel, to prove NixOS boots before moving to mainline. monitor.fex and scp.fex are binaries allowed here temporarily, until the open boot chain replaces them.",
+  "kernel": {
+    "owner": "orangepi-xunlong",
+    "repo": "linux-orangepi",
+    "branch": "orange-pi-6.6-sun60iw2",
+    "rev": "2ac08e8c7cdc28abbdc5c9a9dd812f887ae9c79f",
+    "hash": "sha256-oPsxtTdGO80KevjX+YOrLrOtJy/CBIrTWRQ7KtSc0KY=",
+    "version": "6.6.98",
+    "deviceTree": "allwinner/sun60i-a733-orangepi-zero3w.dtb"
+  },
+  "u-boot": {
+    "owner": "orangepi-xunlong",
+    "repo": "u-boot-orangepi",
+    "branch": "v2018.05-sun60iw2",
+    "rev": "b791be842935b27268ae3d00e943a9075495f30a",
+    "hash": "sha256-mR7u0eXr78lsL5G8JxgKYLNb5iTlfnoMj0aTrT8R01g=",
+    "defconfig": "sun60iw2p1_t736_defconfig"
+  },
+  "build": {
+    "owner": "orangepi-xunlong",
+    "repo": "orangepi-build",
+    "rev": "7f24222b928eab94780f2af03289ce527e07241e",
+    "files": {
+      "boot0": {
+        "path": "external/packages/pack-uboot/sun60iw2/bin/boot0_sdcard_orangepizero3w.fex",
+        "hash": "sha256-gp6o47ZdcaAvLQ4JS8Bz3joQhp+Uj2LbSdvwI9B/q+M="
+      },
+      "monitor": {
+        "path": "external/packages/pack-uboot/sun60iw2/bin/monitor.fex",
+        "hash": "sha256-ivFrhq6OLv9jSj68p2qM3zwQs1QDh1c9RsPXhVRbJjI="
+      },
+      "scp": {
+        "path": "external/packages/pack-uboot/sun60iw2/bin/scp.fex",
+        "hash": "sha256-B+a5digQGWPnlE4BKUjEvfch+RS600es19+96J20J0k="
+      },
+      "boot_package.cfg": {
+        "path": "external/packages/pack-uboot/sun60iw2/bin/boot_package.cfg",
+        "hash": "sha256-Cb1D9o5UwHRrUTCjrPN/04GR2Rh+Mp4reHEVYbb52Rg="
+      },
+      "sys_config.fex": {
+        "path": "external/packages/pack-uboot/sun60iw2/bin/sys_config/sys_config.fex",
+        "hash": "sha256-61mII9lH+jnQzyECBRuSHRD0GyZTgQO5+jombGpIaik="
+      },
+      "u-boot.dts": {
+        "path": "external/packages/pack-uboot/sun60iw2/bin/dts/u-boot-current.dts",
+        "hash": "sha256-vY4ydAvBwlUy8oyueGDGHwdQbfxTpnLZcm0v1+px/ww="
+      },
+      "script": {
+        "path": "external/packages/pack-uboot/tools/script",
+        "hash": "sha256-wceQ/6pDKq7QbmqYTBXYBG+YnrtLMrzIS0uBB2ceLa0="
+      },
+      "update_dtb": {
+        "path": "external/packages/pack-uboot/tools/update_dtb",
+        "hash": "sha256-ZxlqacJKNkDskT495NHY7qYobtwHTKlCYO+n4sXFMI4="
+      },
+      "update_uboot": {
+        "path": "external/packages/pack-uboot/tools/update_uboot",
+        "hash": "sha256-6YrurlOcopLeqGbgJkVvWtg4iME72JdDMyIFKwifkOc="
+      },
+      "dragonsecboot": {
+        "path": "external/packages/pack-uboot/tools/dragonsecboot",
+        "hash": "sha256-5fkHZQSgzN4pxZeLz8NBwcWsAtlHxHuEml6NJkM1RfY="
+      }
+    }
+  },
+  "sdLayout": {
+    "boot0OffsetKiB": 8,
+    "bootPackageOffsetKiB": 16400
+  }
+}
