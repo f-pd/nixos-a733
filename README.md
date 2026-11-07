@@ -82,7 +82,7 @@ public key:  nixos-a733.cachix.org-1:rMgMVYYwVjmvg4b8FX59uavFlLCqP0YuR6O8NXgqcWY
 | Workflow | When | What |
 |----------|------|------|
 | `ci` | every push and pull request | evaluates the flake, checks formatting, builds nothing |
-| `build` | push to `main` or `develop` touching the build, or by hand | builds kernel, boot chain and images on native ARM runners, pushes to Cachix, keeps the vendor image as an artifact |
+| `build` | push to `main` or `develop` touching the build, or by hand | builds the vendor image (kept as an artifact) and, once base patches exist, the mainline kernel and image, on native ARM runners, pushing to Cachix |
 | `kernel-bump` | nightly and by hand | pins a new kernel.org stable release on `develop` and starts `build` |
 
 A base patch that no longer applies fails the build and opens an issue. An
