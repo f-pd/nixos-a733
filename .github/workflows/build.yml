@@ -25,13 +25,35 @@ permissions:
   issues: write
 
 jobs:
+  # The mainline kernel is only worth building once it carries the A733
+  # patches: without them it is a plain kernel.org build that cannot boot the
+  # board. The job turns itself on with the first base patch.
+  plan:
+    runs-on: ubuntu-24.04-arm
+    outputs:
+      mainline: ${{ steps.patches.outputs.mainline }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Look for base patches
+        id: patches
+        run: |
+          count=$(jq '[.patches[] | select(.layer == "base")] | length' patches/index.json)
+          echo "Base patches: $count"
+          if [ "$count" -gt 0 ]; then
+            echo "mainline=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "mainline=false" >> "$GITHUB_OUTPUT"
+          fi
+
   mainline:
+    needs: plan
+    if: needs.plan.outputs.mainline == 'true'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 360
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
-      - uses: cachix/cachix-action@v16
+      - uses: cachix/cachix-action@v17
         with:
           name: nixos-a733
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -78,9 +100,9 @@ jobs:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 360
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
-      - uses: cachix/cachix-action@v16
+      - uses: cachix/cachix-action@v17
         with:
           name: nixos-a733
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -97,7 +119,7 @@ jobs:
           cp image/sd-image/*.img.zst nixos-a733-vendor.img.zst
           sha256sum nixos-a733-vendor.img.zst > nixos-a733-vendor.img.zst.sha256
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: nixos-a733-vendor-image
           path: |

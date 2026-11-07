@@ -45,6 +45,10 @@ stdenvNoCC.mkDerivation {
     : > .a733-optional-skipped
     ${lib.concatMapStrings applyBase patches.base}
     ${lib.concatMapStrings applyOptional patches.optional}
+
+    # The board is arm64 and nothing else: drop every other architecture from
+    # the tree. arch/arm stays because arm64 device trees include its dtsi.
+    find arch -mindepth 1 -maxdepth 1 -type d ! -name arm64 ! -name arm -exec rm -rf {} +
     runHook postPatch
   '';
 
