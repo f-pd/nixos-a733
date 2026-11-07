@@ -1,0 +1,23 @@
+name: ci
+
+# Cheap checks on every push and pull request: the flake evaluates, the patch
+# index is consistent, the Nix files are formatted. Nothing is built here.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - name: Evaluate flake
+        run: nix flake check --no-build
+      - name: Evaluate generic image
+        run: nix eval --raw .#packages.aarch64-linux.sd-image-generic.drvPath
+      - name: Check formatting
+        run: nix fmt -- --fail-on-change

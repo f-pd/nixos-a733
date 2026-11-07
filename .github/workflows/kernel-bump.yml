@@ -1,0 +1,40 @@
+name: kernel-bump
+
+# Nightly: when kernel.org publishes a new stable release, pin it in
+# kernel/version.json on develop and start a full build.
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+      - uses: cachix/install-nix-action@v31
+
+      - name: Check kernel.org
+        id: bump
+        run: ci/kernel-bump.sh
+
+      - name: Commit and build
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          git config user.name "Alessio Corsi"
+          git config user.email "alessio.corsi@gmail.com"
+          git add kernel/version.json
+          git commit -m "chore(kernel): bump to $VERSION"
+          git push origin develop
+          # Pushes made with the workflow token do not trigger workflows,
+          # so the build is started explicitly.
+          gh workflow run build.yml --ref develop

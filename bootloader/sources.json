@@ -1,0 +1,28 @@
+{
+  "boot0": {
+    "comment": "LPDDR5 init blob, extracted from the official Orange Pi image. The only binary allowed in the boot chain.",
+    "image": {
+      "url": null,
+      "hash": null
+    },
+    "offsetBytes": null,
+    "sizeBytes": null,
+    "sdOffsetKiB": null,
+    "hash": null
+  },
+  "tf-a": {
+    "comment": "Trusted Firmware-A, A733 port, built from source.",
+    "url": null,
+    "rev": null,
+    "hash": null,
+    "platform": null
+  },
+  "u-boot": {
+    "comment": "U-Boot with the A733 patches under review, built from source.",
+    "url": null,
+    "rev": null,
+    "hash": null,
+    "defconfig": null,
+    "sdOffsetKiB": null
+  }
+}
