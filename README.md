@@ -7,8 +7,10 @@ TF-A built from source, a NixOS hardware module and an SD image generator.
 This repository is generic: it holds no host configuration. A host imports the
 modules below from its own flake and builds its own image.
 
-> Status: skeleton. The kernel is pinned and evaluates; the A733 patches, the
-> device tree and the boot chain are not in yet, so no image boots.
+> Status: skeleton. The mainline kernel is pinned and evaluates; the A733
+> patches, the device tree and the open boot chain are not in yet. Meanwhile
+> `sd-image-vendor` boots NixOS on the manufacturer's kernel and boot chain:
+> see [vendor/README.md](vendor/README.md).
 
 ## Layout
 
@@ -19,6 +21,7 @@ modules below from its own flake and builds its own image.
 | `bootloader/` | boot0, TF-A and U-Boot, pinned in `sources.json` |
 | `modules/` | `hardware.nix` (kernel, console, device tree) and `sd-image.nix` |
 | `images/` | the generic image configuration |
+| `vendor/` | phase 3 only: the manufacturer's kernel, U-Boot and boot blobs |
 | `ci/` | scripts used by the workflows |
 
 ## Flake outputs
@@ -30,9 +33,12 @@ modules below from its own flake and builds its own image.
 | `packages.aarch64-linux.boot0` | boot0 extracted from the official image, hash checked (once pinned) |
 | `packages.aarch64-linux.tf-a`, `uboot` | boot chain built from source (once pinned) |
 | `packages.aarch64-linux.sd-image-generic` | minimal image: root login on the serial console only |
+| `packages.aarch64-linux.kernel-vendor`, `boot-vendor` | the manufacturer's 6.6 kernel and boot chain |
+| `packages.aarch64-linux.sd-image-vendor` | the minimal image on the manufacturer's kernel and boot chain |
 | `nixosModules.hardware` | kernel, console on `ttyS0` at 115200 baud, device tree, binary cache |
 | `nixosModules.sd-image` | SD image with boot0 and U-Boot written before the first partition |
-| `nixosModules.default` | both modules |
+| `nixosModules.vendor` | `hardware.a733.vendor.enable`: switch to the manufacturer's kernel and boot chain |
+| `nixosModules.default` | all of the above |
 
 ## Using it from a host flake
 
@@ -76,7 +82,7 @@ public key:  nixos-a733.cachix.org-1:rMgMVYYwVjmvg4b8FX59uavFlLCqP0YuR6O8NXgqcWY
 | Workflow | When | What |
 |----------|------|------|
 | `ci` | every push and pull request | evaluates the flake, checks formatting, builds nothing |
-| `build` | push to `main` or `develop` touching the build, or by hand | builds kernel, boot chain and generic image on native ARM runners, pushes to Cachix |
+| `build` | push to `main` or `develop` touching the build, or by hand | builds kernel, boot chain and images on native ARM runners, pushes to Cachix, keeps the vendor image as an artifact |
 | `kernel-bump` | nightly and by hand | pins a new kernel.org stable release on `develop` and starts `build` |
 
 A base patch that no longer applies fails the build and opens an issue. An

@@ -65,7 +65,8 @@ in
       # Room for boot0 and U-Boot before the firmware partition.
       firmwarePartitionOffset = lib.mkDefault 32;
       populateFirmwareCommands = "";
-      populateRootCommands = ''
+      # mkDefault keeps this unevaluated when another loader replaces it.
+      populateRootCommands = lib.mkDefault ''
         mkdir -p ./files/boot
         ${config.boot.loader.generic-extlinux-compatible.populateCmd} \
           -c ${config.system.build.toplevel} -d ./files/boot
