@@ -1,0 +1,41 @@
+name: release
+
+# A v* tag on main publishes a GitHub Release with the SD image attached, so
+# the image is downloaded from the Releases page instead of a workflow run.
+# The kernel and boot chain come from the Cachix cache filled by the build
+# workflow, so only the image itself is assembled here.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  vendor-image:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+      - uses: cachix/cachix-action@v17
+        with:
+          name: nixos-a733
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Build image
+        run: |
+          nix build -L .#sd-image-vendor -o image
+          cp image/sd-image/*.img.zst "nixos-a733-vendor-$GITHUB_REF_NAME.img.zst"
+          sha256sum "nixos-a733-vendor-$GITHUB_REF_NAME.img.zst" > "nixos-a733-vendor-$GITHUB_REF_NAME.img.zst.sha256"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            --verify-tag \
+            "nixos-a733-vendor-$GITHUB_REF_NAME.img.zst" \
+            "nixos-a733-vendor-$GITHUB_REF_NAME.img.zst.sha256"

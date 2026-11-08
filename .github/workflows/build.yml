@@ -1,0 +1,135 @@
+name: build
+
+# Builds the kernel, the boot chain and the generic image on native ARM
+# runners and pushes everything to the nixos-a733 Cachix cache.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, develop]
+    paths:
+      - flake.nix
+      - flake.lock
+      - kernel/**
+      - patches/**
+      - bootloader/**
+      - modules/**
+      - images/**
+      - vendor/**
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  # The mainline kernel is only worth building once it carries the A733
+  # patches: without them it is a plain kernel.org build that cannot boot the
+  # board. The job turns itself on with the first base patch.
+  plan:
+    runs-on: ubuntu-24.04-arm
+    outputs:
+      mainline: ${{ steps.patches.outputs.mainline }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Look for base patches
+        id: patches
+        run: |
+          count=$(jq '[.patches[] | select(.layer == "base")] | length' patches/index.json)
+          echo "Base patches: $count"
+          if [ "$count" -gt 0 ]; then
+            echo "mainline=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "mainline=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  mainline:
+    needs: plan
+    if: needs.plan.outputs.mainline == 'true'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+      - uses: cachix/cachix-action@v17
+        with:
+          name: nixos-a733
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Patch kernel source
+        id: source
+        run: |
+          nix build -L .#kernel-source -o source
+          echo "version=$(jq -r .version kernel/version.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Report skipped optional patches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.source.outputs.version }}
+        run: ci/report-skipped.sh source/.a733-optional-skipped "$VERSION"
+
+      - name: Build kernel
+        run: nix build -L .#kernel
+
+      - name: Build boot chain
+        run: |
+          for pkg in boot0 tf-a uboot; do
+            if nix eval .#packages.aarch64-linux --apply "p: p ? \"$pkg\"" | grep -q true; then
+              nix build -L ".#$pkg"
+            else
+              echo "$pkg is not pinned yet, skipping"
+            fi
+          done
+
+      - name: Build generic image
+        run: nix build -L .#sd-image-generic
+
+      - name: Open an issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.source.outputs.version }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: ci/report-failure.sh "$VERSION" "$RUN_URL"
+
+  # Phase 3: manufacturer kernel, U-Boot and boot blobs. The image is kept as a
+  # workflow artifact, ready to write to an SD card.
+  vendor:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+      - uses: cachix/cachix-action@v17
+        with:
+          name: nixos-a733
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Build manufacturer kernel
+        run: nix build -L .#kernel-vendor
+
+      - name: Build manufacturer boot chain
+        run: nix build -L .#boot-vendor
+
+      - name: Build image
+        run: |
+          nix build -L .#sd-image-vendor -o image
+          cp image/sd-image/*.img.zst nixos-a733-vendor.img.zst
+          sha256sum nixos-a733-vendor.img.zst > nixos-a733-vendor.img.zst.sha256
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: nixos-a733-vendor-image
+          path: |
+            nixos-a733-vendor.img.zst
+            nixos-a733-vendor.img.zst.sha256
+          retention-days: 30
+
+      - name: Open an issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: ci/report-failure.sh "6.6 vendor" "$RUN_URL"
