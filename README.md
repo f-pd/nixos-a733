@@ -83,11 +83,24 @@ public key:  nixos-a733.cachix.org-1:rMgMVYYwVjmvg4b8FX59uavFlLCqP0YuR6O8NXgqcWY
 |----------|------|------|
 | `ci` | every push and pull request | evaluates the flake, checks formatting, builds nothing |
 | `build` | push to `main` or `develop` touching the build, or by hand | builds the vendor image (kept as an artifact) and, once base patches exist, the mainline kernel and image, on native ARM runners, pushing to Cachix |
+| `release` | a `v*` tag on `main` | publishes a GitHub Release with the vendor SD image and its checksum |
 | `kernel-bump` | nightly and by hand | pins a new kernel.org stable release on `develop` and starts `build` |
 
 A base patch that no longer applies fails the build and opens an issue. An
 optional patch that no longer applies is left out, the build goes on, and an
 issue lists what was skipped.
+
+## Download
+
+Ready SD images are on the
+[Releases](https://github.com/f-pd/nixos-a733/releases) page. To write one:
+
+```
+sha256sum -c nixos-a733-vendor-v0.1.0.img.zst.sha256
+zstd -dc nixos-a733-vendor-v0.1.0.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
+```
+
+Builds of `develop` also keep the image as a workflow artifact for 30 days.
 
 ## Serial console
 
@@ -97,7 +110,9 @@ UART0 on the 40-pin header: pin 6 ground, pin 8 TX, pin 10 RX, 115200 baud,
 ## Branches
 
 Git flow: `main` holds releases, `develop` is the integration branch, work
-happens on `feature/*`, fixes on `bugfix/*` and `hotfix/*`.
+happens on `feature/*`, fixes on `bugfix/*` and `hotfix/*`. A release goes
+through `release/x.y.z`, is merged into `main`, tagged `vx.y.z` and merged
+back into `develop`; the tag publishes the image.
 
 ## License
 
