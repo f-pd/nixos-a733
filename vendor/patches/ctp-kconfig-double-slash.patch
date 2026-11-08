@@ -1,0 +1,13 @@
+diff --git a/bsp/drivers/input/ctp/Kconfig b/bsp/drivers/input/ctp/Kconfig
+index 59c89b7b8..a3b88bac8 100644
+--- a/bsp/drivers/input/ctp/Kconfig
++++ b/bsp/drivers/input/ctp/Kconfig
+@@ -13,7 +13,7 @@ menuconfig AW_INPUT_CTP
+ 
+ if AW_INPUT_CTP
+ 
+-source "bsp/drivers/input/ctp/gt9xx_secondary//Kconfig"
++source "bsp/drivers/input/ctp/gt9xx_secondary/Kconfig"
+ source "bsp/drivers/input/ctp/gslx680new/Kconfig"
+ source "bsp/drivers/input/ctp/wacom_pen/Kconfig"
+ source "bsp/drivers/input/ctp/gt9xxnew/Kconfig"

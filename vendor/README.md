@@ -20,6 +20,12 @@ Everything is pinned in `sources.json`:
 `linux-sun60iw2-current-a733.config` with what systemd needs turned on:
 `FHANDLE`, `TMPFS_POSIX_ACL`, `CRYPTO_USER_API`, `CRYPTO_USER_API_HASH`.
 
+The kernel source carries one fix, in `patches/`: the touch screen Kconfig
+includes `gt9xx_secondary//Kconfig`, a path make cannot match in an out of
+tree build, so the configuration was regenerated in an endless loop. Each make
+call of the configure phase is limited to 10 minutes, so a loop like that fails
+the build instead of running until the CI job times out.
+
 ## SD card layout
 
 | Offset | Content |
