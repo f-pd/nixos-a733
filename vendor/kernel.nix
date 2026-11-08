@@ -2,7 +2,10 @@
 #
 # kernel/sun60iw2-a733.config is linux-sun60iw2-current-a733.config from
 # orangepi-build at the pinned commit, with the options systemd needs turned
-# on: FHANDLE, TMPFS_POSIX_ACL, CRYPTO_USER_API and CRYPTO_USER_API_HASH.
+# on: FHANDLE, TMPFS_POSIX_ACL, CRYPTO_USER_API and CRYPTO_USER_API_HASH, and
+# the in-kernel video codec (AW_VIDEO_KERNEL_ENC and AW_VIDEO_KERNEL_DEC) turned
+# off: it links prebuilt manufacturer libraries and its Makefile only works in
+# a build inside the source tree.
 {
   lib,
   linuxManualConfig,

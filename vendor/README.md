@@ -19,6 +19,11 @@ Everything is pinned in `sources.json`:
 `kernel/sun60iw2-a733.config` is the manufacturer's
 `linux-sun60iw2-current-a733.config` with what systemd needs turned on:
 `FHANDLE`, `TMPFS_POSIX_ACL`, `CRYPTO_USER_API`, `CRYPTO_USER_API_HASH`.
+The in-kernel video codec, `AW_VIDEO_KERNEL_ENC` and `AW_VIDEO_KERNEL_DEC`, is
+turned off: it links prebuilt manufacturer libraries, and its Makefile includes
+`codec/Makefile` by a path that only resolves when building inside the source
+tree, while Nix builds in a separate directory. The VE driver itself stays, as
+a module.
 
 The kernel source carries one fix, in `patches/`: the touch screen Kconfig
 includes `gt9xx_secondary//Kconfig`, a path make cannot match in an out of
