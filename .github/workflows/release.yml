@@ -1,12 +1,14 @@
 name: release
 
-# A v* tag on main publishes a GitHub Release with the SD image attached, so
-# the image is downloaded from the Releases page instead of a workflow run.
-# The kernel and boot chain come from the Cachix cache filled by the build
-# workflow, so only the image itself is assembled here.
+# Every push to main publishes the version in VERSION as a GitHub Release,
+# tag v<VERSION>, with the SD image attached, so the image is downloaded from
+# the Releases page instead of a workflow run. A version that is already
+# released is skipped. The kernel and boot chain come from the Cachix cache
+# filled by the build workflow, so mostly the image itself is assembled here.
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,25 +19,48 @@ jobs:
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v7
+
+      - name: Read version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v$(tr -d '[:space:]' < VERSION)"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            echo "$tag is already released, nothing to do"
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: cachix/install-nix-action@v31
+        if: steps.version.outputs.new == 'true'
       - uses: cachix/cachix-action@v17
+        if: steps.version.outputs.new == 'true'
         with:
           name: nixos-a733
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - name: Build image
+        if: steps.version.outputs.new == 'true'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
         run: |
           nix build -L .#sd-image-vendor -o image
-          cp image/sd-image/*.img.zst "nixos-a733-vendor-$GITHUB_REF_NAME.img.zst"
-          sha256sum "nixos-a733-vendor-$GITHUB_REF_NAME.img.zst" > "nixos-a733-vendor-$GITHUB_REF_NAME.img.zst.sha256"
+          cp image/sd-image/*.img.zst "nixos-a733-vendor-$TAG.img.zst"
+          sha256sum "nixos-a733-vendor-$TAG.img.zst" > "nixos-a733-vendor-$TAG.img.zst.sha256"
 
+      # gh creates the tag on this commit together with the release.
       - name: Publish release
+        if: steps.version.outputs.new == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            --title "$GITHUB_REF_NAME" \
+          gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
             --generate-notes \
-            --verify-tag \
-            "nixos-a733-vendor-$GITHUB_REF_NAME.img.zst" \
-            "nixos-a733-vendor-$GITHUB_REF_NAME.img.zst.sha256"
+            "nixos-a733-vendor-$TAG.img.zst" \
+            "nixos-a733-vendor-$TAG.img.zst.sha256"

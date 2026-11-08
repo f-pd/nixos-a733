@@ -83,7 +83,7 @@ public key:  nixos-a733.cachix.org-1:rMgMVYYwVjmvg4b8FX59uavFlLCqP0YuR6O8NXgqcWY
 |----------|------|------|
 | `ci` | every push and pull request | evaluates the flake, checks formatting, builds nothing |
 | `build` | push to `main` or `develop` touching the build, or by hand | builds the vendor image (kept as an artifact) and, once base patches exist, the mainline kernel and image, on native ARM runners, pushing to Cachix |
-| `release` | a `v*` tag on `main` | publishes a GitHub Release with the vendor SD image and its checksum |
+| `release` | push to `main` | publishes the version in `VERSION` as a GitHub Release, tag `v<VERSION>`, with the vendor SD image and its checksum; skips versions already released |
 | `kernel-bump` | nightly and by hand | pins a new kernel.org stable release on `develop` and starts `build` |
 
 A base patch that no longer applies fails the build and opens an issue. An
@@ -111,8 +111,8 @@ UART0 on the 40-pin header: pin 6 ground, pin 8 TX, pin 10 RX, 115200 baud,
 
 Git flow: `main` holds releases, `develop` is the integration branch, work
 happens on `feature/*`, fixes on `bugfix/*` and `hotfix/*`. A release goes
-through `release/x.y.z`, is merged into `main`, tagged `vx.y.z` and merged
-back into `develop`; the tag publishes the image.
+through `release/x.y.z`, where `VERSION` is set, is merged into `main` and back
+into `develop`; the merge into `main` publishes it.
 
 ## License
 
