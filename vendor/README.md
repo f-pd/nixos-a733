@@ -19,17 +19,18 @@ Everything is pinned in `sources.json`:
 `kernel/sun60iw2-a733.config` is the manufacturer's
 `linux-sun60iw2-current-a733.config` with what systemd needs turned on:
 `FHANDLE`, `TMPFS_POSIX_ACL`, `CRYPTO_USER_API`, `CRYPTO_USER_API_HASH`.
-The in-kernel video codec, `AW_VIDEO_KERNEL_ENC` and `AW_VIDEO_KERNEL_DEC`, is
-turned off: it links prebuilt manufacturer libraries, and its Makefile includes
-`codec/Makefile` by a path that only resolves when building inside the source
-tree, while Nix builds in a separate directory. The VE driver itself stays, as
-a module.
 
-The kernel source carries one fix, in `patches/`: the touch screen Kconfig
-includes `gt9xx_secondary//Kconfig`, a path make cannot match in an out of
-tree build, so the configuration was regenerated in an endless loop. Each make
-call of the configure phase is limited to 10 minutes, so a loop like that fails
-the build instead of running until the CI job times out.
+The manufacturer's Makefiles assume a build inside the source tree, while Nix
+builds in a separate directory. Two fixes in `patches/` make them work there:
+
+- `ctp-kconfig-double-slash.patch`: the touch screen Kconfig includes
+  `gt9xx_secondary//Kconfig`, a path make cannot match, so the configuration
+  was regenerated in an endless loop;
+- `ve-codec-out-of-tree.patch`: the video engine includes `codec/Makefile` and
+  its headers through `$(src)` and `$(PWD)`; both now go through `$(srctree)`.
+
+Each make call of the configure phase is limited to 10 minutes, so a loop like
+that fails the build instead of running until the CI job times out.
 
 ## SD card layout
 

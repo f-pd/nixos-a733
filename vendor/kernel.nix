@@ -2,10 +2,7 @@
 #
 # kernel/sun60iw2-a733.config is linux-sun60iw2-current-a733.config from
 # orangepi-build at the pinned commit, with the options systemd needs turned
-# on: FHANDLE, TMPFS_POSIX_ACL, CRYPTO_USER_API and CRYPTO_USER_API_HASH, and
-# the in-kernel video codec (AW_VIDEO_KERNEL_ENC and AW_VIDEO_KERNEL_DEC) turned
-# off: it links prebuilt manufacturer libraries and its Makefile only works in
-# a build inside the source tree.
+# on: FHANDLE, TMPFS_POSIX_ACL, CRYPTO_USER_API and CRYPTO_USER_API_HASH.
 {
   lib,
   linuxManualConfig,
@@ -45,6 +42,13 @@ in
         # in an out of tree build, so it regenerates the config forever.
         name = "ctp-kconfig-double-slash";
         patch = ./patches/ctp-kconfig-double-slash.patch;
+      }
+      {
+        # The video engine Makefiles include codec/Makefile and its headers
+        # through $(src) and $(PWD), paths that only resolve in a build inside
+        # the source tree. Point them at $(srctree).
+        name = "ve-codec-out-of-tree";
+        patch = ./patches/ve-codec-out-of-tree.patch;
       }
     ];
 
