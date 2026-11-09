@@ -1,5 +1,5 @@
 {
-  "comment": "Phase 3 only: the manufacturer's boot chain and kernel, to prove NixOS boots before moving to mainline. monitor.fex and scp.fex are binaries allowed here temporarily, until the open boot chain replaces them.",
+  "comment": "The manufacturer's boot chain, kernel, firmware and binary drivers, pinned to what Orange Pi ships for the Zero 3W. Binaries are taken as they are: this is the vendor variant, the mainline variants use only official, community or source-built components.",
   "kernel": {
     "owner": "orangepi-xunlong",
     "repo": "linux-orangepi",
@@ -61,7 +61,26 @@
       "dragonsecboot": {
         "path": "external/packages/pack-uboot/tools/dragonsecboot",
         "hash": "sha256-5fkHZQSgzN4pxZeLz8NBwcWsAtlHxHuEml6NJkM1RfY="
+      },
+      "hciattach_opi": {
+        "path": "external/packages/blobs/bt/hciattach/hciattach_opi_arm64",
+        "hash": "sha256-Xwwvele3UVawkYXNsPDuF4ZFk68q+GPPJzEVxhXKj1s="
       }
+    }
+  },
+  "firmware": {
+    "owner": "orangepi-xunlong",
+    "repo": "firmware",
+    "rev": "dc163b0ed2e0272d9ee31977a0e0a04884f0ae61",
+    "aic8800d80": {
+      "aic_userconfig_8800d80.txt": "sha256-mV27nk8uexnbg4KR9SvjmvmrZzrVGycMmIIWzP8acg4=",
+      "fmacfw_8800d80_h_u02.bin": "sha256-ro1UjflsEyxEX4iLkeq17wPBmZG4ve9PwS6/y/n5U+c=",
+      "fmacfw_8800d80_u02.bin": "sha256-VbWiCGWsp80u2q4XM6NtpF0rCykGC8JD2OnsIS4Tn2w=",
+      "fmacfwbt_8800d80_u02.bin": "sha256-79S/Yi5repK9JkxkvLkAKi4pP4lBt/2JHKTdaRVkjLY=",
+      "fw_adid_8800d80_u02.bin": "sha256-pSbL0C/NxJXwSfOta1kzywjNmEsWeQxxagYNWC/uGlY=",
+      "fw_patch_8800d80_u02.bin": "sha256-StTu3k00fEXtYbI1COeEPciE8OQRv5V/lUEAAdDPxNA=",
+      "fw_patch_table_8800d80_u02.bin": "sha256-X/GEEF/cTEZ54CZBj02ik+/sjfAqOjyiLO5yPBffSmA=",
+      "lmacfw_rf_8800d80_u02.bin": "sha256-Tose+12bspmq+VDWol48px1C4BLUL9PsO0l1nMZLOLI="
     }
   },
   "sdLayout": {
