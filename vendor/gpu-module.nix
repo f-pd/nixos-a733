@@ -38,7 +38,12 @@ stdenv.mkDerivation {
   # The DDK's kbuild Makefile declares every target .SECONDARY, which make
   # 4.4 refuses next to the kernel's .NOTINTERMEDIATE: the kernel already
   # keeps those files, so the line only has to go.
+  #
+  # The manufacturer committed the output of one of their builds,
+  # binary_sunxi_linux_nulldrmws_release, with symlinks to absolute paths on
+  # their machine: the DDK keeps existing links, so it has to go.
   postPatch = ''
+    rm -rf img-bxm/linux/rogue_km/binary_sunxi_linux_nulldrmws_release
     patchShebangs .
     substituteInPlace img-bxm/linux/rogue_km/build/linux/kbuild/Makefile.template \
       --replace-fail $'\n.SECONDARY:\n' $'\n'
