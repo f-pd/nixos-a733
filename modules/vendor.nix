@@ -103,8 +103,7 @@ in
 
     gpu.enable = lib.mkOption {
       type = lib.types.bool;
-      # Off until the pvrsrvkm build is proven in CI.
-      default = false;
+      default = true;
       description = ''
         The PowerVR BXM GPU: the pvrsrvkm module built from the vendor
         kernel's bsp/modules/gpu, its firmware, and the manufacturer's Vulkan,

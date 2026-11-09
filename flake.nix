@@ -66,8 +66,8 @@
 
         kernel-vendor = pkgs.callPackage ./vendor/kernel.nix { };
         boot-vendor = pkgs.callPackage ./vendor/boot-package.nix { };
-        # Built on their own in CI while hardware.a733.vendor.gpu is off by
-        # default. gpu-vendor is unfree: this nixpkgs allows it by name only.
+        # The GPU module and drivers on their own; gpu-vendor is unfree, so
+        # this nixpkgs allows it by name only.
         gpu-vendor =
           (import nixpkgs {
             inherit system;
