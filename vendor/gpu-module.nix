@@ -5,6 +5,7 @@
 {
   lib,
   stdenv,
+  buildPackages,
   kernel,
   python3,
   perl,
@@ -70,9 +71,18 @@ stdenv.mkDerivation {
 
   buildFlags = [ "build" ];
 
+  # The DDK does not run modules_install, so the module is signed here the
+  # way kbuild's cmd_sign does for every NixOS module: kmodigest appends the
+  # signature and writes the pvrsrvkm.ko.cer aggregateModules expects. Debug
+  # symbols go first, and no later strip may touch the signed file.
+  dontStrip = true;
+
   installPhase = ''
     runHook preInstall
-    install -D -m 644 ${ko} $out/lib/modules/${kernel.modDirVersion}/extra/pvrsrvkm.ko
+    dest=$out/lib/modules/${kernel.modDirVersion}/extra
+    install -D -m 644 ${ko} $dest/pvrsrvkm.ko
+    ${stdenv.cc.targetPrefix}strip --strip-debug $dest/pvrsrvkm.ko
+    ${lib.getExe buildPackages.kmodigest} $dest/pvrsrvkm.ko
     runHook postInstall
   '';
 
