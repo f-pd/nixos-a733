@@ -47,7 +47,7 @@ Latest LTS and latest stable kernel.org kernels with the A733 patches: not avail
 | `kernel/` | `version.json` (pinned release), patched source, kernel build and config |
 | `patches/` | A733 patches in two layers, `base/` and `optional/`, listed in `index.json` |
 | `bootloader/` | boot0, TF-A and U-Boot, pinned in `sources.json` |
-| `modules/` | `hardware.nix` (kernel, console, device tree) and `sd-image.nix` |
+| `modules/` | `hardware.nix` (kernel, console, device tree), `sd-image.nix` and `boot-log.nix` |
 | `images/` | the generic image configuration |
 | `vendor/` | the vendor variant: the manufacturer's kernel, U-Boot, firmware and drivers; their files are copied in `vendor/blobs/`, with their origin |
 | `ci/` | scripts used by the workflows |
@@ -66,6 +66,7 @@ Latest LTS and latest stable kernel.org kernels with the A733 patches: not avail
 | `nixosModules.hardware` | kernel, console on `ttyS0` at 115200 baud, device tree, binary cache |
 | `nixosModules.sd-image` | SD image with boot0 and U-Boot written before the first partition |
 | `nixosModules.vendor` | `hardware.a733.vendor.enable`: switch to the manufacturer's kernel and boot chain |
+| `nixosModules.boot-log` | `hardware.a733.bootLog.enable`: boot logs on the FAT partition |
 | `nixosModules.default` | all of the above |
 
 ## Using it from a host flake
@@ -134,6 +135,27 @@ Builds of `develop` also keep the image as a workflow artifact for 30 days.
 
 UART0 on the 40-pin header: pin 6 ground, pin 8 TX, pin 10 RX, 115200 baud,
 `ttyS0`.
+
+## Boot logs without a serial adapter
+
+The generic images write how far the boot got to the FAT partition of the SD
+card (`FIRMWARE`, the first partition), which any computer can read. Power the
+board off after a minute or two, put the card in a computer and open:
+
+| File | Written by | What it says |
+|------|------------|--------------|
+| `a733-uboot.txt` | U-Boot (`boot.scr`) | script found, kernel, initrd and device tree loaded, overlays, kernel started |
+| `a733-uboot-env.txt` | U-Boot | the whole U-Boot environment |
+| `a733-initrd-*.txt` | stage 1 | status, kernel log, journal: root file system and driver problems |
+| `a733-system-*.txt` | the booted system | the same plus the failed units, refreshed for five minutes |
+
+No `a733-uboot.txt` means U-Boot never ran `boot.scr`: boot0, U-Boot or the
+card itself. `a733-uboot.txt` without `a733-initrd-*` files means the kernel
+did not get as far as stage 1. The status LED blinks in a heartbeat pattern
+while the kernel runs, and the console is also on HDMI (`tty1`).
+
+`hardware.a733.bootLog.enable` turns the Linux part on for a host's own image;
+`boot.scr` of the vendor variant always writes its file.
 
 ## Branches
 

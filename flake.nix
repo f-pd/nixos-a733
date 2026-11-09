@@ -30,11 +30,13 @@
         hardware = ./modules/hardware.nix;
         sd-image = ./modules/sd-image.nix;
         vendor = ./modules/vendor.nix;
+        boot-log = ./modules/boot-log.nix;
         default = {
           imports = [
             self.nixosModules.hardware
             self.nixosModules.sd-image
             self.nixosModules.vendor
+            self.nixosModules.boot-log
           ];
         };
       };

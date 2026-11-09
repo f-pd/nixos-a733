@@ -19,13 +19,24 @@ let
   # The manufacturer's overlays are named sun60i-a733-<name>.dtbo.
   overlayFile = name: "allwinner/overlay/sun60i-a733-${name}.dtbo";
 
+  # What a733-uboot.txt reports before the overlays are applied.
+  overlayNames =
+    if overlays == [ ] then "none requested" else "requested: ${lib.concatStringsSep " " overlays}";
+
   # U-Boot's hush rejects an empty for list, so no overlays means no loop.
   overlayScript = lib.optionalString (overlays != [ ]) ''
     setenv load_addr 0x43100000
     for overlay_file in ${lib.concatStringsSep " " overlays}; do
       if load ''${devtype} ''${devnum}:''${distro_bootpart} ''${load_addr} ''${prefix}nixos/dtbs/allwinner/overlay/sun60i-a733-''${overlay_file}.dtbo; then
         echo "nixos-a733: applying overlay ''${overlay_file}"
-        fdt apply ''${load_addr} || echo "nixos-a733: overlay ''${overlay_file} failed to apply"
+        if fdt apply ''${load_addr}; then
+          setenv a733_5_overlays "''${a733_5_overlays}, ''${overlay_file} applied"
+        else
+          echo "nixos-a733: overlay ''${overlay_file} failed to apply"
+          setenv a733_5_overlays "''${a733_5_overlays}, ''${overlay_file} FAILED to apply"
+        fi
+      else
+        setenv a733_5_overlays "''${a733_5_overlays}, ''${overlay_file} FAILED to load"
       fi
     done
   '';
@@ -65,6 +76,7 @@ writeShellApplication {
     sed -e "s|@init@|$toplevel/init|" \
         -e "s|@kernelParams@|$(cat "$toplevel/kernel-params")|" \
         -e "s|@deviceTree@|${deviceTree}|" \
+        -e "s|@overlayNames@|${overlayNames}|" \
         ${./boot.cmd} > "$tmp/boot.cmd.in"
     # The overlay block spans several lines: splice it in with a read loop.
     while IFS= read -r line; do
