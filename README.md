@@ -36,8 +36,6 @@ The manufacturer's kernel, boot chain, firmware and drivers: see [vendor/README.
 | NPU runtime | ![viplite](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fmain%2Fvendor%2Fsources.json&query=%24.packages.npuVersion&label=viplite&color=blue) | ![viplite](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fdevelop%2Fvendor%2Fsources.json&query=%24.packages.npuVersion&label=viplite&color=blue) |
 | GPU drivers | ![powervr](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fmain%2Fvendor%2Fsources.json&query=%24.packages.files.gpu.version&label=powervr&color=blue) | ![powervr](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fdevelop%2Fvendor%2Fsources.json&query=%24.packages.files.gpu.version&label=powervr&color=blue) |
 
-The GPU drivers are built but off by default (`hardware.a733.vendor.gpu.enable`) until the module is proven in CI.
-
 ### Mainline
 
 Latest LTS and latest stable kernel.org kernels with the A733 patches: not available yet.
