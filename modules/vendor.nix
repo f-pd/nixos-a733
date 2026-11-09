@@ -21,6 +21,7 @@ let
   };
   firmware = pkgs.callPackage ../vendor/firmware.nix { };
   hciattach = pkgs.callPackage ../vendor/hciattach.nix { };
+  media = pkgs.callPackage ../vendor/media.nix { };
 
   # What systemd and NixOS need from the kernel. DMIID is left out: it needs
   # EFI, which this kernel does not have and the board does not use.
@@ -65,6 +66,19 @@ in
       description = ''
         AIC8800 Bluetooth on ttyS1, attached at boot the way the
         manufacturer's orangepi-hardware-optimization does it, with BlueZ.
+      '';
+    };
+
+    video.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        The hardware video engine as the manufacturer's image sets it up:
+        libcedarc (decoders, H.264 and H.265 encoders, OpenMAX components),
+        the camera ISP library, the GStreamer omx plugin and the device
+        permissions from their udev rules. GStreamer finds the plugin through
+        GST_PLUGIN_PATH_1_0, set for login sessions; a service that uses it
+        needs the same variable in its environment.
       '';
     };
 
@@ -123,6 +137,7 @@ in
       builtins.elem (lib.getName pkg) [
         "a733-vendor-aic8800d80-firmware"
         "a733-vendor-hciattach"
+        "a733-vendor-media"
       ];
 
     hardware.firmware = lib.mkIf (cfg.wifi.enable || cfg.bluetooth.enable) [ firmware ];
@@ -155,6 +170,28 @@ in
         RestartSec = 5;
       };
     };
+
+    environment.systemPackages = lib.mkIf cfg.video.enable [ media ];
+    environment.pathsToLink = lib.mkIf cfg.video.enable [ "/lib/gstreamer-1.0" ];
+    environment.sessionVariables = lib.mkIf cfg.video.enable {
+      GST_PLUGIN_PATH_1_0 = [ "/run/current-system/sw/lib/gstreamer-1.0" ];
+    };
+    # libcdc_base reads /etc/cedarc.conf; gst-omx looks for its config in
+    # the XDG config directories.
+    environment.etc = lib.mkIf cfg.video.enable {
+      "cedarc.conf".source = "${media}/etc/cedarc.conf";
+      "xdg/gstomx-allwinner.conf".source = "${media}/etc/xdg/gstomx-allwinner.conf";
+    };
+    # The manufacturer's 99-t527-permissions.rules.
+    services.udev.extraRules = lib.mkIf cfg.video.enable ''
+      KERNEL=="system", SUBSYSTEM=="dma_heap", GROUP="video", MODE="0660"
+      KERNEL=="reserved", SUBSYSTEM=="dma_heap", GROUP="video", MODE="0660"
+      KERNEL=="sunxi_soc_info", MODE="0666"
+      KERNEL=="renderD128", SUBSYSTEM=="drm", MODE="0666"
+      KERNEL=="cedar_dev", MODE="0666"
+      KERNEL=="cedar_dev_ve2", MODE="0666"
+      KERNEL=="g2d", MODE="0666"
+    '';
 
     systemd.services.a733-usb-host = lib.mkIf cfg.usbHost {
       description = "Put the USB-C port in host mode";

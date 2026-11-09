@@ -18,6 +18,7 @@ Everything is pinned in `sources.json`:
 | Packing tools | `orangepi-build`, `script`, `update_dtb`, `update_uboot`, `dragonsecboot` | no, static x86-64 binaries, run under qemu-user elsewhere |
 | AIC8800D80 Wi-Fi and Bluetooth firmware | `orangepi-xunlong/firmware`, `aic8800d80/` | no, binary |
 | `hciattach_opi` | `orangepi-build`, `blobs/bt/hciattach/hciattach_opi_arm64` | no, arm64 binary |
+| libcedarc, libAWIspApi, gst-omx | `orangepi-xunlong/rk-rootfs-build`, branch `sun60iw2_packages` | no, arm64 Debian packages |
 
 ## Hardware options
 
@@ -27,6 +28,7 @@ All under `hardware.a733.vendor`, on by default unless noted:
 |--------|--------------|-------------------------|
 | `wifi.enable` | AIC8800 firmware, `aic8800_fdrv` | `MODULES=` in the board config |
 | `bluetooth.enable` | `aic8800_btlpm`, wakes the core and runs `hciattach_opi -n -s 1500000 /dev/ttyS1 aic`, BlueZ | `orangepi-hardware-optimization` |
+| `video.enable` | Cedar video engine (`libcedarc`: decoders, H.264 and H.265 encoders, OpenMAX), camera ISP library, GStreamer `omx` plugin, `/etc/cedarc.conf`, device permissions | `libcedarc`, `libAWIspApi`, `gst-omx` packages and `99-t527-permissions.rules` |
 | `usbHost` | USB-C in host mode | `orangepi-hardware-optimization` |
 | `overlays` (default none) | device tree overlays applied by U-Boot, e.g. `[ "uart2" "i2c1" ]` | `overlays=` in `orangepiEnv.txt` |
 
