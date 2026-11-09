@@ -105,6 +105,46 @@
       "gst-omx-config": {
         "path": "bullseye/gst-omx-generic1.0/gstreamer1.0-omx-allwinner-config_1.18.3-1.1_arm64.deb",
         "hash": "sha256-h5khNVp9tHZoIfxnOVsEt/o/gEIRpIWcECCzIFqJ+R0="
+      },
+      "npu-libVIPhal": {
+        "path": "npu/usr/lib/libVIPhal.so",
+        "hash": "sha256-ZIREomoa6uwBgsC6NIt6RTE0uMzfgoKiEc5MD15eUaA="
+      },
+      "npu-libNBGlinker": {
+        "path": "npu/usr/lib/libNBGlinker.so",
+        "hash": "sha256-3pO7Sn2Gr2e8TKWX0SIoubIbBiYBsY8zyjA5Oir0qEI="
+      },
+      "npu-vip_lite.h": {
+        "path": "npu/usr/include/vip_lite.h",
+        "hash": "sha256-M/7o+YUhDLNPFLfisGFAluaXJxj4fYEHSXUh1WHZ30E="
+      },
+      "npu-vip_lite_common.h": {
+        "path": "npu/usr/include/vip_lite_common.h",
+        "hash": "sha256-2AchboN23kcp3gdOyxuRzVzKsnnvGFQ6zTrbYbGhUY4="
+      },
+      "npu-vpm_run": {
+        "path": "npu/opt/vpm_run/vpm_run",
+        "hash": "sha256-286jJmBw1RpOCzqsGVQIFNBl83J6YEXuluJflGQ3FAc="
+      },
+      "npu-vpm_run-readme": {
+        "path": "npu/opt/vpm_run/readme.txt",
+        "hash": "sha256-xLBPS7hif4m0b8r4DtWV6mlk9SPr1b0Jan0EglSGrqQ="
+      },
+      "npu-vpm_run-sample": {
+        "path": "npu/opt/vpm_run/sample.txt",
+        "hash": "sha256-1LFwI+kKmVYXNSQOW6TegJDVH5nl1rfdaLkzavtJABc="
+      },
+      "npu-vpm_run-input": {
+        "path": "npu/opt/vpm_run/input_0.dat",
+        "hash": "sha256-04wiwgB9sxRXLJ3f61E6nz0R7Jno3uwPZbyRSBUC8bk="
+      },
+      "npu-vpm_run-network": {
+        "path": "npu/opt/vpm_run/network_binary.nb",
+        "hash": "sha256-/A1Qvchj5N/HTu9trZ00ZVxWDnWaL0JpeaAcUF+puV8="
+      },
+      "npu-yolov5-model": {
+        "path": "npu/opt/yolov5/model/yolov5.nb",
+        "hash": "sha256-bGyyYfQfzHdBNLkNDh8qF2dc1toejxxtK2FGDP1YQVg="
       }
     }
   },

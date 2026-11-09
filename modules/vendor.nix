@@ -22,6 +22,7 @@ let
   firmware = pkgs.callPackage ../vendor/firmware.nix { };
   hciattach = pkgs.callPackage ../vendor/hciattach.nix { };
   media = pkgs.callPackage ../vendor/media.nix { };
+  npu = pkgs.callPackage ../vendor/npu.nix { };
 
   # What systemd and NixOS need from the kernel. DMIID is left out: it needs
   # EFI, which this kernel does not have and the board does not use.
@@ -82,6 +83,15 @@ in
       '';
     };
 
+    npu.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        The NPU runtime (VIPLite: libVIPhal, libNBGlinker, vpm_run) for the
+        aw_nna_vip kernel module, as the manufacturer's image installs it.
+      '';
+    };
+
     usbHost = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -138,6 +148,7 @@ in
         "a733-vendor-aic8800d80-firmware"
         "a733-vendor-hciattach"
         "a733-vendor-media"
+        "a733-vendor-npu"
       ];
 
     hardware.firmware = lib.mkIf (cfg.wifi.enable || cfg.bluetooth.enable) [ firmware ];
@@ -171,7 +182,7 @@ in
       };
     };
 
-    environment.systemPackages = lib.mkIf cfg.video.enable [ media ];
+    environment.systemPackages = lib.optional cfg.video.enable media ++ lib.optional cfg.npu.enable npu;
     environment.pathsToLink = lib.mkIf cfg.video.enable [ "/lib/gstreamer-1.0" ];
     environment.sessionVariables = lib.mkIf cfg.video.enable {
       GST_PLUGIN_PATH_1_0 = [ "/run/current-system/sw/lib/gstreamer-1.0" ];
