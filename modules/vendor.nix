@@ -23,6 +23,15 @@ let
   hciattach = pkgs.callPackage ../vendor/hciattach.nix { };
   media = pkgs.callPackage ../vendor/media.nix { };
   npu = pkgs.callPackage ../vendor/npu.nix { };
+  gpu = pkgs.callPackage ../vendor/gpu.nix { };
+  gpuModule = config.boot.kernelPackages.callPackage ../vendor/gpu-module.nix { };
+  # Only the Vulkan and OpenCL ICD files go to /run/opengl-driver: the
+  # package's own libEGL and libgbm would collide with Mesa's there.
+  gpuIcds = pkgs.runCommand "a733-vendor-gpu-icds" { } ''
+    mkdir -p $out/share/vulkan $out/etc/OpenCL
+    ln -s ${gpu}/share/vulkan/icd.d $out/share/vulkan/icd.d
+    ln -s ${gpu}/etc/OpenCL/vendors $out/etc/OpenCL/vendors
+  '';
 
   # What systemd and NixOS need from the kernel. DMIID is left out: it needs
   # EFI, which this kernel does not have and the board does not use.
@@ -92,6 +101,17 @@ in
       '';
     };
 
+    gpu.enable = lib.mkOption {
+      type = lib.types.bool;
+      # Off until the pvrsrvkm build is proven in CI.
+      default = false;
+      description = ''
+        The PowerVR BXM GPU: the pvrsrvkm module built from the vendor
+        kernel's bsp/modules/gpu, its firmware, and the manufacturer's Vulkan,
+        OpenCL and EGL/GLES drivers, registered through hardware.graphics.
+      '';
+    };
+
     usbHost = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -149,16 +169,28 @@ in
         "a733-vendor-hciattach"
         "a733-vendor-media"
         "a733-vendor-npu"
+        "a733-vendor-gpu"
       ];
 
-    hardware.firmware = lib.mkIf (cfg.wifi.enable || cfg.bluetooth.enable) [ firmware ];
+    hardware.firmware =
+      lib.optional (cfg.wifi.enable || cfg.bluetooth.enable) firmware ++ lib.optional cfg.gpu.enable gpu;
     # NixOS picks zstd from the kernel version, but this kernel is built
     # without CONFIG_FW_LOADER_COMPRESS and cannot load compressed firmware.
     hardware.firmwareCompression = "none";
 
     # MODULES="aic8800_fdrv aic8800_btlpm" in the manufacturer's board config.
     boot.kernelModules =
-      lib.optional cfg.wifi.enable "aic8800_fdrv" ++ lib.optional cfg.bluetooth.enable "aic8800_btlpm";
+      lib.optional cfg.wifi.enable "aic8800_fdrv"
+      ++ lib.optional cfg.bluetooth.enable "aic8800_btlpm"
+      ++ lib.optional cfg.gpu.enable "pvrsrvkm";
+
+    boot.extraModulePackages = lib.mkIf cfg.gpu.enable [ gpuModule ];
+
+    # Vulkan and OpenCL find the ICD files through /run/opengl-driver.
+    hardware.graphics = lib.mkIf cfg.gpu.enable {
+      enable = true;
+      extraPackages = [ gpuIcds ];
+    };
 
     hardware.bluetooth.enable = lib.mkIf cfg.bluetooth.enable (lib.mkDefault true);
 
