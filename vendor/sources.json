@@ -1,5 +1,5 @@
 {
-  "comment": "Phase 3 only: the manufacturer's boot chain and kernel, to prove NixOS boots before moving to mainline. monitor.fex and scp.fex are binaries allowed here temporarily, until the open boot chain replaces them.",
+  "comment": "The manufacturer's boot chain, kernel, firmware and binary drivers, pinned to what Orange Pi ships for the Zero 3W. Binaries are taken as they are: this is the vendor variant, the mainline variants use only official, community or source-built components.",
   "kernel": {
     "owner": "orangepi-xunlong",
     "repo": "linux-orangepi",
@@ -15,7 +15,8 @@
     "branch": "v2018.05-sun60iw2",
     "rev": "b791be842935b27268ae3d00e943a9075495f30a",
     "hash": "sha256-mR7u0eXr78lsL5G8JxgKYLNb5iTlfnoMj0aTrT8R01g=",
-    "defconfig": "sun60iw2p1_t736_defconfig"
+    "defconfig": "sun60iw2p1_t736_defconfig",
+    "version": "2018.05"
   },
   "build": {
     "owner": "orangepi-xunlong",
@@ -61,8 +62,103 @@
       "dragonsecboot": {
         "path": "external/packages/pack-uboot/tools/dragonsecboot",
         "hash": "sha256-5fkHZQSgzN4pxZeLz8NBwcWsAtlHxHuEml6NJkM1RfY="
+      },
+      "hciattach_opi": {
+        "path": "external/packages/blobs/bt/hciattach/hciattach_opi_arm64",
+        "hash": "sha256-Xwwvele3UVawkYXNsPDuF4ZFk68q+GPPJzEVxhXKj1s="
       }
     }
+  },
+  "firmware": {
+    "owner": "orangepi-xunlong",
+    "repo": "firmware",
+    "rev": "dc163b0ed2e0272d9ee31977a0e0a04884f0ae61",
+    "aic8800d80": {
+      "aic_userconfig_8800d80.txt": "sha256-mV27nk8uexnbg4KR9SvjmvmrZzrVGycMmIIWzP8acg4=",
+      "fmacfw_8800d80_h_u02.bin": "sha256-ro1UjflsEyxEX4iLkeq17wPBmZG4ve9PwS6/y/n5U+c=",
+      "fmacfw_8800d80_u02.bin": "sha256-VbWiCGWsp80u2q4XM6NtpF0rCykGC8JD2OnsIS4Tn2w=",
+      "fmacfwbt_8800d80_u02.bin": "sha256-79S/Yi5repK9JkxkvLkAKi4pP4lBt/2JHKTdaRVkjLY=",
+      "fw_adid_8800d80_u02.bin": "sha256-pSbL0C/NxJXwSfOta1kzywjNmEsWeQxxagYNWC/uGlY=",
+      "fw_patch_8800d80_u02.bin": "sha256-StTu3k00fEXtYbI1COeEPciE8OQRv5V/lUEAAdDPxNA=",
+      "fw_patch_table_8800d80_u02.bin": "sha256-X/GEEF/cTEZ54CZBj02ik+/sjfAqOjyiLO5yPBffSmA=",
+      "lmacfw_rf_8800d80_u02.bin": "sha256-Tose+12bspmq+VDWol48px1C4BLUL9PsO0l1nMZLOLI="
+    },
+    "version": "dc163b0"
+  },
+  "packages": {
+    "comment": "Prebuilt arm64 Debian packages the manufacturer installs on the image (sun60iw2_packages branch).",
+    "owner": "orangepi-xunlong",
+    "repo": "rk-rootfs-build",
+    "branch": "sun60iw2_packages",
+    "rev": "7b6d78d4f5eaefd5456777fbea5057a0876e8f4d",
+    "files": {
+      "libcedarc": {
+        "path": "bullseye/libcedarc/libcedarc-dev_2.0.0_arm64.deb",
+        "hash": "sha256-wZGP0JP6NiWCIu4/9Z9ElibPD+2aANTwqv5+24i3Mo0=",
+        "version": "2.0.0"
+      },
+      "libAWIspApi": {
+        "path": "bullseye/libAWIspApi/libAWIspApi_602_1.0.0_arm64.deb",
+        "hash": "sha256-UectLTfZuq0nsHALEu58EXZgFZp68R1LNLJglhi27jE=",
+        "version": "1.0.0"
+      },
+      "gst-omx": {
+        "path": "bullseye/gst-omx-generic1.0/gstreamer1.0-omx-allwinner_1.18.3-1.1_arm64.deb",
+        "hash": "sha256-FKJAhcJ9wrQ/xf0gJtpxegOh9AVOzTacj9NDcplc3KY=",
+        "version": "1.18.3"
+      },
+      "gst-omx-config": {
+        "path": "bullseye/gst-omx-generic1.0/gstreamer1.0-omx-allwinner-config_1.18.3-1.1_arm64.deb",
+        "hash": "sha256-h5khNVp9tHZoIfxnOVsEt/o/gEIRpIWcECCzIFqJ+R0=",
+        "version": "1.18.3"
+      },
+      "npu-libVIPhal": {
+        "path": "npu/usr/lib/libVIPhal.so",
+        "hash": "sha256-ZIREomoa6uwBgsC6NIt6RTE0uMzfgoKiEc5MD15eUaA="
+      },
+      "npu-libNBGlinker": {
+        "path": "npu/usr/lib/libNBGlinker.so",
+        "hash": "sha256-3pO7Sn2Gr2e8TKWX0SIoubIbBiYBsY8zyjA5Oir0qEI="
+      },
+      "npu-vip_lite.h": {
+        "path": "npu/usr/include/vip_lite.h",
+        "hash": "sha256-M/7o+YUhDLNPFLfisGFAluaXJxj4fYEHSXUh1WHZ30E="
+      },
+      "npu-vip_lite_common.h": {
+        "path": "npu/usr/include/vip_lite_common.h",
+        "hash": "sha256-2AchboN23kcp3gdOyxuRzVzKsnnvGFQ6zTrbYbGhUY4="
+      },
+      "npu-vpm_run": {
+        "path": "npu/opt/vpm_run/vpm_run",
+        "hash": "sha256-286jJmBw1RpOCzqsGVQIFNBl83J6YEXuluJflGQ3FAc="
+      },
+      "npu-vpm_run-readme": {
+        "path": "npu/opt/vpm_run/readme.txt",
+        "hash": "sha256-xLBPS7hif4m0b8r4DtWV6mlk9SPr1b0Jan0EglSGrqQ="
+      },
+      "npu-vpm_run-sample": {
+        "path": "npu/opt/vpm_run/sample.txt",
+        "hash": "sha256-1LFwI+kKmVYXNSQOW6TegJDVH5nl1rfdaLkzavtJABc="
+      },
+      "npu-vpm_run-input": {
+        "path": "npu/opt/vpm_run/input_0.dat",
+        "hash": "sha256-04wiwgB9sxRXLJ3f61E6nz0R7Jno3uwPZbyRSBUC8bk="
+      },
+      "npu-vpm_run-network": {
+        "path": "npu/opt/vpm_run/network_binary.nb",
+        "hash": "sha256-/A1Qvchj5N/HTu9trZ00ZVxWDnWaL0JpeaAcUF+puV8="
+      },
+      "npu-yolov5-model": {
+        "path": "npu/opt/yolov5/model/yolov5.nb",
+        "hash": "sha256-bGyyYfQfzHdBNLkNDh8qF2dc1toejxxtK2FGDP1YQVg="
+      },
+      "gpu": {
+        "path": "bullseye/xserver/xserver-xorg-img-bxm_1.21.1-2_arm64.deb",
+        "hash": "sha256-yOYG2xq96kCluX95BeqGkBtQxf4bdqVTVqtw3eMwTDo=",
+        "version": "24.2.6603887"
+      }
+    },
+    "npuVersion": "7b6d78d"
   },
   "sdLayout": {
     "boot0OffsetKiB": 8,

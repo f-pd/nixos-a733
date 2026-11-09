@@ -66,6 +66,19 @@
 
         kernel-vendor = pkgs.callPackage ./vendor/kernel.nix { };
         boot-vendor = pkgs.callPackage ./vendor/boot-package.nix { };
+        # The GPU module and drivers on their own; gpu-vendor is unfree, so
+        # this nixpkgs allows it by name only.
+        gpu-vendor =
+          (import nixpkgs {
+            inherit system;
+            config.allowUnfreePredicate = pkg: nixpkgs.lib.getName pkg == "a733-vendor-gpu";
+          }).callPackage
+            ./vendor/gpu.nix
+            { };
+        gpu-module-vendor =
+          (pkgs.linuxPackagesFor (pkgs.callPackage ./vendor/kernel.nix { })).callPackage
+            ./vendor/gpu-module.nix
+            { };
         sd-image-vendor = self.nixosConfigurations.generic-vendor.config.system.build.sdImage;
       }
       // lib.optionalAttrs (pinned "boot0") {

@@ -7,10 +7,38 @@ TF-A built from source, a NixOS hardware module and an SD image generator.
 This repository is generic: it holds no host configuration. A host imports the
 modules below from its own flake and builds its own image.
 
-> Status: skeleton. The mainline kernel is pinned and evaluates; the A733
-> patches, the device tree and the open boot chain are not in yet. Meanwhile
-> `sd-image-vendor` boots NixOS on the manufacturer's kernel and boot chain:
-> see [vendor/README.md](vendor/README.md).
+> Status: the vendor variant (the manufacturer's kernel, boot chain, firmware
+> and drivers) builds and is published under Releases. The mainline variants
+> are not in yet: the A733 patches, the device tree and the open boot chain
+> are still to come.
+
+## Builds
+
+Component versions in each build, read from the repository. The latest
+release is what `main` holds; `develop` is what the next one will ship.
+
+[![release](https://img.shields.io/github/v/release/f-pd/nixos-a733?label=latest%20release)](https://github.com/f-pd/nixos-a733/releases/latest)
+[![build](https://img.shields.io/github/actions/workflow/status/f-pd/nixos-a733/build.yml?branch=develop&label=develop%20build)](https://github.com/f-pd/nixos-a733/actions/workflows/build.yml)
+
+### Vendor
+
+The manufacturer's kernel, boot chain, firmware and drivers: see [vendor/README.md](vendor/README.md).
+
+| Component | Latest release | develop |
+|-----------|----------------|---------|
+| NixOS | ![nixpkgs](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fmain%2Fflake.lock&query=%24.nodes.nixpkgs.original.ref&label=nixpkgs&color=5277C3) | ![nixpkgs](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fdevelop%2Fflake.lock&query=%24.nodes.nixpkgs.original.ref&label=nixpkgs&color=5277C3) |
+| Kernel | ![linux](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fmain%2Fvendor%2Fsources.json&query=%24.kernel.version&label=linux&color=FCC624) | ![linux](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fdevelop%2Fvendor%2Fsources.json&query=%24.kernel.version&label=linux&color=FCC624) |
+| U-Boot | ![u-boot](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fmain%2Fvendor%2Fsources.json&query=%24%5B%27u-boot%27%5D.version&label=u-boot&color=orange) | ![u-boot](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fdevelop%2Fvendor%2Fsources.json&query=%24%5B%27u-boot%27%5D.version&label=u-boot&color=orange) |
+| Wi-Fi/BT firmware | ![aic8800d80](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fmain%2Fvendor%2Fsources.json&query=%24.firmware.version&label=aic8800d80&color=blue) | ![aic8800d80](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fdevelop%2Fvendor%2Fsources.json&query=%24.firmware.version&label=aic8800d80&color=blue) |
+| Video engine | ![libcedarc](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fmain%2Fvendor%2Fsources.json&query=%24.packages.files.libcedarc.version&label=libcedarc&color=blue) | ![libcedarc](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fdevelop%2Fvendor%2Fsources.json&query=%24.packages.files.libcedarc.version&label=libcedarc&color=blue) |
+| GStreamer OMX | ![gst-omx](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fmain%2Fvendor%2Fsources.json&query=%24.packages.files%5B%27gst-omx%27%5D.version&label=gst-omx&color=blue) | ![gst-omx](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fdevelop%2Fvendor%2Fsources.json&query=%24.packages.files%5B%27gst-omx%27%5D.version&label=gst-omx&color=blue) |
+| Camera ISP | ![libAWIspApi](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fmain%2Fvendor%2Fsources.json&query=%24.packages.files.libAWIspApi.version&label=libAWIspApi&color=blue) | ![libAWIspApi](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fdevelop%2Fvendor%2Fsources.json&query=%24.packages.files.libAWIspApi.version&label=libAWIspApi&color=blue) |
+| NPU runtime | ![viplite](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fmain%2Fvendor%2Fsources.json&query=%24.packages.npuVersion&label=viplite&color=blue) | ![viplite](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fdevelop%2Fvendor%2Fsources.json&query=%24.packages.npuVersion&label=viplite&color=blue) |
+| GPU drivers | ![powervr](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fmain%2Fvendor%2Fsources.json&query=%24.packages.files.gpu.version&label=powervr&color=blue) | ![powervr](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Ff-pd%2Fnixos-a733%2Fdevelop%2Fvendor%2Fsources.json&query=%24.packages.files.gpu.version&label=powervr&color=blue) |
+
+### Mainline
+
+Latest LTS and latest stable kernel.org kernels with the A733 patches: not available yet.
 
 ## Layout
 
@@ -21,7 +49,7 @@ modules below from its own flake and builds its own image.
 | `bootloader/` | boot0, TF-A and U-Boot, pinned in `sources.json` |
 | `modules/` | `hardware.nix` (kernel, console, device tree) and `sd-image.nix` |
 | `images/` | the generic image configuration |
-| `vendor/` | phase 3 only: the manufacturer's kernel, U-Boot and boot blobs |
+| `vendor/` | the vendor variant: the manufacturer's kernel, U-Boot, firmware and drivers; their files are copied in `vendor/blobs/`, with their origin |
 | `ci/` | scripts used by the workflows |
 
 ## Flake outputs
@@ -96,8 +124,8 @@ Ready SD images are on the
 [Releases](https://github.com/f-pd/nixos-a733/releases) page. To write one:
 
 ```
-sha256sum -c nixos-a733-vendor-v0.1.0.img.zst.sha256
-zstd -dc nixos-a733-vendor-v0.1.0.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
+sha256sum -c nixos-a733-vendor-v0.2.0.img.zst.sha256
+zstd -dc nixos-a733-vendor-v0.2.0.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
 ```
 
 Builds of `develop` also keep the image as a workflow artifact for 30 days.

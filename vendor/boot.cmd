@@ -15,4 +15,6 @@ load ${devtype} ${devnum}:${distro_bootpart} ${fdt_addr_r} ${prefix}nixos/dtbs/@
 fdt addr ${fdt_addr_r}
 fdt resize 65536
 
+@overlays@
+
 bootm ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}

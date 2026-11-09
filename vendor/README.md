@@ -1,9 +1,10 @@
-# Manufacturer boot chain (phase 3)
+# Vendor variant
 
-Temporary: boots NixOS on the Orange Pi kernel and boot chain, built from the
-Orange Pi sources, to prove NixOS itself works on the board before moving to
-the mainline kernel and the open boot chain. The whole directory goes away
-once that is done.
+NixOS on what Orange Pi ships for the Zero 3W: their kernel, boot chain,
+firmware and drivers, matching their Debian image. Their binaries are taken as
+they are here. The mainline variants, latest LTS and latest stable, must reach
+the same hardware support with official, community or source-built components
+only.
 
 Everything is pinned in `sources.json`:
 
@@ -15,6 +16,30 @@ Everything is pinned in `sources.json`:
 | BL31 | `orangepi-build`, `monitor.fex` | no, binary |
 | SCP firmware | `orangepi-build`, `scp.fex` | no, binary |
 | Packing tools | `orangepi-build`, `script`, `update_dtb`, `update_uboot`, `dragonsecboot` | no, static x86-64 binaries, run under qemu-user elsewhere |
+| AIC8800D80 Wi-Fi and Bluetooth firmware | `orangepi-xunlong/firmware`, `aic8800d80/` | no, binary |
+| `hciattach_opi` | `orangepi-build`, `blobs/bt/hciattach/hciattach_opi_arm64` | no, arm64 binary |
+| libcedarc, libAWIspApi, gst-omx | `orangepi-xunlong/rk-rootfs-build`, branch `sun60iw2_packages` | no, arm64 Debian packages |
+| NPU runtime (VIPLite) | same branch, `npu/` | no, arm64 binaries |
+| PowerVR BXM user space and firmware | same branch, `xserver-xorg-img-bxm` | no, arm64 Debian package |
+| `pvrsrvkm` GPU module | the kernel's `bsp/modules/gpu/img-bxm` | yes |
+
+## Hardware options
+
+All under `hardware.a733.vendor`, on by default unless noted:
+
+| Option | What it does | Manufacturer equivalent |
+|--------|--------------|-------------------------|
+| `wifi.enable` | AIC8800 firmware, `aic8800_fdrv` | `MODULES=` in the board config |
+| `bluetooth.enable` | `aic8800_btlpm`, wakes the core and runs `hciattach_opi -n -s 1500000 /dev/ttyS1 aic`, BlueZ | `orangepi-hardware-optimization` |
+| `video.enable` | Cedar video engine (`libcedarc`: decoders, H.264 and H.265 encoders, OpenMAX), camera ISP library, GStreamer `omx` plugin, `/etc/cedarc.conf`, device permissions | `libcedarc`, `libAWIspApi`, `gst-omx` packages and `99-t527-permissions.rules` |
+| `npu.enable` | NPU runtime `libVIPhal`, `libNBGlinker`, headers, `vpm_run` with its sample and the YOLOv5 model, for the `aw_nna_vip` module | `npu/` of `sun60iw2_packages`; their `yolov5` demo is left out, it links Debian's OpenCV 4.5 |
+| `gpu.enable` | `pvrsrvkm` built from the kernel tree, GPU firmware, Vulkan (`libVK_IMG`) and OpenCL (`libPVROCL`) ICDs through `hardware.graphics`; their EGL/GLES Mesa fork stays in the package, outside `/run/opengl-driver` | `pvrsrvkm` built by `orangepi-build`, `xserver-xorg-img-bxm`, `img_icd.json`, `pvr.icd`. |
+| `usbHost` | USB-C in host mode | `orangepi-hardware-optimization` |
+| `overlays` (default none) | device tree overlays applied by U-Boot, e.g. `[ "uart2" "i2c1" ]` | `overlays=` in `orangepiEnv.txt` |
+
+The kernel command line adds the manufacturer's `swiotlb=65536` and
+`consoleblank=0`. Firmware is installed uncompressed: this kernel has no
+`CONFIG_FW_LOADER_COMPRESS`.
 
 `kernel/sun60iw2-a733.config` is the manufacturer's
 `linux-sun60iw2-current-a733.config` with what systemd needs turned on:
