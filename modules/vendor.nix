@@ -17,7 +17,10 @@ let
   bootPackage = pkgs.callPackage ../vendor/boot-package.nix { };
   installBoot = pkgs.callPackage ../vendor/install-boot.nix {
     inherit (sources.kernel) deviceTree;
+    inherit (cfg) overlays;
   };
+  firmware = pkgs.callPackage ../vendor/firmware.nix { };
+  hciattach = pkgs.callPackage ../vendor/hciattach.nix { };
 
   # What systemd and NixOS need from the kernel. DMIID is left out: it needs
   # EFI, which this kernel does not have and the board does not use.
@@ -44,10 +47,54 @@ let
   ];
 in
 {
-  options.hardware.a733.vendor.enable = lib.mkEnableOption ''
-    the manufacturer's 6.6 kernel, U-Boot 2018.05 and boot blobs, built from
-    the Orange Pi sources pinned in vendor/sources.json
-  '';
+  options.hardware.a733.vendor = {
+    enable = lib.mkEnableOption ''
+      the manufacturer's 6.6 kernel, U-Boot 2018.05, boot blobs, firmware and
+      drivers, pinned in vendor/sources.json
+    '';
+
+    wifi.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "AIC8800 Wi-Fi: its firmware and the aic8800_fdrv driver.";
+    };
+
+    bluetooth.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        AIC8800 Bluetooth on ttyS1, attached at boot the way the
+        manufacturer's orangepi-hardware-optimization does it, with BlueZ.
+      '';
+    };
+
+    usbHost = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Put the USB-C port in host mode at boot, as the manufacturer's image
+        does. Off leaves the controller in its default OTG role.
+      '';
+    };
+
+    overlays = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      example = [
+        "uart2"
+        "i2c1"
+        "spi3-cs0-cs1-spidev"
+        "pwm1"
+      ];
+      description = ''
+        Device tree overlays applied by U-Boot at boot, by name without the
+        sun60i-a733- prefix: the overlays= setting of the manufacturer's
+        orangepiEnv.txt. They come from the kernel's
+        arch/arm64/boot/dts/allwinner/overlay; a name that does not exist
+        fails the boot loader installation.
+      '';
+    };
+  };
 
   config = lib.mkIf cfg.enable {
     hardware.a733.kernel = kernel;
@@ -58,12 +105,67 @@ in
     system.build.installBootLoader = "${lib.getExe installBoot}";
     system.boot.loader.id = "a733-vendor";
 
+    # From the manufacturer's boot-sun60iw2.cmd. Its cgroup_enable and
+    # swapaccount flags are left out: they only mean something on cgroup v1.
     boot.kernelParams = [
-      # Early output on UART0, as the manufacturer's boot script sets it.
+      # Early output on UART0.
       "earlyprintk=sunxi-uart,0x02500000"
       # The manufacturer's drivers expect clocks nobody claims to stay on.
       "clk_ignore_unused"
+      # The DMA bounce buffer size their drivers are tuned for.
+      "swiotlb=65536"
+      "consoleblank=0"
     ];
+
+    # Only the manufacturer's binaries this module installs, by name.
+    nixpkgs.config.allowUnfreePredicate =
+      pkg:
+      builtins.elem (lib.getName pkg) [
+        "a733-vendor-aic8800d80-firmware"
+        "a733-vendor-hciattach"
+      ];
+
+    hardware.firmware = lib.mkIf (cfg.wifi.enable || cfg.bluetooth.enable) [ firmware ];
+    # NixOS picks zstd from the kernel version, but this kernel is built
+    # without CONFIG_FW_LOADER_COMPRESS and cannot load compressed firmware.
+    hardware.firmwareCompression = "none";
+
+    # MODULES="aic8800_fdrv aic8800_btlpm" in the manufacturer's board config.
+    boot.kernelModules =
+      lib.optional cfg.wifi.enable "aic8800_fdrv" ++ lib.optional cfg.bluetooth.enable "aic8800_btlpm";
+
+    hardware.bluetooth.enable = lib.mkIf cfg.bluetooth.enable (lib.mkDefault true);
+
+    systemd.services.a733-bluetooth = lib.mkIf cfg.bluetooth.enable {
+      description = "Attach the AIC8800 Bluetooth core on ttyS1";
+      wantedBy = [ "bluetooth.target" ];
+      before = [ "bluetooth.service" ];
+      after = [ "systemd-modules-load.service" ];
+      # aic8800_btlpm creates btwrite; writing 1 wakes the Bluetooth core.
+      preStart = ''
+        for _ in $(seq 30); do
+          [ -e /proc/bluetooth/sleep/btwrite ] && break
+          sleep 1
+        done
+        echo 1 > /proc/bluetooth/sleep/btwrite
+      '';
+      serviceConfig = {
+        ExecStart = "${lib.getExe hciattach} -n -s 1500000 /dev/ttyS1 aic";
+        Restart = "on-failure";
+        RestartSec = 5;
+      };
+    };
+
+    systemd.services.a733-usb-host = lib.mkIf cfg.usbHost {
+      description = "Put the USB-C port in host mode";
+      wantedBy = [ "multi-user.target" ];
+      unitConfig.ConditionPathExists = "/sys/devices/platform/soc@3000000/10.usbc0/otg_role";
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${pkgs.runtimeShell} -c 'echo usb_host > /sys/devices/platform/soc@3000000/10.usbc0/otg_role'";
+      };
+    };
 
     # The NixOS default initrd modules assume a distribution kernel: this one
     # builds what the board needs into the image and lacks the rest (dm_mod).
@@ -88,7 +190,14 @@ in
       ${lib.getExe installBoot} ${config.system.build.toplevel} ./files/boot
     '';
 
-    assertions = map (option: {
+    assertions = [
+      {
+        assertion =
+          config.hardware.firmwareCompression == "none" || kernel.config.isEnabled "FW_LOADER_COMPRESS";
+        message = "vendor kernel: compressed firmware needs CONFIG_FW_LOADER_COMPRESS";
+      }
+    ]
+    ++ map (option: {
       assertion = kernel.config.isEnabled option;
       message = "vendor kernel: CONFIG_${option} must be enabled in vendor/kernel/sun60iw2-a733.config";
     }) required;
