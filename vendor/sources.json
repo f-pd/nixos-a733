@@ -83,6 +83,31 @@
       "lmacfw_rf_8800d80_u02.bin": "sha256-Tose+12bspmq+VDWol48px1C4BLUL9PsO0l1nMZLOLI="
     }
   },
+  "packages": {
+    "comment": "Prebuilt arm64 Debian packages the manufacturer installs on the image (sun60iw2_packages branch).",
+    "owner": "orangepi-xunlong",
+    "repo": "rk-rootfs-build",
+    "branch": "sun60iw2_packages",
+    "rev": "7b6d78d4f5eaefd5456777fbea5057a0876e8f4d",
+    "files": {
+      "libcedarc": {
+        "path": "bullseye/libcedarc/libcedarc-dev_2.0.0_arm64.deb",
+        "hash": "sha256-wZGP0JP6NiWCIu4/9Z9ElibPD+2aANTwqv5+24i3Mo0="
+      },
+      "libAWIspApi": {
+        "path": "bullseye/libAWIspApi/libAWIspApi_602_1.0.0_arm64.deb",
+        "hash": "sha256-UectLTfZuq0nsHALEu58EXZgFZp68R1LNLJglhi27jE="
+      },
+      "gst-omx": {
+        "path": "bullseye/gst-omx-generic1.0/gstreamer1.0-omx-allwinner_1.18.3-1.1_arm64.deb",
+        "hash": "sha256-FKJAhcJ9wrQ/xf0gJtpxegOh9AVOzTacj9NDcplc3KY="
+      },
+      "gst-omx-config": {
+        "path": "bullseye/gst-omx-generic1.0/gstreamer1.0-omx-allwinner-config_1.18.3-1.1_arm64.deb",
+        "hash": "sha256-h5khNVp9tHZoIfxnOVsEt/o/gEIRpIWcECCzIFqJ+R0="
+      }
+    }
+  },
   "sdLayout": {
     "boot0OffsetKiB": 8,
     "bootPackageOffsetKiB": 16400
