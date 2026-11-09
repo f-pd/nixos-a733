@@ -124,8 +124,8 @@ Ready SD images are on the
 [Releases](https://github.com/f-pd/nixos-a733/releases) page. To write one:
 
 ```
-sha256sum -c nixos-a733-vendor-v0.1.0.img.zst.sha256
-zstd -dc nixos-a733-vendor-v0.1.0.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
+sha256sum -c nixos-a733-vendor-v0.2.0.img.zst.sha256
+zstd -dc nixos-a733-vendor-v0.2.0.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
 ```
 
 Builds of `develop` also keep the image as a workflow artifact for 30 days.
