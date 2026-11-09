@@ -15,7 +15,8 @@
     "branch": "v2018.05-sun60iw2",
     "rev": "b791be842935b27268ae3d00e943a9075495f30a",
     "hash": "sha256-mR7u0eXr78lsL5G8JxgKYLNb5iTlfnoMj0aTrT8R01g=",
-    "defconfig": "sun60iw2p1_t736_defconfig"
+    "defconfig": "sun60iw2p1_t736_defconfig",
+    "version": "2018.05"
   },
   "build": {
     "owner": "orangepi-xunlong",
@@ -81,7 +82,8 @@
       "fw_patch_8800d80_u02.bin": "sha256-StTu3k00fEXtYbI1COeEPciE8OQRv5V/lUEAAdDPxNA=",
       "fw_patch_table_8800d80_u02.bin": "sha256-X/GEEF/cTEZ54CZBj02ik+/sjfAqOjyiLO5yPBffSmA=",
       "lmacfw_rf_8800d80_u02.bin": "sha256-Tose+12bspmq+VDWol48px1C4BLUL9PsO0l1nMZLOLI="
-    }
+    },
+    "version": "dc163b0"
   },
   "packages": {
     "comment": "Prebuilt arm64 Debian packages the manufacturer installs on the image (sun60iw2_packages branch).",
@@ -92,19 +94,23 @@
     "files": {
       "libcedarc": {
         "path": "bullseye/libcedarc/libcedarc-dev_2.0.0_arm64.deb",
-        "hash": "sha256-wZGP0JP6NiWCIu4/9Z9ElibPD+2aANTwqv5+24i3Mo0="
+        "hash": "sha256-wZGP0JP6NiWCIu4/9Z9ElibPD+2aANTwqv5+24i3Mo0=",
+        "version": "2.0.0"
       },
       "libAWIspApi": {
         "path": "bullseye/libAWIspApi/libAWIspApi_602_1.0.0_arm64.deb",
-        "hash": "sha256-UectLTfZuq0nsHALEu58EXZgFZp68R1LNLJglhi27jE="
+        "hash": "sha256-UectLTfZuq0nsHALEu58EXZgFZp68R1LNLJglhi27jE=",
+        "version": "1.0.0"
       },
       "gst-omx": {
         "path": "bullseye/gst-omx-generic1.0/gstreamer1.0-omx-allwinner_1.18.3-1.1_arm64.deb",
-        "hash": "sha256-FKJAhcJ9wrQ/xf0gJtpxegOh9AVOzTacj9NDcplc3KY="
+        "hash": "sha256-FKJAhcJ9wrQ/xf0gJtpxegOh9AVOzTacj9NDcplc3KY=",
+        "version": "1.18.3"
       },
       "gst-omx-config": {
         "path": "bullseye/gst-omx-generic1.0/gstreamer1.0-omx-allwinner-config_1.18.3-1.1_arm64.deb",
-        "hash": "sha256-h5khNVp9tHZoIfxnOVsEt/o/gEIRpIWcECCzIFqJ+R0="
+        "hash": "sha256-h5khNVp9tHZoIfxnOVsEt/o/gEIRpIWcECCzIFqJ+R0=",
+        "version": "1.18.3"
       },
       "npu-libVIPhal": {
         "path": "npu/usr/lib/libVIPhal.so",
@@ -148,9 +154,11 @@
       },
       "gpu": {
         "path": "bullseye/xserver/xserver-xorg-img-bxm_1.21.1-2_arm64.deb",
-        "hash": "sha256-yOYG2xq96kCluX95BeqGkBtQxf4bdqVTVqtw3eMwTDo="
+        "hash": "sha256-yOYG2xq96kCluX95BeqGkBtQxf4bdqVTVqtw3eMwTDo=",
+        "version": "24.2.6603887"
       }
-    }
+    },
+    "npuVersion": "7b6d78d"
   },
   "sdLayout": {
     "boot0OffsetKiB": 8,

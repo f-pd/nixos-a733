@@ -1,14 +1,13 @@
-# The files used from orangepi-build, each fetched at the pinned commit and
-# checked against its own hash.
-{ lib, fetchurl }:
+# The files used from orangepi-build, kept in vendor/blobs/orangepi-build at
+# the paths they have in that repository at the pinned commit.
+{ lib }:
 let
   build = (lib.importJSON ./sources.json).build;
 in
 lib.mapAttrs (
   name: file:
-  fetchurl {
-    name = "a733-vendor-${baseNameOf file.path}";
-    url = "https://raw.githubusercontent.com/${build.owner}/${build.repo}/${build.rev}/${file.path}";
-    inherit (file) hash;
+  import ./blob.nix {
+    repo = build.repo;
+    inherit (file) path hash;
   }
 ) build.files

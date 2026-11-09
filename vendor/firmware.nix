@@ -1,20 +1,21 @@
 # Firmware for the AIC8800D80 Wi-Fi and Bluetooth chip on the Zero 3W, from
-# the manufacturer's firmware repository at the pinned commit. The drivers
+# the manufacturer's firmware repository at the pinned commit, kept in
+# vendor/blobs/firmware/aic8800d80. The drivers
 # load it with request_firmware as aic8800d80/<file>, so it goes in
 # hardware.firmware.
 {
   lib,
   stdenvNoCC,
-  fetchurl,
 }:
 let
   src = (lib.importJSON ./sources.json).firmware;
 
   fetch =
     name: hash:
-    fetchurl {
+    import ./blob.nix {
+      repo = src.repo;
+      path = "aic8800d80/${name}";
       name = "a733-vendor-aic8800d80-${name}";
-      url = "https://raw.githubusercontent.com/${src.owner}/${src.repo}/${src.rev}/aic8800d80/${name}";
       inherit hash;
     };
 in
