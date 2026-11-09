@@ -8,6 +8,7 @@
   kernel,
   python3,
   perl,
+  which,
 }:
 let
   kdir = "${kernel.dev}/lib/modules/${kernel.modDirVersion}/build";
@@ -17,9 +18,11 @@ stdenv.mkDerivation {
   pname = "a733-vendor-pvrsrvkm";
   inherit (kernel) version src;
 
+  # which: the DDK finds echo and python3 through it.
   nativeBuildInputs = kernel.moduleBuildDependencies ++ [
     python3
     perl
+    which
   ];
 
   hardeningDisable = [
@@ -32,8 +35,13 @@ stdenv.mkDerivation {
     sourceRoot="$sourceRoot/bsp/modules/gpu"
   '';
 
+  # The DDK's kbuild Makefile declares every target .SECONDARY, which make
+  # 4.4 refuses next to the kernel's .NOTINTERMEDIATE: the kernel already
+  # keeps those files, so the line only has to go.
   postPatch = ''
     patchShebangs .
+    substituteInPlace img-bxm/linux/rogue_km/build/linux/kbuild/Makefile.template \
+      --replace-fail $'\n.SECONDARY:\n' $'\n'
   '';
 
   dontConfigure = true;
