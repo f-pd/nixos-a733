@@ -145,6 +145,10 @@
       "npu-yolov5-model": {
         "path": "npu/opt/yolov5/model/yolov5.nb",
         "hash": "sha256-bGyyYfQfzHdBNLkNDh8qF2dc1toejxxtK2FGDP1YQVg="
+      },
+      "gpu": {
+        "path": "bullseye/xserver/xserver-xorg-img-bxm_1.21.1-2_arm64.deb",
+        "hash": "sha256-yOYG2xq96kCluX95BeqGkBtQxf4bdqVTVqtw3eMwTDo="
       }
     }
   },

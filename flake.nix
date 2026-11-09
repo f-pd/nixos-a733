@@ -66,6 +66,13 @@
 
         kernel-vendor = pkgs.callPackage ./vendor/kernel.nix { };
         boot-vendor = pkgs.callPackage ./vendor/boot-package.nix { };
+        # Built on their own in CI while hardware.a733.vendor.gpu is off by
+        # default. gpu-vendor is unfree: NIXPKGS_ALLOW_UNFREE=1 --impure.
+        gpu-vendor = pkgs.callPackage ./vendor/gpu.nix { };
+        gpu-module-vendor =
+          (pkgs.linuxPackagesFor (pkgs.callPackage ./vendor/kernel.nix { })).callPackage
+            ./vendor/gpu-module.nix
+            { };
         sd-image-vendor = self.nixosConfigurations.generic-vendor.config.system.build.sdImage;
       }
       // lib.optionalAttrs (pinned "boot0") {

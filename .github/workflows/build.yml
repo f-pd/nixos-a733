@@ -127,6 +127,15 @@ jobs:
             nixos-a733-vendor.img.zst.sha256
           retention-days: 30
 
+      # Not in the image yet (hardware.a733.vendor.gpu is off by default):
+      # built after the image so a failure here still leaves the artifact.
+      - name: Build GPU module and drivers
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
+        run: |
+          nix build -L .#gpu-module-vendor
+          nix build -L --impure .#gpu-vendor
+
       - name: Open an issue on failure
         if: failure()
         env:
