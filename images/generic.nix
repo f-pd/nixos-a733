@@ -13,5 +13,9 @@
 
   documentation.enable = false;
 
+  # Boot logs on the FAT partition: the image is often tried without a serial
+  # adapter, and this is then the only way to see how far it got.
+  hardware.a733.bootLog.enable = true;
+
   system.stateVersion = lib.trivial.release;
 }

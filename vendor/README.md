@@ -63,8 +63,13 @@ that fails the build instead of running until the CI job times out.
 |--------|---------|
 | 8 KiB | boot0 |
 | 16400 KiB | boot_package: U-Boot, BL31, SCP |
-| 32 MiB | FAT partition, unused |
+| 32 MiB | FAT partition: boot logs only, see the main README |
 | after it | root partition, ext4, marked bootable |
+
+The root file system is made without the `64bit`, `metadata_csum`,
+`metadata_csum_seed` and `orphan_file` features (`mke2fs.conf`): Orange Pi
+formats its images with `-O ^64bit,^metadata_csum` for this U-Boot, and the
+later features are newer still.
 
 The manufacturer's U-Boot runs in 32-bit mode and does not boot an arm64
 kernel from `extlinux.conf`, so `/boot/boot.scr` loads `/boot/nixos/uImage`,
@@ -79,4 +84,5 @@ zstd -dc result/sd-image/*.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status
 ```
 
 Then connect to UART0 (pin 6 ground, pin 8 TX, pin 10 RX, 115200 baud) and
-log in as root with an empty password.
+log in as root with an empty password. Without a serial adapter, the boot
+logs on the FAT partition say how far it got (see the main README).

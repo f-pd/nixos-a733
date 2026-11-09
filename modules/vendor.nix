@@ -5,6 +5,7 @@
 # boots on the board before the kernel is swapped for mainline.
 {
   config,
+  options,
   lib,
   pkgs,
   ...
@@ -263,6 +264,12 @@ in
         offsetKiB = sources.sdLayout.bootPackageOffsetKiB;
       }
     ];
+
+    # The root file system in the format the manufacturer's U-Boot is known to
+    # read: no 64bit, no metadata checksums (vendor/mke2fs.conf).
+    sdImage.rootFilesystemImage = options.sdImage.rootFilesystemImage.default.overrideAttrs {
+      MKE2FS_CONFIG = ../vendor/mke2fs.conf;
+    };
 
     sdImage.populateRootCommands = lib.mkForce ''
       mkdir -p ./files/boot
