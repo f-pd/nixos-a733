@@ -18,7 +18,6 @@ permissions:
 
 env:
   TOOLCHAIN: gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabi
-  TOOLCHAIN_URL: https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/arm-linux-gnueabi/gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabi.tar.xz
 
 jobs:
   image:
@@ -33,8 +32,23 @@ jobs:
           sudo apt-get install -y -q bison flex bc libssl-dev dos2unix zstd jq xxd
 
       - name: Fetch the Linaro toolchain
+        # releases.linaro.org is retired. The Armbian mirrors are where
+        # orangepi-build downloads its toolchains from; Linaro's own archive
+        # bucket is the last resort.
         run: |
-          curl -fsSL -o toolchain.tar.xz "$TOOLCHAIN_URL"
+          for url in \
+            "https://dl.armbian.com/_toolchain/$TOOLCHAIN.tar.xz" \
+            "https://mirrors.tuna.tsinghua.edu.cn/armbian-releases/_toolchain/$TOOLCHAIN.tar.xz" \
+            "https://mirrors.bfsu.edu.cn/armbian-releases/_toolchain/$TOOLCHAIN.tar.xz" \
+            "https://publishing-ie-linaro-org.s3.amazonaws.com/releases/components/toolchain/binaries/7.4-2019.02/arm-linux-gnueabi/$TOOLCHAIN.tar.xz"
+          do
+            echo "trying $url"
+            if curl -fsSL --retry 3 -o toolchain.tar.xz "$url" && xz -t toolchain.tar.xz; then
+              break
+            fi
+            rm -f toolchain.tar.xz
+          done
+          [ -f toolchain.tar.xz ] || { echo "no mirror served $TOOLCHAIN" >&2; exit 1; }
           sha256sum toolchain.tar.xz
           mkdir -p toolchain
           tar -xJf toolchain.tar.xz -C toolchain --strip-components=1
