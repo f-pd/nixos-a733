@@ -112,7 +112,7 @@ public key:  nixos-a733.cachix.org-1:rMgMVYYwVjmvg4b8FX59uavFlLCqP0YuR6O8NXgqcWY
 |----------|------|------|
 | `ci` | every push and pull request | evaluates the flake, checks formatting, builds nothing |
 | `build` | push to `main` or `develop` touching the build, or by hand | builds the vendor image (kept as an artifact) and, once base patches exist, the mainline kernel and image, on native ARM runners, pushing to Cachix |
-| `release` | push to `main` | publishes the version in `VERSION` as a GitHub Release, tag `v<VERSION>`, with the vendor SD image and its checksum; skips versions already released |
+| `release` | push to `main`, or by hand on `develop` | on `main`, publishes the version in `VERSION` as a GitHub Release, tag `v<VERSION>`, with the vendor SD image and its checksum, and skips versions already released; on `develop`, publishes a pre-release `v<next minor>-dev.<run>` to try on the board, never marked as latest |
 | `kernel-bump` | nightly and by hand | pins a new kernel.org stable release on `develop` and starts `build` |
 
 A base patch that no longer applies fails the build and opens an issue. An
@@ -129,7 +129,9 @@ sha256sum -c nixos-a733-vendor-v0.2.0.img.zst.sha256
 zstd -dc nixos-a733-vendor-v0.2.0.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
 ```
 
-Builds of `develop` also keep the image as a workflow artifact for 30 days.
+Pre-releases (`v<x.y.z>-dev.<n>`) are images from `develop`, published to be
+tried on the board before a release. Builds of `develop` also keep the image
+as a workflow artifact for 30 days.
 
 ## Serial console
 
