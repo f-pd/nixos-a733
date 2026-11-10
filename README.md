@@ -113,6 +113,7 @@ public key:  nixos-a733.cachix.org-1:rMgMVYYwVjmvg4b8FX59uavFlLCqP0YuR6O8NXgqcWY
 | `ci` | every push and pull request | evaluates the flake, checks formatting, builds nothing |
 | `build` | push to `main` or `develop` touching the build, or by hand | builds the vendor image (kept as an artifact) and, once base patches exist, the mainline kernel and image, on native ARM runners, pushing to Cachix |
 | `release` | push to `main`, or by hand on `develop` | on `main`, publishes the version in `VERSION` as a GitHub Release, tag `v<VERSION>`, with the vendor SD image and its checksum, and skips versions already released; on `develop`, publishes a pre-release `v<next minor>-dev.<run>` to try on the board, never marked as latest |
+| `vendor-uboot-linaro` | by hand, or when it changes on `develop` | boot test: the manufacturer's U-Boot built as orangepi-build does (Linaro GCC 7.4.1, x86-64 host), written into the latest `develop` pre-release image and published as `<tag>-linaro-uboot` |
 | `kernel-bump` | nightly and by hand | pins a new kernel.org stable release on `develop` and starts `build` |
 
 A base patch that no longer applies fails the build and opens an issue. An
