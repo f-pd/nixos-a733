@@ -11,7 +11,7 @@ Everything is pinned in `sources.json`:
 | Piece | Source | Built from source |
 |-------|--------|-------------------|
 | Kernel 6.6.98 | `orangepi-xunlong/linux-orangepi`, branch `orange-pi-6.6-sun60iw2` | yes |
-| U-Boot 2018.05 | `orangepi-xunlong/u-boot-orangepi`, branch `v2018.05-sun60iw2` | yes, 32-bit |
+| U-Boot 2018.05 | `orangepi-xunlong/u-boot-orangepi`, branch `v2018.05-sun60iw2` | yes, 32-bit, with the compiler orangepi-build uses (Linaro GCC 7.4.1, x86-64 only: on aarch64 it comes from the binary cache or builds under emulation); built with the nixpkgs GCC it hangs on the board |
 | boot0 | `orangepi-build`, `boot0_sdcard_orangepizero3w.fex` | no, binary |
 | BL31 | `orangepi-build`, `monitor.fex` | no, binary |
 | SCP firmware | `orangepi-build`, `scp.fex` | no, binary |

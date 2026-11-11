@@ -53,8 +53,15 @@ jobs:
             echo "new=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # The manufacturer's U-Boot is built with an x86-64 compiler.
+      - uses: docker/setup-qemu-action@v3
+        if: steps.version.outputs.new == 'true'
+        with:
+          platforms: amd64
       - uses: cachix/install-nix-action@v31
         if: steps.version.outputs.new == 'true'
+        with:
+          extra_nix_config: extra-platforms = x86_64-linux
       - uses: cachix/cachix-action@v17
         if: steps.version.outputs.new == 'true'
         with:

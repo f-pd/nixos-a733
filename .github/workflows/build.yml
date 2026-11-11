@@ -101,7 +101,13 @@ jobs:
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v7
+      # The manufacturer's U-Boot is built with an x86-64 compiler.
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: amd64
       - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: extra-platforms = x86_64-linux
       - uses: cachix/cachix-action@v17
         with:
           name: nixos-a733
