@@ -12,8 +12,6 @@
 {
   lib,
   path,
-  fetchFromGitHub,
-  fetchurl,
 }:
 let
   src = (lib.importJSON ./sources.json).u-boot;
@@ -22,6 +20,12 @@ let
 
   tarball = "gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabi.tar.xz";
 
+  # What the compiler's programs load besides glibc.
+  linaroLibs = lib.makeLibraryPath [
+    x86.stdenv.cc.cc.lib
+    x86.zlib
+  ];
+
   linaro = x86.stdenvNoCC.mkDerivation {
     pname = "gcc-linaro-arm-linux-gnueabi";
     version = "7.4.1-2019.02";
@@ -29,7 +33,7 @@ let
     # releases.linaro.org is retired. The Armbian mirrors are where
     # orangepi-build downloads its toolchains from; Linaro's own archive
     # bucket is the last resort.
-    src = fetchurl {
+    src = x86.fetchurl {
       urls = [
         "https://dl.armbian.com/_toolchain/${tarball}"
         "https://mirrors.tuna.tsinghua.edu.cn/armbian-releases/_toolchain/${tarball}"
@@ -39,21 +43,32 @@ let
       hash = "sha256-Qsyy7ZnWW3CQSZ5vWtZcTJSua9Ai3s/qEC1QEJVXx9I=";
     };
 
-    nativeBuildInputs = [ x86.autoPatchelfHook ];
-    buildInputs = [
-      x86.stdenv.cc.cc.lib
-      x86.zlib
-    ];
-
     # The tree also holds the ARM target libraries: leave them as they are.
     dontStrip = true;
+    dontPatchELF = true;
 
+    # cc1 dies with a segmentation fault once patchelf has rewritten it, so
+    # the programs stay untouched and a wrapper starts each one through the
+    # nixpkgs dynamic linker.
     installPhase = ''
       runHook preInstall
       mkdir -p $out
       cp -r . $out
       # gdb is the only program that needs Python 2 and ncurses 5.
       rm $out/bin/arm-linux-gnueabi-gdb
+
+      find $out -type f -perm -u+x | while IFS= read -r f; do
+        # x86-64 executables only: ELF magic, e_type 2 (ET_EXEC), e_machine 0x3e.
+        [ "$(od -An -tx1 -N20 "$f" | tr -d ' \n' | cut -c1-8,33-40)" = 7f454c4602003e00 ] || continue
+        mv "$f" "$f.real"
+        printf '#!%s\nexec %s --argv0 "$0" --library-path %s %s.real "$@"\n' \
+          ${x86.runtimeShell} ${x86.stdenv.cc.bintools.dynamicLinker} ${linaroLibs} "$f" > "$f"
+        chmod +x "$f"
+      done
+
+      # The check the build relies on: the wrapped compiler compiles and links.
+      echo 'int main(void) { return 0; }' > check.c
+      $out/bin/arm-linux-gnueabi-gcc check.c -o check
       runHook postInstall
     '';
 
@@ -75,7 +90,7 @@ in
   inherit (src) defconfig;
   version = "2018.05-sun60iw2-${builtins.substring 0 7 src.rev}";
 
-  src = fetchFromGitHub {
+  src = x86.fetchFromGitHub {
     inherit (src)
       owner
       repo
