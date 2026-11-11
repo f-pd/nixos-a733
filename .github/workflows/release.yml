@@ -5,6 +5,10 @@ name: release
 # the Releases page instead of a workflow run. A version that is already
 # released is skipped. The kernel and boot chain come from the Cachix cache
 # filled by the build workflow, so mostly the image itself is assembled here.
+#
+# Started by hand on develop, it publishes a pre-release of the next minor
+# version instead, tag v<next>-dev.<run number>: an image to try on the board
+# before a release, never marked as the latest release.
 on:
   push:
     branches: [main]
@@ -14,7 +18,26 @@ permissions:
   contents: write
 
 jobs:
+  # The manufacturer's U-Boot is built with a compiler that only exists for
+  # x86-64 hosts (and crashes under qemu-user), so it is built on an x86-64
+  # runner and reaches the ARM job through Cachix.
+  vendor-uboot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+      - uses: cachix/cachix-action@v17
+        with:
+          name: nixos-a733
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          # SD images and patched kernel sources are big and rebuilt every run; keep them out of the cache.
+          pushFilter: '(-source$|-source-[0-9][^/]*$|\.img(\.zst)?$)'
+      - name: Build manufacturer U-Boot
+        run: nix build -L .#packages.aarch64-linux.boot-vendor.uboot
+
   vendor-image:
+    needs: vendor-uboot
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 360
     steps:
@@ -25,7 +48,22 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="v$(tr -d '[:space:]' < VERSION)"
+          version=$(tr -d '[:space:]' < VERSION)
+          case "$GITHUB_REF_NAME" in
+            main)
+              tag="v$version"
+              echo "prerelease=false" >> "$GITHUB_OUTPUT"
+              ;;
+            develop)
+              IFS=. read -r major minor _ <<< "$version"
+              tag="v$major.$((minor + 1)).0-dev.$GITHUB_RUN_NUMBER"
+              echo "prerelease=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "releases are made from main, pre-releases from develop, not $GITHUB_REF_NAME" >&2
+              exit 1
+              ;;
+          esac
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           if gh release view "$tag" > /dev/null 2>&1; then
             echo "$tag is already released, nothing to do"
@@ -41,6 +79,8 @@ jobs:
         with:
           name: nixos-a733
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          # SD images and patched kernel sources are big and rebuilt every run; keep them out of the cache.
+          pushFilter: '(-source$|-source-[0-9][^/]*$|\.img(\.zst)?$)'
 
       - name: Build image
         if: steps.version.outputs.new == 'true'
@@ -57,8 +97,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
         run: |
+          flags=()
+          if [ "$PRERELEASE" = true ]; then
+            flags=(--prerelease --latest=false)
+          fi
           gh release create "$TAG" \
+            "${flags[@]}" \
             --target "$GITHUB_SHA" \
             --title "$TAG" \
             --generate-notes \

@@ -64,7 +64,10 @@ in
     sdImage = {
       # Room for boot0 and U-Boot before the firmware partition.
       firmwarePartitionOffset = lib.mkDefault 32;
-      populateFirmwareCommands = "";
+      # The partition stays empty unless boot logs are written to it.
+      populateFirmwareCommands = lib.optionalString (config.hardware.a733.bootLog.enable or false) ''
+        cp ${./boot-log-readme.txt} firmware/README-a733-boot-log.txt
+      '';
       # mkDefault keeps this unevaluated when another loader replaces it.
       populateRootCommands = lib.mkDefault ''
         mkdir -p ./files/boot

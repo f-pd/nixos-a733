@@ -30,16 +30,21 @@
         hardware = ./modules/hardware.nix;
         sd-image = ./modules/sd-image.nix;
         vendor = ./modules/vendor.nix;
+        boot-log = ./modules/boot-log.nix;
+        welcome = ./modules/welcome.nix;
         default = {
           imports = [
             self.nixosModules.hardware
             self.nixosModules.sd-image
             self.nixosModules.vendor
+            self.nixosModules.boot-log
+            self.nixosModules.welcome
           ];
         };
       };
 
-      # Minimal bootable image: serial console login only, no users, no SSH.
+      # Minimal bootable image: the first login sets the root password and
+      # creates the main user; SSH starts after that.
       nixosConfigurations.generic = lib.nixosSystem {
         modules = [
           { nixpkgs.hostPlatform = system; }

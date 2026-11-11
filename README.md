@@ -47,7 +47,7 @@ Latest LTS and latest stable kernel.org kernels with the A733 patches: not avail
 | `kernel/` | `version.json` (pinned release), patched source, kernel build and config |
 | `patches/` | A733 patches in two layers, `base/` and `optional/`, listed in `index.json` |
 | `bootloader/` | boot0, TF-A and U-Boot, pinned in `sources.json` |
-| `modules/` | `hardware.nix` (kernel, console, device tree) and `sd-image.nix` |
+| `modules/` | `hardware.nix` (kernel, console, device tree), `sd-image.nix`, `boot-log.nix` and `welcome.nix` |
 | `images/` | the generic image configuration |
 | `vendor/` | the vendor variant: the manufacturer's kernel, U-Boot, firmware and drivers; their files are copied in `vendor/blobs/`, with their origin |
 | `ci/` | scripts used by the workflows |
@@ -60,12 +60,14 @@ Latest LTS and latest stable kernel.org kernels with the A733 patches: not avail
 | `packages.aarch64-linux.kernel-source` | patched source tree, with `.a733-optional-skipped` |
 | `packages.aarch64-linux.boot0` | boot0 extracted from the official image, hash checked (once pinned) |
 | `packages.aarch64-linux.tf-a`, `uboot` | boot chain built from source (once pinned) |
-| `packages.aarch64-linux.sd-image-generic` | minimal image: root login on the serial console only |
+| `packages.aarch64-linux.sd-image-generic` | minimal image: root login on the serial console, guided first login |
 | `packages.aarch64-linux.kernel-vendor`, `boot-vendor` | the manufacturer's 6.6 kernel and boot chain |
 | `packages.aarch64-linux.sd-image-vendor` | the minimal image on the manufacturer's kernel and boot chain |
 | `nixosModules.hardware` | kernel, console on `ttyS0` at 115200 baud, device tree, binary cache |
 | `nixosModules.sd-image` | SD image with boot0 and U-Boot written before the first partition |
 | `nixosModules.vendor` | `hardware.a733.vendor.enable`: switch to the manufacturer's kernel and boot chain |
+| `nixosModules.boot-log` | `hardware.a733.bootLog.enable`: boot logs on the FAT partition |
+| `nixosModules.welcome` | `hardware.a733.welcome.enable`: slogans, fastfetch, Tokyo Night, starship, comfort tools and aliases, guided first login |
 | `nixosModules.default` | all of the above |
 
 ## Using it from a host flake
@@ -111,7 +113,7 @@ public key:  nixos-a733.cachix.org-1:rMgMVYYwVjmvg4b8FX59uavFlLCqP0YuR6O8NXgqcWY
 |----------|------|------|
 | `ci` | every push and pull request | evaluates the flake, checks formatting, builds nothing |
 | `build` | push to `main` or `develop` touching the build, or by hand | builds the vendor image (kept as an artifact) and, once base patches exist, the mainline kernel and image, on native ARM runners, pushing to Cachix |
-| `release` | push to `main` | publishes the version in `VERSION` as a GitHub Release, tag `v<VERSION>`, with the vendor SD image and its checksum; skips versions already released |
+| `release` | push to `main`, or by hand on `develop` | on `main`, publishes the version in `VERSION` as a GitHub Release, tag `v<VERSION>`, with the vendor SD image and its checksum, and skips versions already released; on `develop`, publishes a pre-release `v<next minor>-dev.<run>` to try on the board, never marked as latest |
 | `kernel-bump` | nightly and by hand | pins a new kernel.org stable release on `develop` and starts `build` |
 
 A base patch that no longer applies fails the build and opens an issue. An
@@ -124,16 +126,64 @@ Ready SD images are on the
 [Releases](https://github.com/f-pd/nixos-a733/releases) page. To write one:
 
 ```
-sha256sum -c nixos-a733-vendor-v0.2.0.img.zst.sha256
-zstd -dc nixos-a733-vendor-v0.2.0.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
+sha256sum -c nixos-a733-vendor-v0.3.0.img.zst.sha256
+zstd -dc nixos-a733-vendor-v0.3.0.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
 ```
 
-Builds of `develop` also keep the image as a workflow artifact for 30 days.
+Pre-releases (`v<x.y.z>-dev.<n>`) are images from `develop`, published to be
+tried on the board before a release. Builds of `develop` also keep the image
+as a workflow artifact for 30 days.
 
 ## Serial console
 
 UART0 on the 40-pin header: pin 6 ground, pin 8 TX, pin 10 RX, 115200 baud,
 `ttyS0`.
+
+## First login
+
+The generic images turn on `hardware.a733.welcome.enable`
+(`modules/welcome.nix`):
+
+- Log in as `root` on the serial console or on HDMI. Root has no password
+  yet, so the login prompt makes you choose one. You are then asked whether
+  your terminal shows Nerd Font icons, and for the name and the password of
+  the main user, which can use `sudo`. Ctrl-C skips a question until the next
+  root login.
+- With a Nerd Font, `eza` shows icons and the `starship` prompt uses its
+  Tokyo Night preset; without, both stay plain text, as they always do on the
+  HDMI console. To change the answer: `echo yes > /var/lib/a733-welcome/icons`
+  (or `no`), then log in again.
+- SSH starts once an account has a password, so not before the first login.
+  Root cannot log in over SSH with a password; the main user can.
+- A slogan, picked at random each time, is shown above the login prompt, and
+  `fastfetch` after every login, SSH included.
+- Colours are Tokyo Night: the palette of the HDMI console, `btop` and
+  `fastfetch`. Other tools use the 16 colours of your terminal, so on the
+  serial console and over SSH they follow your terminal's theme.
+- Installed: `fastfetch`, `btop`, `starship`, `eza`, `bat`, `git`, `curl`,
+  `wget`, `tmux`, `ripgrep`, `fd`, `tree`, `file`, the JetBrains Mono Nerd Font, with the shell aliases of CachyOS (`ls`,
+  `ll`, `cat`, `..` and so on).
+
+## Boot logs without a serial adapter
+
+The generic images write how far the boot got to the FAT partition of the SD
+card (`FIRMWARE`, the first partition), which any computer can read. Power the
+board off after a minute or two, put the card in a computer and open:
+
+| File | Written by | What it says |
+|------|------------|--------------|
+| `a733-uboot.txt` | U-Boot (`boot.scr`) | script found, kernel, initrd and device tree loaded, overlays, kernel started |
+| `a733-uboot-env.txt` | U-Boot | the whole U-Boot environment |
+| `a733-initrd-*.txt` | stage 1 | status, kernel log, journal: root file system and driver problems |
+| `a733-system-*.txt` | the booted system | the same plus the failed units, refreshed for five minutes |
+
+No `a733-uboot.txt` means U-Boot never ran `boot.scr`: boot0, U-Boot or the
+card itself. `a733-uboot.txt` without `a733-initrd-*` files means the kernel
+did not get as far as stage 1. The status LED blinks in a heartbeat pattern
+while the kernel runs, and the console is also on HDMI (`tty1`).
+
+`hardware.a733.bootLog.enable` turns the Linux part on for a host's own image;
+`boot.scr` of the vendor variant always writes its file.
 
 ## Branches
 
