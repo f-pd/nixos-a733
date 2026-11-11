@@ -47,7 +47,7 @@ Latest LTS and latest stable kernel.org kernels with the A733 patches: not avail
 | `kernel/` | `version.json` (pinned release), patched source, kernel build and config |
 | `patches/` | A733 patches in two layers, `base/` and `optional/`, listed in `index.json` |
 | `bootloader/` | boot0, TF-A and U-Boot, pinned in `sources.json` |
-| `modules/` | `hardware.nix` (kernel, console, device tree), `sd-image.nix` and `boot-log.nix` |
+| `modules/` | `hardware.nix` (kernel, console, device tree), `sd-image.nix`, `boot-log.nix` and `welcome.nix` |
 | `images/` | the generic image configuration |
 | `vendor/` | the vendor variant: the manufacturer's kernel, U-Boot, firmware and drivers; their files are copied in `vendor/blobs/`, with their origin |
 | `ci/` | scripts used by the workflows |
@@ -60,13 +60,14 @@ Latest LTS and latest stable kernel.org kernels with the A733 patches: not avail
 | `packages.aarch64-linux.kernel-source` | patched source tree, with `.a733-optional-skipped` |
 | `packages.aarch64-linux.boot0` | boot0 extracted from the official image, hash checked (once pinned) |
 | `packages.aarch64-linux.tf-a`, `uboot` | boot chain built from source (once pinned) |
-| `packages.aarch64-linux.sd-image-generic` | minimal image: root login on the serial console only |
+| `packages.aarch64-linux.sd-image-generic` | minimal image: root login on the serial console, guided first login |
 | `packages.aarch64-linux.kernel-vendor`, `boot-vendor` | the manufacturer's 6.6 kernel and boot chain |
 | `packages.aarch64-linux.sd-image-vendor` | the minimal image on the manufacturer's kernel and boot chain |
 | `nixosModules.hardware` | kernel, console on `ttyS0` at 115200 baud, device tree, binary cache |
 | `nixosModules.sd-image` | SD image with boot0 and U-Boot written before the first partition |
 | `nixosModules.vendor` | `hardware.a733.vendor.enable`: switch to the manufacturer's kernel and boot chain |
 | `nixosModules.boot-log` | `hardware.a733.bootLog.enable`: boot logs on the FAT partition |
+| `nixosModules.welcome` | `hardware.a733.welcome.enable`: slogans, fastfetch, Tokyo Night, starship, comfort tools and aliases, guided first login |
 | `nixosModules.default` | all of the above |
 
 ## Using it from a host flake
@@ -137,6 +138,31 @@ as a workflow artifact for 30 days.
 
 UART0 on the 40-pin header: pin 6 ground, pin 8 TX, pin 10 RX, 115200 baud,
 `ttyS0`.
+
+## First login
+
+The generic images turn on `hardware.a733.welcome.enable`
+(`modules/welcome.nix`):
+
+- Log in as `root` on the serial console or on HDMI. Root has no password
+  yet, so the login prompt makes you choose one. You are then asked whether
+  your terminal shows Nerd Font icons, and for the name and the password of
+  the main user, which can use `sudo`. Ctrl-C skips a question until the next
+  root login.
+- With a Nerd Font, `eza` shows icons and the `starship` prompt uses its
+  Tokyo Night preset; without, both stay plain text, as they always do on the
+  HDMI console. To change the answer: `echo yes > /var/lib/a733-welcome/icons`
+  (or `no`), then log in again.
+- SSH starts once an account has a password, so not before the first login.
+  Root cannot log in over SSH with a password; the main user can.
+- A slogan, picked at random each time, is shown above the login prompt, and
+  `fastfetch` after every login, SSH included.
+- Colours are Tokyo Night: the palette of the HDMI console, `btop` and
+  `fastfetch`. Other tools use the 16 colours of your terminal, so on the
+  serial console and over SSH they follow your terminal's theme.
+- Installed: `fastfetch`, `btop`, `starship`, `eza`, `bat`, `git`, `curl`,
+  `wget`, `tmux`, `ripgrep`, `fd`, `tree`, `file`, the JetBrains Mono Nerd Font, with the shell aliases of CachyOS (`ls`,
+  `ll`, `cat`, `..` and so on).
 
 ## Boot logs without a serial adapter
 
