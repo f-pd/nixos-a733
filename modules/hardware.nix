@@ -27,6 +27,38 @@ in
       '';
     };
 
+    components = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      default = { };
+      example = {
+        "PowerVR driver" = "24.2.6603887";
+      };
+      description = ''
+        Versions of the components the system is built from, by name, for
+        the welcome screen (hardware.a733.welcome). The kernel, NixOS and
+        U-Boot are shown on their own.
+      '';
+    };
+
+    drivers = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      example = [ "pvrsrvkm" ];
+      description = ''
+        Kernel modules the welcome screen (hardware.a733.welcome) shows as
+        loaded or missing.
+      '';
+    };
+
+    ubootVersion = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = ''
+        Version of the U-Boot the system is built with, shown by the welcome
+        screen when the one on the card cannot be read.
+      '';
+    };
+
     useBinaryCache = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -39,6 +71,8 @@ in
   };
 
   config = {
+    hardware.a733.components.nixos-a733 = lib.fileContents ../VERSION;
+
     boot.kernelPackages = lib.mkDefault (pkgs.linuxPackagesFor cfg.kernel);
 
     # ttyS0 last: it becomes /dev/console, so boot messages land on the UART.

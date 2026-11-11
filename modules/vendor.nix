@@ -14,6 +14,7 @@ let
   cfg = config.hardware.a733.vendor;
 
   sources = lib.importJSON ../vendor/sources.json;
+  short = builtins.substring 0 7;
   kernel = pkgs.callPackage ../vendor/kernel.nix { };
   bootPackage = pkgs.callPackage ../vendor/boot-package.nix { };
   installBoot = pkgs.callPackage ../vendor/install-boot.nix {
@@ -36,6 +37,13 @@ let
 
   # What systemd and NixOS need from the kernel. DMIID is left out: it needs
   # EFI, which this kernel does not have and the board does not use.
+  # MODULES="aic8800_fdrv aic8800_btlpm" in the manufacturer's board config,
+  # and the GPU. Also shown, loaded or not, by the welcome screen.
+  modules =
+    lib.optional cfg.wifi.enable "aic8800_fdrv"
+    ++ lib.optional cfg.bluetooth.enable "aic8800_btlpm"
+    ++ lib.optional cfg.gpu.enable "pvrsrvkm";
+
   required = [
     "DEVTMPFS"
     "CGROUPS"
@@ -142,6 +150,23 @@ in
 
   config = lib.mkIf cfg.enable {
     hardware.a733.kernel = kernel;
+    hardware.a733.ubootVersion = "${sources.u-boot.version} (Orange Pi ${short sources.u-boot.rev})";
+    hardware.a733.components = {
+      "Kernel source" = "Orange Pi ${sources.kernel.branch} ${short sources.kernel.rev}";
+      "Boot blobs" = "orangepi-build ${short sources.build.rev} (boot0, SCP, monitor)";
+    }
+    // lib.optionalAttrs (cfg.wifi.enable || cfg.bluetooth.enable) {
+      "AIC8800 firmware" = firmware.version;
+    }
+    // lib.optionalAttrs cfg.gpu.enable {
+      "PowerVR driver" = gpu.version;
+    }
+    // lib.optionalAttrs cfg.video.enable {
+      "libcedarc" = media.version;
+    }
+    // lib.optionalAttrs cfg.npu.enable {
+      "NPU runtime" = "VIPLite ${sources.packages.npuVersion}";
+    };
     hardware.a733.deviceTree = sources.kernel.deviceTree;
 
     # The manufacturer's U-Boot reads boot.scr, not extlinux.conf.
@@ -178,11 +203,8 @@ in
     # without CONFIG_FW_LOADER_COMPRESS and cannot load compressed firmware.
     hardware.firmwareCompression = "none";
 
-    # MODULES="aic8800_fdrv aic8800_btlpm" in the manufacturer's board config.
-    boot.kernelModules =
-      lib.optional cfg.wifi.enable "aic8800_fdrv"
-      ++ lib.optional cfg.bluetooth.enable "aic8800_btlpm"
-      ++ lib.optional cfg.gpu.enable "pvrsrvkm";
+    boot.kernelModules = modules;
+    hardware.a733.drivers = modules;
 
     boot.extraModulePackages = lib.mkIf cfg.gpu.enable [ gpuModule ];
 
