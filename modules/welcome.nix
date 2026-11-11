@@ -1,7 +1,10 @@
-# A friendly first contact: a random slogan above the login prompt, fastfetch
-# after it (serial console, local console and SSH), Tokyo Night colours, the
-# starship prompt, the usual comfort tools and aliases, and a guided first
-# login.
+# A friendly first contact: above the login prompt a rainbow NixOS logo (it
+# runs through the colours once each time the prompt appears), the hardware,
+# the versions of what is installed, the network, the services, the first
+# boot instructions and a random slogan, refreshed while the prompt waits.
+# After the login the logo again, animated, and fastfetch (serial console,
+# local console and SSH). Also Tokyo Night colours, the starship prompt, the
+# usual comfort tools and aliases, and a guided first login.
 #
 # First login: while root has an empty password, the login prompt makes root
 # choose one. Root is then asked whether the terminal has a Nerd Font, and to
@@ -14,9 +17,6 @@
 }:
 let
   cfg = config.hardware.a733.welcome;
-
-  # Nix strings have no escape for the ESC character.
-  esc = builtins.fromJSON ''"\u001b"'';
 
   # Tokyo Night as 24-bit colour sequences, for the tools that take them.
   blue = "38;2;122;162;247";
@@ -72,11 +72,74 @@ let
     Be gay, do crime
   '';
 
-  # A new slogan under the greeting every time a login prompt starts.
-  slogan = pkgs.writeShellScript "a733-slogan" ''
-    PATH=${pkgs.coreutils}/bin
-    mkdir -p /run/issue.d
-    printf '\033[1;35m%s\033[0m\n\n' "$(shuf -n 1 ${slogans})" > /run/issue.d/a733-slogan.issue
+  # Declared in hardware.nix; "or" keeps this module usable without it.
+  hw = config.hardware.a733;
+  hwComponents = hw.components or { };
+  hwDrivers = hw.drivers or [ ];
+  hwUboot = hw.ubootVersion or null;
+
+  components = pkgs.writeText "a733-components" (
+    lib.concatStrings (lib.mapAttrsToList (name: version: "${name}=${version}\n") hwComponents)
+  );
+
+  # The welcome screen itself: modules/welcome-info.sh.
+  info = pkgs.writeShellApplication {
+    name = "a733-info";
+    runtimeInputs = with pkgs; [
+      coreutils
+      gawk
+      gnugrep
+      gnused
+      util-linux
+      iproute2
+      iw
+      procps
+      config.systemd.package
+    ];
+    text = ''
+      COMPONENTS=${components}
+      SLOGANS=${slogans}
+      NIXOS_VERSION=${lib.escapeShellArg "${config.system.nixos.version} (${config.system.nixos.codeName})"}
+      MODULES=${lib.escapeShellArg (toString hwDrivers)}
+      BLOB_OFFSETS=${lib.escapeShellArg (toString (map (b: b.offsetKiB) (hw.sdImage.bootBlobs or [ ])))}
+      UBOOT_BUILT=${lib.escapeShellArg (if hwUboot == null then "" else hwUboot)}
+      CACHE=/run/a733-welcome
+    ''
+    + builtins.readFile ./welcome-info.sh;
+  };
+
+  issueFile = "/run/issue.d/a733-welcome.issue";
+
+  # Write the issue file again; with "reload", make the waiting login prompts
+  # show it if it changed.
+  writeIssue = pkgs.writeShellScript "a733-issue" ''
+    PATH=${pkgs.coreutils}/bin:${pkgs.diffutils}/bin:${pkgs.util-linux}/bin
+    mkdir -p ${dirOf issueFile}
+    # The slogan file of 0.3.0, until the next reboot empties /run.
+    rm -f ${dirOf issueFile}/a733-slogan.issue
+    # agetty only reads the files ending in .issue.
+    new=$(mktemp ${issueFile}.XXXXXX) || exit 0
+    if ! ${lib.getExe info} --issue > "$new"; then
+      rm -f "$new"
+      exit 0
+    fi
+    if cmp -s "$new" ${issueFile}; then
+      rm -f "$new"
+    else
+      chmod 644 "$new"
+      mv "$new" ${issueFile}
+      [ "$1" = reload ] && agetty --reload
+    fi
+    exit 0
+  '';
+
+  # Before each login prompt: the screen, then the logo animation on that
+  # terminal. Bounded in time: the prompt must come whatever happens.
+  beforePrompt = pkgs.writeShellScript "a733-before-prompt" ''
+    ${lib.getExe info} --new-slogan
+    ${pkgs.coreutils}/bin/timeout 20 ${writeIssue}
+    ${lib.optionalString cfg.animation "${pkgs.coreutils}/bin/timeout 5 ${lib.getExe info} --intro /dev/$1"}
+    exit 0
   '';
 
   btopConf = pkgs.writeText "btop.conf" ''
@@ -84,14 +147,28 @@ let
   '';
 in
 {
-  options.hardware.a733.welcome.enable = lib.mkEnableOption ''
-    a slogan above the login prompt, fastfetch after it, Tokyo Night colours,
-    the starship prompt, comfort tools and aliases, and a guided first login
-    that sets the root password and creates the main user
-  '';
+  options.hardware.a733.welcome = {
+    enable = lib.mkEnableOption ''
+      a welcome screen above the login prompt (rainbow logo, hardware,
+      versions, network, services, first boot instructions), the logo and
+      fastfetch after it, Tokyo Night colours, the starship prompt, comfort
+      tools and aliases, and a guided first login that sets the root password
+      and creates the main user
+    '';
+
+    animation = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Run the rainbow through the logo before the login prompt and after
+        each interactive login. Off, the logo stays still.
+      '';
+    };
+  };
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
+      info
       fastfetch
       btop
       eza
@@ -163,19 +240,35 @@ in
     # bat has no Tokyo Night theme: this one uses the terminal's 16 colours.
     environment.variables.BAT_THEME = "ansi";
 
-    # Above the login prompt. Plain 16-colour sequences: every serial
-    # terminal understands them.
-    services.getty.greetingLine = "${esc}[1;34mNixOS ${config.system.nixos.release} on Allwinner A733${esc}[0m (\\m) - \\l";
+    # Everything above the login prompt comes from ${issueFile}. The
+    # default /etc/issue points to nixos-help, and documentation is off in
+    # the generic images.
+    environment.etc.issue = lib.mkForce { text = ""; };
 
     # "-": a failure here must never keep the login prompt from starting.
-    systemd.services."getty@".serviceConfig.ExecStartPre = "-${slogan}";
-    systemd.services."serial-getty@".serviceConfig.ExecStartPre = "-${slogan}";
+    systemd.services."getty@".serviceConfig.ExecStartPre = "-${beforePrompt} %I";
+    systemd.services."serial-getty@".serviceConfig.ExecStartPre = "-${beforePrompt} %I";
+
+    # The screen changes while the prompt waits: the network comes up,
+    # services start, the first login is done over SSH.
+    systemd.services.a733-welcome-refresh = {
+      description = "Refresh the welcome screen above the login prompts";
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.coreutils}/bin/timeout 20 ${writeIssue} reload";
+      };
+    };
+    systemd.timers.a733-welcome-refresh = {
+      wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnBootSec = "20s";
+        OnUnitActiveSec = "30s";
+      };
+    };
 
     environment.etc."xdg/fastfetch/config.jsonc".text = builtins.toJSON {
-      logo.color = {
-        "1" = blue;
-        "2" = magenta;
-      };
+      # The rainbow logo comes just before.
+      logo.type = "none";
       display.color = {
         keys = blue;
         title = magenta;
@@ -190,9 +283,13 @@ in
         "kernel"
         "uptime"
         "cpu"
+        "gpu"
         "memory"
+        "swap"
         "disk"
         "localip"
+        "wifi"
+        "users"
         "break"
         "colors"
       ];
@@ -213,7 +310,9 @@ in
         else
           export STARSHIP_CONFIG=${pkgs.starship}/share/starship/presets/plain-text-symbols.toml
         fi
+        ${if cfg.animation then "a733-info --logo" else "a733-info --logo-still"}
         fastfetch
+        printf '  \033[1ma733-info\033[0m: hardware, versions, network and services\n\n'
       fi
     '';
 

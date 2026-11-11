@@ -126,8 +126,8 @@ Ready SD images are on the
 [Releases](https://github.com/f-pd/nixos-a733/releases) page. To write one:
 
 ```
-sha256sum -c nixos-a733-vendor-v0.3.0.img.zst.sha256
-zstd -dc nixos-a733-vendor-v0.3.0.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
+sha256sum -c nixos-a733-vendor-v0.3.1.img.zst.sha256
+zstd -dc nixos-a733-vendor-v0.3.1.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
 ```
 
 Pre-releases (`v<x.y.z>-dev.<n>`) are images from `develop`, published to be
@@ -142,27 +142,53 @@ UART0 on the 40-pin header: pin 6 ground, pin 8 TX, pin 10 RX, 115200 baud,
 ## First login
 
 The generic images turn on `hardware.a733.welcome.enable`
-(`modules/welcome.nix`):
+(`modules/welcome.nix`, `modules/welcome-info.sh`).
+
+Above the login prompt, on the serial console and on HDMI:
+
+- a rainbow NixOS logo, which runs through the colours once each time the
+  prompt appears;
+- the hardware: board, CPU cores and clocks, memory, storage, the
+  manufacturer's drivers (loaded or missing), Bluetooth;
+- the versions: nixos-a733, NixOS, kernel, the U-Boot actually on the card
+  (read from it, or the one the system is built with), kernel sources, boot
+  blobs, firmware, GPU, video and NPU drivers;
+- the network: each interface with its address and Wi-Fi network, the
+  default route;
+- the services: SSH, what is running, what failed;
+- until the first login is done, what to do;
+- a slogan, picked at random each time the prompt starts.
+
+The screen is refreshed every 30 seconds while the prompt waits, and redrawn
+when something changed (an address, a service). `a733-info` shows the same
+overview once logged in.
+
+The first login:
 
 - Log in as `root` on the serial console or on HDMI. Root has no password
-  yet, so the login prompt makes you choose one. You are then asked whether
-  your terminal shows Nerd Font icons, and for the name and the password of
-  the main user, which can use `sudo`. Ctrl-C skips a question until the next
-  root login.
+  yet, so none is asked, and the login prompt makes you choose one. You are
+  then asked whether your terminal shows Nerd Font icons, and for the name
+  and the password of the main user, which can use `sudo`. Ctrl-C skips a
+  question until the next root login.
 - With a Nerd Font, `eza` shows icons and the `starship` prompt uses its
   Tokyo Night preset; without, both stay plain text, as they always do on the
   HDMI console. To change the answer: `echo yes > /var/lib/a733-welcome/icons`
   (or `no`), then log in again.
 - SSH starts once an account has a password, so not before the first login.
   Root cannot log in over SSH with a password; the main user can.
-- A slogan, picked at random each time, is shown above the login prompt, and
-  `fastfetch` after every login, SSH included.
+- After every login, SSH included: the logo, animated in as many colours as
+  the terminal has, then `fastfetch`.
+  `hardware.a733.welcome.animation = false` keeps the logo still.
 - Colours are Tokyo Night: the palette of the HDMI console, `btop` and
   `fastfetch`. Other tools use the 16 colours of your terminal, so on the
   serial console and over SSH they follow your terminal's theme.
-- Installed: `fastfetch`, `btop`, `starship`, `eza`, `bat`, `git`, `curl`,
-  `wget`, `tmux`, `ripgrep`, `fd`, `tree`, `file`, the JetBrains Mono Nerd Font, with the shell aliases of CachyOS (`ls`,
-  `ll`, `cat`, `..` and so on).
+- Installed: `a733-info`, `fastfetch`, `btop`, `starship`, `eza`, `bat`,
+  `git`, `curl`, `wget`, `tmux`, `ripgrep`, `fd`, `tree`, `file`, the
+  JetBrains Mono Nerd Font, with the shell aliases of CachyOS (`ls`, `ll`,
+  `cat`, `..` and so on).
+
+A host's own configuration can add lines to the versions with
+`hardware.a733.components` and to the drivers with `hardware.a733.drivers`.
 
 ## Boot logs without a serial adapter
 
