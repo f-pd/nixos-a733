@@ -18,7 +18,24 @@ permissions:
   contents: write
 
 jobs:
+  # The manufacturer's U-Boot is built with a compiler that only exists for
+  # x86-64 hosts (and crashes under qemu-user), so it is built on an x86-64
+  # runner and reaches the ARM job through Cachix.
+  vendor-uboot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+      - uses: cachix/cachix-action@v17
+        with:
+          name: nixos-a733
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Build manufacturer U-Boot
+        run: nix build -L .#packages.aarch64-linux.boot-vendor.uboot
+
   vendor-image:
+    needs: vendor-uboot
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 360
     steps:
@@ -53,15 +70,8 @@ jobs:
             echo "new=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # The manufacturer's U-Boot is built with an x86-64 compiler.
-      - uses: docker/setup-qemu-action@v3
-        if: steps.version.outputs.new == 'true'
-        with:
-          platforms: amd64
       - uses: cachix/install-nix-action@v31
         if: steps.version.outputs.new == 'true'
-        with:
-          extra_nix_config: extra-platforms = x86_64-linux
       - uses: cachix/cachix-action@v17
         if: steps.version.outputs.new == 'true'
         with:

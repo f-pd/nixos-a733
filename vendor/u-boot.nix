@@ -6,10 +6,9 @@
 # controller comes up. Built with the Linaro compiler it boots (v0.2.0 image,
 # checked on the serial console).
 #
-# Linaro only published that compiler for x86-64 hosts, so this is an
-# x86_64-linux derivation: on an aarch64 machine it comes from the binary
-# cache, or builds under emulation (extra-platforms = x86_64-linux with
-# qemu-user registered in binfmt_misc).
+# Linaro only published that compiler for x86-64 hosts, and it crashes under
+# qemu-user, so this is an x86_64-linux derivation: an aarch64 machine takes
+# it from the binary cache or from an x86-64 remote builder.
 {
   lib,
   path,
