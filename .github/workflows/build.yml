@@ -57,6 +57,8 @@ jobs:
         with:
           name: nixos-a733
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          # SD images and patched kernel sources are big and rebuilt every run; keep them out of the cache.
+          pushFilter: '(-source$|-source-[0-9][^/]*$|\.img(\.zst)?$)'
 
       - name: Patch kernel source
         id: source
@@ -107,6 +109,8 @@ jobs:
         with:
           name: nixos-a733
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          # SD images and patched kernel sources are big and rebuilt every run; keep them out of the cache.
+          pushFilter: '(-source$|-source-[0-9][^/]*$|\.img(\.zst)?$)'
       - name: Build manufacturer U-Boot
         run: nix build -L .#packages.aarch64-linux.boot-vendor.uboot
 
@@ -123,6 +127,8 @@ jobs:
         with:
           name: nixos-a733
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          # SD images and patched kernel sources are big and rebuilt every run; keep them out of the cache.
+          pushFilter: '(-source$|-source-[0-9][^/]*$|\.img(\.zst)?$)'
 
       - name: Build manufacturer kernel
         run: nix build -L .#kernel-vendor
