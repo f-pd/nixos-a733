@@ -35,7 +35,8 @@ mainline bindings use other names and numbers.
 | 14 | Wi-Fi and Bluetooth | drawing | drawing |
 | 16 | PCIe | drawing | text |
 | 18 | 40-pin header | drawing | text |
-| 1, 3, 4, 7, 8, 10, 13, 15, 17 | block diagram, eMMC, UFS, DRAM, SoC system, analog and high speed, cameras, HDMI, LCD | text only | text only |
+| 8 | SoC system: crystals, clock select straps | text only | drawing (crystals and straps) |
+| 1, 3, 4, 7, 10, 13, 15, 17 | block diagram, eMMC, UFS, DRAM, analog and high speed, cameras, HDMI, LCD | text only | text only |
 
 "Text only" means part names, net names, sheet cross-references and notes were read, not the
 connections. Statements below that rest on a text-only sheet say so.
@@ -55,7 +56,7 @@ Orange Pi 4 Pro tree.
 
 | Subject | Vendor tree | Schematic | For a mainline tree |
 |---|---|---|---|
-| Main crystal | fixed clock `dcxo24M`, 24 MHz (dtsi:342) | Y1 is 26 MHz, "USE 26M", "default 26M" (sheet 8, text) | 26 MHz, or detected; confirm on the board |
+| Main crystal | fixed clock `dcxo24M`, 24 MHz (dtsi:342) | Y1 is 26 MHz, "USE 26M"; straps `CK-SEL1` high, `CK-SEL0` to ground, table "SOC=26M: SEL1 = 1, SEL0 = 0" (V1.5 sheet 8) | 26 MHz, or a clock driver that reads the straps; confirm on the board |
 | Charger PMIC | AXP515 at `0x34` with battery and USB supplies (dts:1957) | not on the board; the only PMIC is U1 (sheet 6) | leave it out |
 | External RTC | HYM8563 at `0x51` on S_TWI2, SoC RTC disabled (dts:2670, dts:2565) | not on the board; 32.768 kHz crystal Y2 on the SoC (sheet 8, text) | use the SoC RTC |
 | S_TWI2 pins | PL10, PL11 (dts:1248) | PL10, PL11 are `SBU1-DC`, `SBU2-DC`; S-TWI2 is on PL4, PL5, header pins 28 and 27 (sheets 9, 18) | S_TWI2 on PL4, PL5 |
@@ -256,7 +257,11 @@ FCS960K (sheet 14).
 
 ### Clocks
 
-- Y1, 26 MHz, on the SoC's DCXO pins; Y2, 32.768 kHz, on the SoC's RTC pins (sheet 8, text only).
+- Y1, 26 MHz (`26M-12pF-10ppm`), on the SoC's DCXO pins. The SoC is told the frequency by two
+  straps: `CK-SEL1` pulled up through 470 kOhm, `CK-SEL0` tied to ground through 0 Ohm (V1.5 sheet 8).
+- Y2, 32.768 kHz, on the SoC's RTC pins, is marked "Option" on V1.5 sheet 8: the note says the
+  internal 32 kHz source can be used if its deviation is acceptable. Whether Y2 is fitted is to be
+  checked on the board.
 - The vendor tree declares 24 MHz for the same oscillator. See the table of differences.
 
 ### 40-pin header
