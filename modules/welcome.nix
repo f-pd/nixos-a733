@@ -1,10 +1,11 @@
-# A friendly first contact: above the login prompt a rainbow NixOS logo (it
-# runs through the colours once each time the prompt appears), the hardware,
-# the versions of what is installed, the network, the services, the first
-# boot instructions and a random slogan, refreshed while the prompt waits.
-# After the login the logo again, animated, and fastfetch (serial console,
-# local console and SSH). Also Tokyo Night colours, the starship prompt, the
-# usual comfort tools and aliases, and a guided first login.
+# A friendly first contact: above the login prompt the NixOS snowflake in
+# the colours of the pride flag (they turn around it each time the prompt
+# appears, and stop where they stay) with the system in short beside it,
+# then the hardware, the versions of what is installed, the network, the
+# services, the first boot instructions, refreshed while the prompt waits.
+# After the login the snowflake again (serial console, local console and
+# SSH). Also Tokyo Night colours, the starship prompt, the usual comfort
+# tools and aliases, and a guided first login.
 #
 # First login: while root has an empty password, the login prompt makes root
 # choose one. Root is then asked whether the terminal has a Nerd Font, and to
@@ -100,6 +101,8 @@ let
       COMPONENTS=${components}
       SLOGANS=${slogans}
       NIXOS_VERSION=${lib.escapeShellArg "${config.system.nixos.version} (${config.system.nixos.codeName})"}
+      NIXOS_RELEASE=${lib.escapeShellArg "NixOS ${config.system.nixos.release} (${config.system.nixos.codeName})"}
+      PROMPT_COLOURS=${cfg.promptColours}
       MODULES=${lib.escapeShellArg (toString hwDrivers)}
       BLOB_OFFSETS=${lib.escapeShellArg (toString (map (b: b.offsetKiB) (hw.sdImage.bootBlobs or [ ])))}
       UBOOT_BUILT=${lib.escapeShellArg (if hwUboot == null then "" else hwUboot)}
@@ -138,7 +141,7 @@ let
   beforePrompt = pkgs.writeShellScript "a733-before-prompt" ''
     ${lib.getExe info} --new-slogan
     ${pkgs.coreutils}/bin/timeout 20 ${writeIssue}
-    ${lib.optionalString cfg.animation "${pkgs.coreutils}/bin/timeout 5 ${lib.getExe info} --intro /dev/$1"}
+    ${lib.optionalString cfg.animation "${pkgs.coreutils}/bin/timeout 10 ${lib.getExe info} --intro /dev/$1"}
     exit 0
   '';
 
@@ -149,19 +152,34 @@ in
 {
   options.hardware.a733.welcome = {
     enable = lib.mkEnableOption ''
-      a welcome screen above the login prompt (rainbow logo, hardware,
-      versions, network, services, first boot instructions), the logo and
-      fastfetch after it, Tokyo Night colours, the starship prompt, comfort
+      a welcome screen above the login prompt (pride snowflake, hardware,
+      versions, network, services, first boot instructions), the snowflake
+      after it, Tokyo Night colours, the starship prompt, comfort
       tools and aliases, and a guided first login that sets the root password
       and creates the main user
     '';
+
+    promptColours = lib.mkOption {
+      type = lib.types.enum [
+        "16"
+        "256"
+        "truecolor"
+      ];
+      default = "256";
+      description = ''
+        Colours of the snowflake above the login prompt, where the terminal
+        at the other end of the serial line is not known. 256 colours give
+        the pride flag; terminals that lack them show the snowflake without
+        colours. "16" works everywhere, with cyan in place of orange.
+      '';
+    };
 
     animation = lib.mkOption {
       type = lib.types.bool;
       default = true;
       description = ''
-        Run the rainbow through the logo before the login prompt and after
-        each interactive login. Off, the logo stays still.
+        Turn the colours around the snowflake before the login prompt and
+        after each interactive login. Off, the snowflake stays still.
       '';
     };
   };
@@ -267,8 +285,10 @@ in
     };
 
     environment.etc."xdg/fastfetch/config.jsonc".text = builtins.toJSON {
-      # The rainbow logo comes just before.
-      logo.type = "none";
+      logo.color = {
+        "1" = blue;
+        "2" = magenta;
+      };
       display.color = {
         keys = blue;
         title = magenta;
@@ -311,8 +331,6 @@ in
           export STARSHIP_CONFIG=${pkgs.starship}/share/starship/presets/plain-text-symbols.toml
         fi
         ${if cfg.animation then "a733-info --logo" else "a733-info --logo-still"}
-        fastfetch
-        printf '  \033[1ma733-info\033[0m: hardware, versions, network and services\n\n'
       fi
     '';
 

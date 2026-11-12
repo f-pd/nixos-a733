@@ -126,8 +126,8 @@ Ready SD images are on the
 [Releases](https://github.com/f-pd/nixos-a733/releases) page. To write one:
 
 ```
-sha256sum -c nixos-a733-vendor-v0.3.1.img.zst.sha256
-zstd -dc nixos-a733-vendor-v0.3.1.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
+sha256sum -c nixos-a733-vendor-v0.3.2.img.zst.sha256
+zstd -dc nixos-a733-vendor-v0.3.2.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
 ```
 
 Pre-releases (`v<x.y.z>-dev.<n>`) are images from `develop`, published to be
@@ -146,18 +146,25 @@ The generic images turn on `hardware.a733.welcome.enable`
 
 Above the login prompt, on the serial console and on HDMI:
 
-- a rainbow NixOS logo, which runs through the colours once each time the
-  prompt appears;
-- the hardware: board, CPU cores and clocks, memory, storage, the
-  manufacturer's drivers (loaded or missing), Bluetooth;
+- the NixOS snowflake in the colours of the pride flag, one per lambda. Each
+  time the prompt appears the colours turn around it twice and stop where
+  they stay: the animation is drawn on the very rows the prompt then prints.
+  Beside it the system in short: release, board, host, image, kernel, CPU,
+  memory, address, SSH, the slogan;
+- the hardware: CPU cores and clocks, memory, storage, the manufacturer's
+  drivers (loaded or missing), Bluetooth;
 - the versions: nixos-a733, NixOS, kernel, the U-Boot actually on the card
   (read from it, or the one the system is built with), kernel sources, boot
   blobs, firmware, GPU, video and NPU drivers;
 - the network: each interface with its address and Wi-Fi network, the
   default route;
 - the services: SSH, what is running, what failed;
-- until the first login is done, what to do;
-- a slogan, picked at random each time the prompt starts.
+- until the first login is done, what to do.
+
+The snowflake takes 256 colours, which nearly every terminal has; one
+that lacks them shows it without colours.
+`hardware.a733.welcome.promptColours = "16"` works on any terminal, with
+cyan in place of orange.
 
 The screen is refreshed every 30 seconds while the prompt waits, and redrawn
 when something changed (an address, a service). `a733-info` shows the same
@@ -176,9 +183,10 @@ The first login:
   (or `no`), then log in again.
 - SSH starts once an account has a password, so not before the first login.
   Root cannot log in over SSH with a password; the main user can.
-- After every login, SSH included: the logo, animated in as many colours as
-  the terminal has, then `fastfetch`.
-  `hardware.a733.welcome.animation = false` keeps the logo still.
+- After every login, SSH included: the snowflake and the system in short
+  again, in as many colours as the terminal has (24-bit, 256 or 16).
+  `hardware.a733.welcome.animation = false` keeps the snowflake still, here
+  and above the prompt. `fastfetch` is still there for a longer list.
 - Colours are Tokyo Night: the palette of the HDMI console, `btop` and
   `fastfetch`. Other tools use the 16 colours of your terminal, so on the
   serial console and over SSH they follow your terminal's theme.
