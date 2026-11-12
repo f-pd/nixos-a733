@@ -1,16 +1,17 @@
 # a733-info: the welcome screen of nixos-a733 (modules/welcome.nix).
 #
 #   a733-info              hardware, versions, network and services
-#   a733-info --issue      the same with the rainbow logo and the first boot
+#   a733-info --issue      the same under the header (pride snowflake, and
+#                          beside it the system in short) with the first boot
 #                          instructions, as an agetty issue file, on stdout
-#   a733-info --logo       the rainbow logo, animated, left on screen
-#   a733-info --logo-still the same, not animated
+#   a733-info --logo       the header, its colours turning, left on screen
+#   a733-info --logo-still the same, still
 #   a733-info --new-slogan pick another slogan for the next --issue
-#   a733-info --intro TTY  the rainbow logo animated on TTY, then erased: the
-#                          static one of the issue file takes its place
+#   a733-info --intro TTY  the header of the issue file, its colours turning,
+#                          on TTY just before agetty prints it in place
 #
 # Set by welcome.nix before this text: COMPONENTS, SLOGANS, NIXOS_VERSION,
-# MODULES, BLOB_OFFSETS, UBOOT_BUILT, CACHE.
+# NIXOS_RELEASE, MODULES, BLOB_OFFSETS, UBOOT_BUILT, PROMPT_COLOURS, CACHE.
 
 # A display script: a fact that cannot be read is left out, it must never
 # stop the rest. writeShellApplication turns these on.
@@ -28,49 +29,75 @@ YELLOW="${ESC}[1;33m"
 BLUE="${ESC}[1;34m"
 MAGENTA="${ESC}[1;35m"
 
-LOGO=(
-  "███╗   ██╗██╗██╗  ██╗ ██████╗ ███████╗"
-  "████╗  ██║██║╚██╗██╔╝██╔═══██╗██╔════╝"
-  "██╔██╗ ██║██║ ╚███╔╝ ██║   ██║███████╗"
-  "██║╚██╗██║██║ ██╔██╗ ██║   ██║╚════██║"
-  "██║ ╚████║██║██╔╝ ██╗╚██████╔╝███████║"
-  "╚═╝  ╚═══╝╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝"
+# The NixOS snowflake in the colours of the pride flag: one colour per
+# lambda, clockwise from the top right one. Two pixels per character, drawn
+# with half blocks; a digit is the lambda that covers the pixel. Rasterized
+# from nix-snowflake.svg of nixos-icons.
+FLAKE=(
+  "........555......0000....000........"
+  "........5555.....0000...0000........"
+  "........5555......0000..0000........"
+  ".........5555.....000000000........."
+  ".........5555......00000000........."
+  "..........5555.....0000000.........."
+  ".....555555555555555000000.........."
+  "....555555555555555500000.....11...."
+  "....555555555555555550000.....11...."
+  "....55555555555555555.0000...1111..."
+  "..........4444........00000..1111..."
+  ".........4444..........0000.1111...."
+  "........44444..........000011111...."
+  "........4444............0001111....."
+  "44444444444..............01111111111"
+  "44444444444..............11111111111"
+  "44444444444..............11111111111"
+  "44444444443..............11111111111"
+  ".....4444333............1111........"
+  "....444443333..........11111........"
+  "....4444.3333..........1111........."
+  "...4444..33333........1111.........."
+  "...4444...3333.22222222222222222...."
+  "....44.....333322222222222222222...."
+  "....44.....333332222222222222222...."
+  "..........333333222222222222222....."
+  "..........3333333.....2222.........."
+  ".........33333333......2222........."
+  ".........333333333.....2222........."
+  "........3333..3333......2222........"
+  "........3333...3333.....2222........"
+  "........333....3333......222........"
 )
+FLAKE_ROWS=$((${#FLAKE[@]} / 2))
+FLAKE_COLS=${#FLAKE[0]}
 
 # ---------------------------------------------------------------- colours
 
-# The rainbow as foreground colour sequences, in the richest form the
-# terminal takes: 24-bit, 256 colours, or the 16 every terminal knows.
-PALETTE=()
+# Foreground and background sequences of the six colours, in the richest
+# form the terminal takes: 24-bit, 256 colours or the 16 every terminal
+# knows (which have no orange: cyan takes its place).
+FG=()
+BG=()
 palette() {
-  local mode=$1 h region f q t r g b
-  PALETTE=()
-  case $mode in
+  local c rgb
+  FG=()
+  BG=()
+  case $1 in
     truecolor)
-      for ((h = 0; h < 360; h += 10)); do
-        region=$((h / 60))
-        f=$(((h % 60) * 255 / 60))
-        q=$((255 - f))
-        t=$f
-        case $region in
-          0) r=255 g=$t b=0 ;;
-          1) r=$q g=255 b=0 ;;
-          2) r=0 g=255 b=$t ;;
-          3) r=0 g=$q b=255 ;;
-          4) r=$t g=0 b=255 ;;
-          *) r=255 g=0 b=$q ;;
-        esac
-        PALETTE+=("${ESC}[1;38;2;${r};${g};${b}m")
+      for rgb in "228;3;3" "255;140;0" "255;237;0" "0;160;60" "36;100;255" "150;60;210"; do
+        FG+=("${ESC}[38;2;${rgb}m")
+        BG+=("${ESC}[48;2;${rgb}m")
       done
       ;;
     256)
-      for c in 196 202 208 214 220 226 190 154 118 82 46 47 48 49 50 51 45 39 33 27 21 57 93 129 165 201 200 199 198 197; do
-        PALETTE+=("${ESC}[1;38;5;${c}m")
+      for c in 196 208 226 34 27 129; do
+        FG+=("${ESC}[38;5;${c}m")
+        BG+=("${ESC}[48;5;${c}m")
       done
       ;;
     *)
-      for c in 31 33 32 36 34 35; do
-        PALETTE+=("${ESC}[1;${c}m")
+      for c in 1 3 2 6 4 5; do
+        FG+=("${ESC}[3${c}m")
+        BG+=("${ESC}[4${c}m")
       done
       ;;
   esac
@@ -86,45 +113,123 @@ colour_mode() {
   esac
 }
 
-# Where each letter of the logo starts: N I X O S.
-LETTERS=(0 10 13 21 30)
-
-# One frame of the logo, the colours moved by $1 steps: a diagonal rainbow,
-# or with 16 colours one colour per letter, or it turns into confetti.
-logo_frame() {
-  local shift=$1 n=${#PALETTE[@]} y x l line out
-  for y in "${!LOGO[@]}"; do
-    line=${LOGO[y]}
-    out=""
-    if ((n <= 6)); then
-      for l in "${!LETTERS[@]}"; do
-        x=${LETTERS[l]}
-        out+="${PALETTE[((l + n * 100 - shift) % n)]}${line:x:${LETTERS[l + 1]:-${#line}} - x}"
+# FRAME[shift,row]: a row of the snowflake with the colours turned by shift
+# lambdas. Six frames make a whole turn; computed once, as the animation has
+# to be cheap on the CPU and on a 115200 baud serial line, which is why a
+# colour sequence is only sent when the colour changes.
+declare -A FRAME=()
+flake_frames() {
+  local s y x t b top bot out fg bg want_fg want_bg ch
+  for ((s = 0; s < 6; s++)); do
+    for ((y = 0; y < FLAKE_ROWS; y++)); do
+      top=${FLAKE[2 * y]}
+      bot=${FLAKE[2 * y + 1]}
+      out=""
+      fg=""
+      bg=""
+      for ((x = 0; x < FLAKE_COLS; x++)); do
+        t=${top:x:1}
+        b=${bot:x:1}
+        want_fg=$fg
+        want_bg=""
+        if [ "$t" = . ] && [ "$b" = . ]; then
+          ch=" "
+        elif [ "$t" = "$b" ]; then
+          ch="█" want_fg=${FG[(t + s) % 6]}
+        elif [ "$b" = . ]; then
+          ch="▀" want_fg=${FG[(t + s) % 6]}
+        elif [ "$t" = . ]; then
+          ch="▄" want_fg=${FG[(b + s) % 6]}
+        else
+          ch="▀" want_fg=${FG[(t + s) % 6]} want_bg=${BG[(b + s) % 6]}
+        fi
+        if [ "$want_bg" != "$bg" ]; then
+          if [ -z "$want_bg" ]; then out+="${ESC}[49m"; else out+=$want_bg; fi
+          bg=$want_bg
+        fi
+        if [ "$want_fg" != "$fg" ]; then
+          out+=$want_fg
+          fg=$want_fg
+        fi
+        out+=$ch
       done
-    else
-      for ((x = 0; x < ${#line}; x += 2)); do
-        out+="${PALETTE[((x / 2 + y + n * 100 - shift) % n)]}${line:x:2}"
-      done
-    fi
-    printf '  %s%s\n' "$out" "$R"
+      FRAME[$s,$y]="$out$R"
+    done
   done
 }
 
-# The rainbow running through the logo, about a second and a half.
-logo_animate() {
-  local frames=$1 delay=$2 erase=$3 f rows=${#LOGO[@]}
-  printf '%s[?25l' "$ESC"
-  trap 'printf "%s[0m%s[?25h" "$ESC" "$ESC"' RETURN
-  for ((f = 0; f < frames; f++)); do
-    ((f > 0)) && printf '%s[%dA' "$ESC" "$rows"
-    logo_frame "$f"
-    sleep "$delay"
-  done
-  if [ "$erase" = yes ]; then
-    printf '%s[%dA%s[J' "$ESC" "$rows" "$ESC"
+# What stands to the right of the snowflake, one line per row of it.
+SIDE=()
+side_text() {
+  local ip ssh host sl i
+  host=$(cat /proc/sys/kernel/hostname)
+  ip=$(ip -4 -o addr show scope global 2> /dev/null | awk '{ sub(/\/.*/, "", $4); print $4 " (" $2 ")"; exit }')
+  if systemctl is-active -q sshd.service 2> /dev/null; then
+    ssh=$(ok "ssh <user>@$host")
+  elif ! has_password; then
+    ssh=$(off "after the first login")
+  else
+    ssh=$(off "$(systemctl is-active sshd.service 2> /dev/null)")
   fi
+  sl=$(slogan_text)
+  SIDE=(
+    ""
+    "$B$NIXOS_RELEASE$R"
+    "${DIM}Allwinner A733 · $(board)$R"
+    "$DIM────────────────────────────────────$R"
+    "$(side_row Host "$host")"
+    "$(side_row Image "nixos-a733 $(component nixos-a733)")"
+    "$(side_row Kernel "$(uname -r)")"
+    "$(side_row CPU "$(cpu_short)")"
+    "$(side_row Memory "$(memory)")"
+    "$(side_row Address "${ip:-none yet}")"
+    "$(side_row SSH "$ssh")"
+    ""
+    "${sl:+$MAGENTA$sl$R}"
+    ""
+  )
+  local swatch=""
+  for ((i = 0; i < 6; i++)); do
+    swatch+="${FG[i]}███"
+  done
+  SIDE+=("$swatch$R")
+}
+
+side_row() {
+  printf '%s%-8s%s %s' "$BLUE" "$1" "$R" "$2"
+}
+
+# The snowflake and, on a terminal wide enough, the text beside it.
+# FULL=no redraws only the snowflake, over the rows printed before.
+header() {
+  local shift=$1 full=${2:-yes} y line
+  for ((y = 0; y < FLAKE_ROWS; y++)); do
+    line="  ${FRAME[$shift,$y]}"
+    if [ "$full" = yes ] && [ "$WIDE" = yes ]; then
+      line+="  ${SIDE[y]}"
+    fi
+    printf '%s%s' "$line" "$NL"
+  done
+}
+
+# The colours turn around the snowflake TURNS times, and stop where the
+# still picture has them, on the same rows: nothing is swapped at the end.
+header_animate() {
+  local turns=$1 delay=$2 f
+  printf '%s[?25l' "$ESC"
+  header 0
+  for ((f = 1; f <= turns * 6; f++)); do
+    sleep "$delay"
+    printf '%s[%dA' "$ESC" "$FLAKE_ROWS"
+    header $((f % 6)) no
+  done
   printf '%s[?25h' "$ESC"
 }
+
+NL=$'\n'
+WIDE=yes
+# The header with the snowflake is shown above the overview.
+HEADER=no
 
 # ---------------------------------------------------------------- facts
 
@@ -188,6 +293,22 @@ cpu() {
     sep=", "
   done < <(printf '%s\n' "${!count[@]}" | sort)
   echo "$total cores: $out"
+}
+
+# "8 cores, up to 2.0 GHz"
+cpu_short() {
+  local n max
+  n=$(nproc 2> /dev/null)
+  max=$(cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_max_freq 2> /dev/null | sort -n | tail -n 1)
+  if [ -n "$max" ]; then
+    awk -v n="$n" -v k="$max" 'BEGIN { printf "%d cores, up to %.1f GHz", n, k / 1000000 }'
+  else
+    echo "$n cores"
+  fi
+}
+
+component() {
+  awk -F= -v n="$1" '$1 == n { sub(/^[^=]*=/, ""); print; exit }' "$COMPONENTS"
 }
 
 memory() {
@@ -263,7 +384,7 @@ uboot() {
 
 hardware() {
   section Hardware
-  row Board "$(board)"
+  [ "$HEADER" = yes ] || row Board "$(board)"
   row CPU "$(cpu)"
   row Memory "$(memory)"
   local disk
@@ -294,7 +415,7 @@ software() {
 network() {
   section Network
   local any=no dir i kind state addr ssid
-  row Hostname "$(cat /proc/sys/kernel/hostname)"
+  [ "$HEADER" = yes ] || row Hostname "$(cat /proc/sys/kernel/hostname)"
   for dir in /sys/class/net/*; do
     i=${dir##*/}
     [ "$i" = lo ] && continue
@@ -391,13 +512,13 @@ instructions() {
 
 # A new slogan each time a login prompt starts (--new-slogan), the same one
 # while it waits: a refresh redraws the prompt only when something changed.
-slogan() {
+slogan_text() {
   local cache=$CACHE/slogan
   [ -r "$SLOGANS" ] || return 0
   if [ ! -s "$cache" ] && mkdir -p "$CACHE" 2> /dev/null; then
     shuf -n 1 "$SLOGANS" > "$cache"
   fi
-  printf '\n  %s%s%s\n' "$MAGENTA" "$(cat "$cache" 2> /dev/null || shuf -n 1 "$SLOGANS")" "$R"
+  cat "$cache" 2> /dev/null || shuf -n 1 "$SLOGANS"
 }
 
 tips() {
@@ -414,17 +535,26 @@ overview() {
 
 # ---------------------------------------------------------------- main
 
+# The header: snowflake and the text beside it, ready to print.
+prepare() {
+  local cols
+  palette "$1"
+  flake_frames
+  cols=$(stty size 2> /dev/null | awk '{ print $2 }')
+  [ "${cols:-80}" -ge 80 ] || WIDE=no
+  [ "$WIDE" = no ] || side_text
+}
+
 case ${1:-} in
   --issue)
     # agetty reads backslash escapes in issue files: keep ours literal.
+    prepare "$PROMPT_COLOURS"
+    [ "$WIDE" = yes ] && HEADER=yes
     {
-      palette 16
       echo
-      logo_frame 0
-      printf '  %s%s%s\n' "$DIM" "on Allwinner A733 · $(board)" "$R"
+      header 0
       overview
       instructions
-      slogan
       echo
     } | sed 's/\\/\\\\/g'
     ;;
@@ -432,23 +562,29 @@ case ${1:-} in
     rm -f "$CACHE/slogan"
     ;;
   --intro)
-    # Before the login prompt: plain 16 colours, which every serial terminal
-    # understands, erased at the end for the logo of the issue file.
+    # Before the login prompt, on its terminal: the header as the issue file
+    # has it, animated, from where agetty is about to print. agetty starts
+    # with a newline, the issue file with an empty line; at the end the
+    # cursor goes back up, and agetty prints the same header over it.
     tty=${2:?a733-info --intro needs a terminal device}
-    palette 16
-    logo_animate 18 0.06 yes > "$tty"
+    prepare "$PROMPT_COLOURS"
+    NL=$'\r\n'
+    {
+      printf '\r\n\r\n'
+      header_animate 2 0.05
+      printf '%s[%dA\r' "$ESC" $((FLAKE_ROWS + 2))
+    } > "$tty"
     ;;
   --logo | --logo-still)
-    # Not on a terminal narrower than the logo.
-    cols=$(stty size 2> /dev/null | awk '{ print $2 }')
-    ((${cols:-80} >= 42)) || exit 0
-    palette "$(colour_mode)"
+    # After a login, in as many colours as the terminal has.
+    prepare "$(colour_mode)"
     echo
     if [ "$1" = --logo ]; then
-      logo_animate 40 0.03 no
+      header_animate 2 0.06
     else
-      logo_frame 0
+      header 0
     fi
+    printf '  %sa733-info%s hardware, versions, network and services\n\n' "$B" "$R"
     ;;
   "" | --info)
     overview
