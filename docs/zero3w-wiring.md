@@ -1,353 +1,292 @@
 # Orange Pi Zero 3W: wiring inventory
 
-How the board is wired, per peripheral: pins, regulators, PMIC rails, clocks, resets and GPIOs.
-It is the input for a mainline-style device tree, whichever patch stack is chosen. The pins come
-from the vendor device tree; every entry was then compared with the manufacturer's schematic.
-Nothing here was measured or run on the board.
+How the board is wired, per peripheral: pins, supplies, clocks and control lines. It is the input
+for a mainline-style device tree, whichever patch stack is chosen.
+
+The wiring is taken from the manufacturer's schematic for board revision V1.2 (the maintainer's
+unit). The vendor device tree is used for what a schematic does not hold: controller addresses,
+interrupts, clock and reset identifiers. Where the two disagree, the schematic is followed and the
+difference is listed. Nothing here was measured or run on the board.
 
 ## Sources
 
-| Source | Where | Identification |
+| Short name | File | Where |
 |---|---|---|
-| `sun60i-a733-orangepi-zero3w.dts` (board, 4100 lines) | `orangepi-xunlong/linux-orangepi` @ `2ac08e8c7cdc` (pinned in `vendor/sources.json`), `arch/arm64/boot/dts/allwinner/` | sha256 `31145367f604fd756f2c6a67447e5134e4be0ad5fae87672cfaa9b7c6d055a39` |
-| `sun60iw2p1.dtsi` (SoC, 5098 lines) | same directory | sha256 `1c7313f655bdc4d018201664adcb1fa1d100280388b8975e193ebbfc6ad4ddfa` |
-| `sys_config.fex` | `vendor/blobs/orangepi-build/external/packages/pack-uboot/sun60iw2/bin/sys_config/` | pinned in `vendor/sources.json` |
-| Schematic `OPi_ZERO_3W_V1_5-DSN.pdf`, 18 sheets | `docs/board/` | document title `OPI ZERO 3W V1_5_20260409`; its title blocks read `V1.2` |
-| Position diagram `OPi_ZERO_3W_V1_5` | `docs/board/` | component placement |
-| Product page | orangepi.org, "OrangePi Zero 3W" | read 2026-11-12 |
+| sheet N | `OPI ZERO 3W V1_2 Schematic Diagram.pdf`, 18 sheets | `docs/board/` |
+| V1.5 sheet N | `OPi_ZERO_3W_V1_5-DSN.pdf`, 18 sheets, same sheet list, with more annotations | `docs/board/` |
+| pin drawing | "Pin Definition" on the product page, orangepi.org, board marked v1.2, read 2026-11-12 | not copied |
+| dts:N | `sun60i-a733-orangepi-zero3w.dts`, line N | `orangepi-xunlong/linux-orangepi` @ `2ac08e8c7cdc` (pinned in `vendor/sources.json`), sha256 `31145367f604fd756f2c6a67447e5134e4be0ad5fae87672cfaa9b7c6d055a39` |
+| dtsi:N | `sun60iw2p1.dtsi`, line N | same directory, sha256 `1c7313f655bdc4d018201664adcb1fa1d100280388b8975e193ebbfc6ad4ddfa` |
+| `sys_config.fex` | boot configuration | `vendor/blobs/orangepi-build/.../sys_config/` |
 
-"dts:N" is a line of the board file, "dtsi:N" a line of the SoC file, "sheet N" a sheet of the
-schematic. Names such as `CLK_UART0` are the vendor clock and reset identifiers; they identify the
-clock, the mainline bindings use other names and numbers.
+Names such as `CLK_UART0` are the vendor clock and reset identifiers; they identify the clock, the
+mainline bindings use other names and numbers.
 
-## What was checked, and what was not
+## What was read, and how
 
-- The V1.5 schematic was read sheet 9 (SoC GPIO) and sheet 2 (power sequence) as drawings, the
-  other sheets as text (part names, net names, cross-references, notes).
-- Pins marked "sheet 9" below are read from the drawing: net name against SoC pad. The other pins
-  come from the vendor tree, which runs on the board in the vendor image.
-- The V1.2 schematic in `docs/board/` was not compared with V1.5.
-- Not read from the drawings yet: sheet 6 (which regulator output feeds `VCC-3V3-WIFI` and
-  `VCCIO_1V8_WIFI`), sheets 11, 14, 16 (polarity and pull resistors of the control lines).
-
-## Where the vendor tree and the schematic disagree
-
-The board file declares `compatible = "xunlong,orangepi-4-pro"` (dts:9): it was copied from the
-Orange Pi 4 Pro tree. These are the places where it does not describe this board.
-
-| Subject | Vendor tree | Schematic | Consequence for a mainline tree |
+| Sheet | Subject | V1.2 | V1.5 |
 |---|---|---|---|
-| Main crystal | fixed clock `dcxo24M`, 24 MHz (dtsi:342) | Y1 is a 26 MHz crystal; notes "USE 26M", "default 26M" (sheet 8) | the oscillator frequency must be 26 MHz, or detected; confirm on the board |
-| Charger PMIC | AXP515 at `0x34` on S_TWI0 with battery and USB supplies (dts:1957) | no such part; the only PMIC is U1 | leave it out |
-| External RTC | HYM8563 at `0x51` on S_TWI2, SoC RTC disabled (dts:2670, dts:2565) | no such part; S-TWI2 goes to the 40-pin header; a 32.768 kHz crystal (Y2) is on the SoC | use the SoC RTC |
-| USB1 | `usbc1`, `ehci1`, `ohci1` enabled | USB1 D+ and D- leave the SoC on no net | leave it disabled |
-| LRADC keys | five keys enabled (dts:3319) | no key; the ADC inputs carry strapping nets (boot select, DDR parameters, board ID, LCD select) | leave it out |
-| Bluetooth reset | `bt_rst_n` on PM2 (dts:2972) | five nets on PM0 to PM4: `WL-REG-ON`, `WL-WAKE-AP`, `AP_WAKE_WL`, `BT-WAKE-AP`, `AP-WAKE-BT`; none is a Bluetooth reset | PM2 is `AP_WAKE_WL` (sheet 9): host wakes the Wi-Fi side. No Bluetooth reset line |
-| Wi-Fi 32 kHz clock | none listed | `AP-CK32K-OUT` from the SoC to the module's low-power clock input (sheets 8, 14) | the module needs the SoC's 32 kHz output enabled |
-| Wi-Fi supplies | two 1.8 V rails by name, no 3.3 V | `VCC-3V3-WIFI` (module supply) and `VCCIO_1V8_WIFI` (I/O) | describe both |
-| PCIe control | wake only (PD21) | `PCIE-PERSTn`, `PCIE-CLKREQn`, `PCIE-WAKEn`, `PCIE_PWREN_H` (sheets 9, 16) | PD20 clock request, PD21 wake, PD22 reset, PD23 power enable, active high (sheet 9) |
-| S_TWI2 pins | PL10, PL11 (dts:1248) | PL10 and PL11 are `SBU1-DC` and `SBU2-DC`; S-TWI2 is on PL4, PL5, on the 40-pin header (sheet 9) | the tree's S_TWI2 pin group is wrong for this board |
-| Type-C controller | label `husb311`, compatible `fcs,fusb302` | U4 is an FUSB302MPX | the compatible is right, the label is not |
-| PMIC name | `x-powers,axp8191` at `0x36` | U1 is an AXP318 | one part, two names; rail names match (DCDC1 to 9, ALDO, BLDO, CLDO, DLDO, ELDO, two switches) |
-| Status LED | GPIO PL7 | net `PWM_LED`, annotated "PWM0-7", high = on | polarity agrees; it can be driven as GPIO or PWM |
+| 2 | power sequence | not used | drawing; a reference sequence, superseded here by sheet 6 |
+| 5 | boot and power pads, LED, fan | drawing | text |
+| 6 | PMIC and rails | drawing | drawing (left half) |
+| 9 | SoC GPIO | drawing | drawing |
+| 11 | USB Type-C ports | drawing | text |
+| 12 | microSD | drawing | text |
+| 14 | Wi-Fi and Bluetooth | drawing | drawing |
+| 16 | PCIe | drawing | text |
+| 18 | 40-pin header | drawing | text |
+| 1, 3, 4, 7, 8, 10, 13, 15, 17 | block diagram, eMMC, UFS, DRAM, SoC system, analog and high speed, cameras, HDMI, LCD | text only | text only |
 
-Present in the tree and optional on the board, per the schematic and the product page:
-eMMC (`sdc2`) and UFS (`ufs`) footprints are unpopulated by default; the touchscreen (`twi12`,
-`TP_RST`, `TP_INT`) is on the LCD connector and exists only with a panel attached; TWI9 and TWI11
-go to the two camera connectors.
+"Text only" means part names, net names, sheet cross-references and notes were read, not the
+connections. Statements below that rest on a text-only sheet say so.
+
+Differences found between V1.2 and V1.5 on the sheets read as drawings:
+
+- Sheet 14: V1.5 adds R1129 (0 Ohm, marked not fitted) from `AP-CK32K-OUT` to the module's LPO pin,
+  and marks R61 as not fitted. See "Wi-Fi and Bluetooth".
+- Sheet 6: V1.5 draws the loads of DCDC8 and the set voltage of every output; V1.2 draws DCDC8 with
+  a "1.8V" label and no loads. The other outputs have the same loads in both.
+- Sheets 9: same nets on the same pads.
+
+## Where the vendor device tree does not match the board
+
+The vendor tree declares `compatible = "xunlong,orangepi-4-pro"` (dts:9): it was copied from the
+Orange Pi 4 Pro tree.
+
+| Subject | Vendor tree | Schematic | For a mainline tree |
+|---|---|---|---|
+| Main crystal | fixed clock `dcxo24M`, 24 MHz (dtsi:342) | Y1 is 26 MHz, "USE 26M", "default 26M" (sheet 8, text) | 26 MHz, or detected; confirm on the board |
+| Charger PMIC | AXP515 at `0x34` with battery and USB supplies (dts:1957) | not on the board; the only PMIC is U1 (sheet 6) | leave it out |
+| External RTC | HYM8563 at `0x51` on S_TWI2, SoC RTC disabled (dts:2670, dts:2565) | not on the board; 32.768 kHz crystal Y2 on the SoC (sheet 8, text) | use the SoC RTC |
+| S_TWI2 pins | PL10, PL11 (dts:1248) | PL10, PL11 are `SBU1-DC`, `SBU2-DC`; S-TWI2 is on PL4, PL5, header pins 28 and 27 (sheets 9, 18) | S_TWI2 on PL4, PL5 |
+| USB1 | `usbc1`, `ehci1`, `ohci1` enabled | USB1 D+ and D- reach no connector (sheets 10, 11, text) | leave it disabled |
+| LRADC keys | five keys enabled (dts:3319) | no keys; the ADC inputs carry strapping nets (sheet 10, text) | leave it out |
+| Rail assignment | Wi-Fi on `bldo5` and `cldo1`, PCIe on `bldo1` and `dcdc1`, USB on `aldo1`, SD and fan on `dc1sw2`, and so on | those LDO outputs have no load; see "PMIC and rails" (sheet 6) | take supplies from sheet 6, not from the tree |
+| Fan supply | `dc1sw2`, 3.3 V (dts:1527) | `VCC-5V` through 1 Ohm (sheet 5) | 5 V |
+| PCIe | wake only, PD21; supplies `bldo1`, `dcdc1` | four control lines on PD20 to PD23; connector powered from `VCC-5V` (sheets 9, 16) | see "PCIe" |
+| Bluetooth reset | `bt_rst_n` on PM2 (dts:2972) | PM2 is net `AP_WAKE_WL`, which reaches the module's `BT_RST_N` through R61 and its pin 24 through R1130 (sheet 14) | see "Wi-Fi and Bluetooth" |
+| Type-C controller | label `husb311`, compatible `fcs,fusb302` | U4 is an FUSB302MPX (sheet 11) | `fcs,fusb302` |
+| PMIC name | `x-powers,axp8191` at `0x36` | U1 is marked AXP318 (sheet 6) | one part, two names; output names match |
+
+Optional hardware: eMMC (`sdc2`) and UFS footprints are unpopulated by default (product page;
+sheets 3, 4). The touchscreen of the tree (`twi12`, PK22, PK23) is on the LCD connector and exists
+only with a panel attached (sheet 9: `TP_RST`, `TP_INT`).
+
+## PMIC and rails
+
+- PMIC U1, AXP318 (`x-powers,axp8191` in the tree), on S_TWI0: PL0 `PMU-SCK`, PL1 `PMU-SDA`
+  (sheet 9), address `0x36`, 400 kHz, interrupt on the SoC NMI pin (`AP-NMI`; `intc-nmi@7010320`,
+  GIC SPI 188). S_TWI0: `twi@7083000`, GIC SPI 203, `CLK_R_TWI0`, `RST_BUS_R_TWI0` (dtsi:1956).
+- `PMU-PWRON` goes to the `PWRON` pad through 1 kOhm (sheet 5).
+
+Loads per output (sheet 6; set voltages and DCDC8 loads from V1.5 sheet 6):
+
+| Output | Voltage | Loads |
+|---|---|---|
+| DCDC1 | 3.3 V | `VCC-3V3-WIFI`, `VCC_3V3_EXT` (header pins 1, 17), `VCC_3V3_CSI`, `VCC-CARD`; optional `VCC_3V3_EMMC`, `VCC-LCD` |
+| SWOUT2 (switch on DCDC1) | 3.3 V | `VCC-IO` (bank PB), `VCC-PD`, `VCC-PE`, `VCC-PL`, `VCC33-USB`, `VCC33-18-USB`, `VCC33-USB-2`, `VCC33-18-USB-2` |
+| SWOUT1 (switch on DCDC1) | 3.3 V | none |
+| DCDC2 | 0.8 V | `VDD-SYS`, `VDD-VE`, `VDD-COMB0`, `VDD08-HDMI`, `VDD-DRAM`, `VDD08-UFS` |
+| DCDC3 | 0.8 V to 1 V | `VDD-CPUB` (two Cortex-A76) |
+| DCDC4 | 0.8 V to 0.96 V | `VDD-GPU` |
+| DCDC5 | 0.8 V to 1 V | `VDD-CPUL` (six Cortex-A55) |
+| DCDC6 | 0.5 V (LPDDR5) | `VCC-DRAML`, `VCC-VDDQ` |
+| DCDC7 | 1.05 V (LPDDR5) | `VCC-DRAM` |
+| DCDC8 | 1.8 V | `VCC-PC`, `VCC-PG`, `VCC-PH`, `VCC-PJ`, `VCC-PK`, `VCC-PM`, `VCC-MCSI`, `VCC-EFUSE`, `VCCIO_1V8_WIFI`, `VDD18-LPDDR`; optional eMMC and UFS I/O |
+| DCDC9 | 1.22 V | input of the ELDO group; UFS I/O |
+| CLDO2 | 1.8 V | `VCC18-HDMI`, `VCC-LVDS0` |
+| CLDO3 | 1.8 V | `AVCC`, `VCC-PLL`, `VCC-CPU-PLL`, `VCC-DCXO`, `VDD18-DRAM` |
+| CLDO5 | 1.8 V | `VCC18-PF` (microSD 1.8 V signalling), `AVDD-H-COMB0` |
+| ELDO1 | 1.078 V | `VCC09-VDD2L` (LPDDR5) |
+| ELDO6 | 0.8 V | `VDD-CPUS`, `VDD-USB` |
+| DLDO6 | 2.5 V | UFS, optional |
+| RTC LDO | 1.8 V | `VCC-RTC` |
+
+The other outputs (ALDO1 to 6, BLDO1 to 5, CLDO1, CLDO4, DLDO1 to 5, ELDO2 to 5) have no load drawn.
+
+GPIO bank voltages (sheet 9): PB, PD, PE, PL at 3.3 V; PC, PG, PH, PJ, PK, PM at 1.8 V; PF 3.3 V or
+1.8 V (`VCC-IO` and `VCC18-PF`).
+
+Vendor tree cross-check: it agrees on `dcdc3` for `cpu6`, `dcdc5` for `cpu0`, `dcdc4` for the GPU,
+`dcdc2` for HDMI and NPU, `cldo2` for HDMI, `cldo5` for the microSD 1.8 V level. Its other supply
+references point at outputs with no load.
 
 ## Pin summary
 
-`pio` is the main controller (`pinctrl@2000000`, banks PB to PK), `r_pio` the always-on one
-(`pinctrl@7025000`, banks PL and PM).
+| Pad | Net | Use | Source |
+|---|---|---|---|
+| PB9, PB10 | `CPUX-TX`, `CPUX-RX` | UART0 console; header pins 8, 10 through 1 kOhm, with ESD diodes | sheets 9, 18 |
+| PF0 to PF5 | `SDC0-D1`, `CMD`, `CLK`, `D0`, `D3`, `D2` | microSD; `sys_config.fex` swaps CMD and D0 (PF1 = D0, PF3 = CMD) | sheet 9 |
+| PF6 | `SDC0-DET` | microSD card detect, low with a card | sheets 9, 12 |
+| PG0, PG1, PG2 to PG5 | `WL-SDIO-CLK`, `CMD`, `D0` to `D3` | Wi-Fi SDIO | sheet 9 |
+| PG6, PG7, PG8, PG9 | UART1 TX, RX, RTS, CTS (nets `BT-UART-RX`, `TX`, `CTS`, `RTS`) | Bluetooth UART | sheet 9 |
+| PG11 to PG14 | `I2S1_BCLK`, `LRCK`, `DOUT0`, `DIN0` | Bluetooth audio | sheet 9 |
+| PD5 | `FAN_EN_PWM` | fan, PWM0 channel 5 | sheets 5, 9 |
+| PD20, PD21, PD22, PD23 | `PCIE-CLKREQn`, `PCIE-WAKEn`, `PCIE-PERSTn`, `PCIE_PWREN_H` | PCIe | sheets 9, 16 |
+| PE7, PE8 | `TWI11_SCK`, `SDA` | camera connectors | sheet 9 |
+| PE14, PE15 | `TWI9_SCK`, `SDA` | camera connectors | sheet 9 |
+| PH15, PH16 | `BOARD-ID-SEL-GPIO`, `DDR-PARA-SEL-GPIO` | strapping, read at boot | sheet 9 |
+| PJ22, PJ23, PJ25, PJ27 | `LCD_PWR_EN`, `LCD_RST`, `PWM1-7`, `LCD_TE` | LCD connector | sheet 9 |
+| PK22, PK23, PK24, PK25 | `TP_RST`, `TP_INT`, `TWI12-SCK`, `SDA` | touch panel on the LCD connector | sheet 9 |
+| PL0, PL1 | `PMU-SCK`, `PMU-SDA` | S_TWI0 to the PMIC | sheet 9 |
+| PL7 | `PWM_LED1` | LED, high = on | sheets 5, 9 |
+| PL8 | `TYPEC_EN` | VBUS switch of the data port, high = on | sheets 9, 11 |
+| PL9 | `TYPEC_CC_INT` | FUSB302 interrupt, low active | sheets 9, 11 |
+| PL10, PL11 | `SBU1-DC`, `SBU2-DC` | SBU bias on the data port | sheets 9, 11 |
+| PL12, PL13 | `S_TWI1_SCK`, `SDA` | S_TWI1 to the FUSB302 | sheets 9, 11 |
+| PM0 | `WL-WAKE-AP` | Wi-Fi wakes host | sheets 9, 14 |
+| PM1 | `WL-REG-ON` | Wi-Fi enable, high = on | sheets 9, 14 |
+| PM2 | `AP_WAKE_WL` | see "Wi-Fi and Bluetooth" | sheets 9, 14 |
+| PM3 | `AP-WAKE-BT` | host wakes Bluetooth | sheets 9, 14 |
+| PM4 | `BT-WAKE-AP` | Bluetooth wakes host | sheets 9, 14 |
 
-| Pin | Use | Source |
-|---|---|---|
-| PB9, PB10 | UART0 TX, RX (console), mux 2. On the 40-pin header: pin 8 (TX), pin 10 (RX), ground on pin 6 | `sys_config.fex` `[uart_para]`, `README.md`; not in the dts |
-| PF0 to PF5 | microSD: D1, D0, CLK, CMD, D3, D2 | dtsi:1013, `sys_config.fex` `[card0_boot_para]` |
-| PF6 | microSD card detect, active low, pull-up | dts:1625 |
-| PG0 | SDIO Wi-Fi clock | dtsi:1070 |
-| PG1 to PG5 | SDIO Wi-Fi CMD and D0 to D3 (order not given) | dtsi:1056 |
-| PG6 to PG9 | UART1 to Bluetooth (four pins: data and flow control, order not given) | dts:549 |
-| PD5 | fan speed, PWM0 channel 5 | dts:669, dts:1527 |
-| PD20, PD21, PD22, PD23 | PCIe clock request, wake, reset (PERST#), power enable | sheet 9; the tree has PD21 only (dts:1797) |
-| PK22, PK23 | touchscreen reset, interrupt | dts:1878 |
-| PK24, PK25 | TWI12 | dts:897 |
-| PE7, PE8 | TWI11 | dts:885 |
-| PE14, PE15 | TWI9 | dts:873 |
-| PL0, PL1 | S_TWI0 to the PMIC | dts:1224 |
-| PL7 | status LED, active high | dts:75 |
-| PL8 | USB-C VBUS enable (fixed regulator), active high | dts:16 |
-| PL9 | USB-C controller interrupt, active low, pull-up | dts:1217, dts:2584 |
-| PL10, PL11 | `SBU1-DC`, `SBU2-DC` (DisplayPort AUX polarity on the USB-C data port) | sheet 9; the tree puts S_TWI2 here (dts:1248) |
-| PL4, PL5 | S-TWI2 SCK, SDA (40-pin header, pins 28 and 27) | sheet 9 |
-| PL12, PL13 | S_TWI1 to the USB-C controller | dts:1236 |
-| PM0 | Wi-Fi host wake, active high | dts:2961 |
-| PM1 | Wi-Fi enable (`wlan_regon`), active high | dts:2960 |
-| PM2 | `AP_WAKE_WL`, host wakes Wi-Fi | sheet 9; the tree calls it Bluetooth reset (dts:2972) |
-| PM3 | Bluetooth wake, active high | dts:2979 |
-| PM4 | Bluetooth host wake, active high | dts:2980 |
-| NMI | PMIC interrupt (`intc-nmi@7010320`, GIC SPI 188) | dtsi:408 |
-
-PM4 is also `test-gpios` of the vendor `pinctrl_test` node (dtsi:1614); that node is test code.
+The remaining header pads are in "40-pin header".
 
 ## Per peripheral
 
 ### UART0 (console)
 
-- Controller: `uart@2500000`, GIC SPI 2, FIFO 64, clock `CLK_UART0`, reset `RST_BUS_UART0` (dtsi:1621).
-- Pins: the board file sets `pins = "", ""` (dts:537), so the vendor kernel relies on the pin mux the
-  boot chain left behind. `sys_config.fex` gives PB9 (TX) and PB10 (RX), function 2.
-- PB9 and PB10 are SoC pad names, not header positions. On the 40-pin header the console is
-  pin 8 (TX), pin 10 (RX) and pin 6 (ground), 115200 baud (`README.md`).
-- A mainline tree must name the pins itself. No supply is listed.
-- Schematic: agrees. Nets `CPUX-TX` and `CPUX-RX` go to the 40-pin header, marked "CPU DEBUG" (sheets 9, 18).
+- PB9 TX, PB10 RX, each through 1 kOhm (R82, R83) to header pins 8 and 10; ground on pin 6
+  (sheet 18). 115200 baud (`README.md`).
+- Controller: `uart@2500000`, GIC SPI 2, FIFO 64, `CLK_UART0`, `RST_BUS_UART0` (dtsi:1621).
+- The vendor tree leaves the pin group empty (dts:537) and relies on the boot chain; `sys_config.fex`
+  sets PB9 and PB10 to function 2. A mainline tree must name the pins.
 
-### microSD (`sdc0`)
+### microSD
 
-- Controller: `sdmmc@4020000`, GIC SPI 161 (dtsi:4490).
-- Clocks: `sys24M`, `CLK_PLL_PERI1_400M`, `CLK_PLL_PERI1_300M`, `CLK_SMHC0`, `CLK_BUS_SMHC0`,
-  `CLK_STORE_AHB_GATE`, `CLK_MBUS_STORE_GATE`, `CLK_MSI_LITE1`. Reset `RST_BUS_SMHC0`.
-- Pins: PF0 to PF5, 4-bit; clock pin PF2 at drive strength 30, the others at 10, all pull-up.
-  Two pin states, 3.3 V and 1.8 V (`power-source`), for UHS signalling.
-- Card detect: PF6, active low, pull-up.
-- Supplies: card power `dc1sw2` (switch fed by `dcdc1`); I/O at 3.3 V from `dc1sw2`, at 1.8 V from `cldo5`.
-- Modes claimed: high speed, UHS SDR50, DDR50, SDR104; `max-frequency` 150 MHz.
-- Schematic: agrees. Nets `SDC0-CLK`, `SDC0-CMD`, `SDC0-D0` to `SDC0-D3` and `SDC0-DET`; card supply
-  `VCC-CARD` in the rail group fed by switch 2 of DCDC1; `VCC18-PF` on CLDO5 (sheets 2, 6, 12).
+- PF0 to PF5, 4-bit, 33 Ohm in series on the clock (sheet 9).
+  The pad functions are fixed in the SoC, so the order of CMD and D0 does not change the pin group.
+- Card detect: the socket's switch drives transistor Q1, whose output reaches PF6 through 1 kOhm;
+  PF6 is low with a card inserted (sheet 12).
+- Card supply `VCC-CARD` from DCDC1, always on, through 1 Ohm; no switch (sheets 6, 12).
+- I/O level: bank PF from `VCC-IO` (3.3 V) or `VCC18-PF` (CLDO5, 1.8 V) (sheets 6, 9).
+- Controller: `sdmmc@4020000`, GIC SPI 161; clocks `sys24M`, `CLK_PLL_PERI1_400M`,
+  `CLK_PLL_PERI1_300M`, `CLK_SMHC0`, `CLK_BUS_SMHC0`, `CLK_STORE_AHB_GATE`, `CLK_MBUS_STORE_GATE`,
+  `CLK_MSI_LITE1`; reset `RST_BUS_SMHC0` (dtsi:4490).
+- Vendor tree settings: UHS SDR50, DDR50, SDR104, `max-frequency` 150 MHz, clock pin drive
+  strength 30, others 10 (dts:1623, dtsi:1013).
 
-### AIC8800 Wi-Fi (SDIO on `sdc1`)
+### Wi-Fi and Bluetooth
 
-- Controller: `sdmmc@4021000`, GIC SPI 162 (dtsi:4545). Clocks as `sdc0` with `CLK_SMHC1` and
-  `CLK_BUS_SMHC1`; reset `RST_BUS_SMHC1`.
-- Pins: PG0 (clock, drive strength 20), PG1 to PG5 (drive strength 10), all pull-up, 4-bit.
-- Node properties: SDIO only, SDIO interrupt, keeps power in suspend, UHS up to SDR104,
-  `max-frequency` 208 MHz, no signal voltage switching (`sunxi-dis-signal-vol-sw`), no supply properties.
-- Power and control come from the vendor `rfkill` node (dts:2944), not from the MMC node:
-  - `wlan_power = "axp8191-bldo5", "axp8191-cldo1"`, both at 1.8 V; the comment reads `vcc-pg/vcc-pm`,
-    so these look like the I/O rails of banks PG and PM, not the module's main supply;
-  - enable PM1 (active high), host wake PM0 (active high, wake-up source);
-  - `wlan_busnum = 1`; no clock is listed (no 32 kHz reference in the tree).
-- The module's 3.3 V supply is not described. Two fixed regulators that would do it are commented
-  out (dts:26 and dts:38): `wifi_power_en` on PB4 and `wifi_chip_en` on PM1.
-- MAC addresses come from the vendor `addr_mgt` node (dts:2936); mainline has no equivalent.
-- Schematic: the module is U5, `CDW-20800D8-00`, on a footprint shared with the Quectel FCS960K.
-  SDIO nets `WL-SDIO-CLK`, `WL-SDIO-CMD`, `WL-SDIO-D0` to `D3` agree. Supplies, 32 kHz clock and
-  control lines differ from the tree: see the table above. `VCC-PM` is on CLDO1 (sheet 2), which
-  agrees with the tree naming `cldo1`.
+Module U5, `CDW-20800D8-00` (reported to be an AIC8800D80), on a footprint shared with the Quectel
+FCS960K (sheet 14).
 
-### AIC8800 Bluetooth (UART1)
-
-- Controller: `uart@2501000`, GIC SPI 3, FIFO 256, clock `CLK_UART1`, reset `RST_BUS_UART1` (dtsi:1633).
-- Pins: PG6 to PG9, function `uart1`.
-- Control: reset PM2 (active low), wake PM3, host wake PM4 (`btlpm`, `uart_index = 1`).
-- Power: same two rails as Wi-Fi (`bldo5`, `cldo1`, 1.8 V).
-- Schematic: agrees on the UART with flow control (`BT-UART-TX`, `RX`, `RTS`, `CTS`, crossed at the
-  SoC) and on the wake lines. It adds Bluetooth audio on I2S1 (`I2S1_BCLK`, `LRCK`, `DIN0`, `DOUT0`).
-  No reset net: see the table above.
+- Supplies: `VCC-3V3-WIFI` (DCDC1) to VBAT through a ferrite bead; `VCCIO_1V8_WIFI` (DCDC8) to VDDIO.
+  Both rails are always on.
+- SDIO on PG0 to PG5, 1.8 V; footprints for 47 kOhm pull-ups marked "design for test".
+- `WL-REG-ON` (PM1) to the module's `WL_REG_ON`, 100 kOhm pull-down, high = on.
+- `WL-WAKE-AP` (PM0) from the module's `WL_HOST_WAKE`.
+- Bluetooth UART on PG6 to PG9 with RTS and CTS, crossed at the SoC; 10 kOhm pull-ups on RX and TX.
+- `AP-WAKE-BT` (PM3) to `BT_WAKE`; `BT-WAKE-AP` (PM4) from `BT_HOST_WAKE`.
+- Bluetooth audio: I2S1 on PG11 to PG14 to the module's PCM pins.
+- `AP_WAKE_WL` (PM2) is drawn to two module pins through 0 Ohm resistors: `BT_RST_N` (pin 34) through
+  R61, and pin 24 (`LPO` on this module) through R1130. V1.5 marks R61 as not fitted and labels the
+  pair as a compatibility option for the FCS960K. Which of the two is fitted on a V1.2 board is not
+  stated: to check on the board. The vendor tree uses PM2 as Bluetooth reset, active low.
+- 32 kHz clock: `AP-CK32K-OUT` (the SoC's `X32KFOUT`) arrives on sheet 14 and is connected to
+  nothing on V1.2. The module gets no external 32 kHz clock.
+- Controllers: SDIO `sdmmc@4021000`, GIC SPI 162, `CLK_SMHC1`, `CLK_BUS_SMHC1`, `RST_BUS_SMHC1`
+  (dtsi:4545); UART1 `uart@2501000`, GIC SPI 3, FIFO 256, `CLK_UART1`, `RST_BUS_UART1` (dtsi:1633).
+- Vendor tree settings: SDIO up to SDR104, `max-frequency` 208 MHz, SDIO interrupt, power kept in
+  suspend (dts:1654). MAC addresses come from the vendor `addr_mgt` node; mainline has no equivalent.
 
 ### USB
 
-Three controllers are enabled in the tree. The schematic says which connector each one reaches:
-
-- Power connector (16-pin Type-C, "DC 5V" input): USB0 D+ and D-, that is `usbc0`, USB 2.0 only.
-  Its CC pins go to two 5.1 kOhm resistors (R47, R48): it is a sink, with no controller.
-- Data connector (24-pin Type-C, "TypeC DP Port"): USB2 D+ and D- plus the four COMB0 lanes, SBU and
-  CC, that is `usbc2` and DisplayPort. CC goes to the FUSB302 (U4); VBUS is switched by U3, a SY6280,
-  enabled by net `TYPEC_EN`.
-- USB1 (`usbc1`) is not connected.
-
-| Node | Address | Role | Clocks and resets |
-|---|---|---|---|
-| `usbc0`: `udc`, `ehci0`, `ohci0` | `0x4100000`, `0x4101000`, `0x4101400`; GIC SPI 156, 157, 158 | USB 2.0 dual role (`usb_port_type = 2`) | `CLK_USB_REF`, `CLK_USB0_DEVICE`, `CLK_USB0_EHCI`, `CLK_USB0_OHCI`, `CLK_USB`, `CLK_USB_SYS_AHB_GATE`, `CLK_MSI_LITE2`; `RST_USB_0_DEVICE`, `RST_USB_0_EHCI`, `RST_USB_0_OHCI`, `RST_USB_0_PHY_RSTN` |
-| `usbc1`: `ehci1`, `ohci1` | `0x4200000`; GIC SPI 159 | USB 2.0 host, wake-up source | `CLK_USB_REF`, `CLK_USB1_EHCI`, `CLK_USB_SYS_AHB_GATE`, `CLK_MSI_LITE2`; `RST_USB_1_EHCI`, `RST_USB_1_PHY_RSTN` |
-| `usbc2`: `xhci2` (DWC3) | `0x6a00000`; GIC SPI 155 | USB 3 dual role, default host, role switch | `CLK_USB2_MF`, `CLK_USB2_U2_REF`, `CLK_USB2_SUSPEND` (24 MHz); `RST_USB_2`; power domain `SUN60IW2_PCK_USB2` |
-
-- `usbc0`: VBUS detection through the PMIC (`usb_det_vbus_gpio = "axp_ctrl"`), no ID GPIO, detect I/O
-  supply `aldo1`. All three USB 2.0 nodes carry `phy_range = <0x188>`.
-- `usbc2` PHYs: `u2phy` (`phy@6b00000`) and `combo0_usb` inside the `serdes` block (`serdes@6c00000`,
-  1.8 V from `cldo5`, clocks `CLK_SERDES_PHY_CFG`, `CLK_RTC_DCXO_SERDES0`, `CLK_RTC_DCXO_SERDES1`,
-  `CLK_USB2_U3_UTMI`, `CLK_USB2_U2_PIPE`, reset `RST_BUS_SERDES`).
-- Type-C port controller: on S_TWI1 (PL12, PL13, 400 kHz) at address `0x22`. The node is labelled
-  `husb311` but its compatible is `fcs,fusb302` (dts:2580); the part fitted is an FUSB302.
-  Interrupt PL9 (active low). VBUS: fixed 5 V regulator `usb0-vbus` enabled by PL8 (active high).
-- Connector node: dual data role, dual power role, tries sink first; sink 5 V up to 2 A, source 5 V up
-  to 1.2 A; DisplayPort alternate mode (SVID `0xff01`).
-- DisplayPort over USB-C: `phy_switcher` (dts:400) switches `combo0_dp` and `combo0_usb` with the plug
-  orientation. Its AUX GPIOs (PL12, PL13) are commented out and collide with S_TWI1.
-- Schematic: agrees on S_TWI1 to the controller (`S_TWI1_SCK`, `S_TWI1_SDA`), on its interrupt
-  (`TYPEC_CC_INT`) and on the VBUS enable (`TYPEC_EN`). It also has two GPIO nets for the AUX
-  polarity, `SBU1-DC` and `SBU2-DC`, which the tree does not use.
-
-### PMIC (S_TWI0: PL0, PL1, 400 kHz, clock `CLK_R_TWI0`, reset `RST_BUS_R_TWI0`)
-
-- `pmu@36`: `x-powers,axp8191`, the main regulator; the schematic calls the part AXP318 (U1).
-  Interrupt: NMI (`AP-NMI`). Power key child `x-powers,axp2101-pek`; the schematic has a `PWRON` pad.
-- `pmu@34`: AXP515 charger with battery and USB supplies. Not on the board: see the table above.
-- Schematic: agrees on the bus (`PMU-SCK`, `PMU-SDA`) and on these rail uses: DCDC3 for the big
-  CPU cluster (`VDD-CPUB`), DCDC5 for the little cluster (`VDD-CPUL`), DCDC4 for the GPU, DCDC2 for
-  `VDD-SYS`, NPU and the 0.8 V of HDMI, DCDC1 feeding both switches.
-
-Rails. The tree gives each rail its full range only, never a set voltage. Set voltages from the
-power sequence drawing (sheet 2), which is a reference sequence and names DCDC3 for both CPU
-clusters; sheet 6 has DCDC5 for the little cluster, as the tree does. Confirm on the running system.
-
-| Output | Nets | Voltage |
-|---|---|---|
-| DCDC1 | Wi-Fi supply; input of both switches | 3.3 V |
-| DCDC1 switch 2 | `VCC-IO`, `VCC-3V3`, `VCC-CARD`, eMMC | 3.3 V |
-| DCDC1 switch 1 | `VCC33-LCD` | 3.3 V |
-| DCDC2 | `VDD-SYS`, `VDD-VE`, `VDD-NPU`, 0.8 V of HDMI, UFS and both combo PHYs | 0.8 V |
-| DCDC3 | `VDD-CPUB` | 0.8 V at start |
-| DCDC4 | `VDD-GPU` | 0.8 V at start |
-| DCDC5 | `VDD-CPUL` | 0.8 V at start |
-| DCDC9, then an ELDO | `VDD-CPUS`, `VDD-USB` | 0.8 V |
-| ALDO1 | `VCC-PL`, `VCC33-USB` | 3.3 V |
-| BLDO1 | `VCC-PK`, `VCC-MCSI`, camera I/O | 1.8 V |
-| BLDO2 | `VCC-PJ`, `VCC-LVDS0`, `VCC18-LCD` | 1.8 V |
-| CLDO1 | `VCC-PM`, `VDD18-LPDDR` | 1.8 V |
-| CLDO2 | `VCC18-HDMI` | 1.8 V |
-| CLDO3 | `AVCC`, `VCC-DCXO`, `VCC-PLL`, `VDD18-DRAM` | 1.8 V |
-| CLDO5 | `VCC-PC`, `VCC18-PF`, `AVDD-H-COMB0` | 1.8 V |
-| DLDO1 | `VCC-EFUSE` | 1.8 V |
-| DLDO6 | `VCC25-UFS` | 2.5 V |
-
-GPIO bank voltages on sheet 9: PB 3.3 V (`VCC-IO`), PD 3.3 V, PE 3.3 V, PL 3.3 V; PC, PG, PH, PJ, PM 1.8 V.
-Sheet 2 lists `VCC-PE` and `VCC-PD` with 1.8 V rails: the two sheets disagree on those two banks.
-
-Rail uses named in the vendor tree:
-
-| Rail | Always on | Consumers named in the tree |
-|---|---|---|
-| `dcdc1` | yes | PCIe 3.3 V; input of `dc1sw1` and `dc1sw2` |
-| `dcdc2` | yes | HDMI, NPU, eDP |
-| `dcdc3` | yes | `cpu6` (second CPU cluster) |
-| `dcdc4` | yes | GPU |
-| `dcdc5` | yes | `cpu0` (first CPU cluster), DSU |
-| `dcdc6`, `dcdc7`, `dcdc9` | yes | none named |
-| `dcdc8` | yes | TWI12 |
-| `rtcldo` | yes, fixed 1.8 V | none named |
-| `aldo1` | yes | USB0 VBUS detect I/O, TWI0 |
-| `aldo5` | no | audio codec AC101 (disabled) |
-| `bldo1` | no | PCIe 1.8 V, TWI2, TWI3, TWI9 |
-| `bldo2` | no | DSI panel (disabled), TWI7 |
-| `bldo4` | no | audio codec AC101 (disabled) |
-| `bldo5` | no | Wi-Fi and Bluetooth, 1.8 V |
-| `cldo1` | yes | Wi-Fi and Bluetooth, 1.8 V |
-| `cldo2` | yes | HDMI |
-| `cldo3` | yes | none (eMMC supply, commented out) |
-| `cldo5` | yes | microSD 1.8 V signalling, `serdes` 1.8 V |
-| `dldo1` | yes | SID (efuse), 1.8 V |
-| `eldo1`, `eldo6` | yes | none named |
-| `dc1sw1` | yes | panels and Ethernet PHY (all disabled) |
-| `dc1sw2` | yes | microSD power and 3.3 V I/O, fan, TWI5, TWI11 |
-| `aldo2` to `aldo4`, `aldo6`, `bldo3`, `cldo4`, `dldo2` to `dldo6`, `eldo2` to `eldo5` | no | none named |
+- Power port (16-pin Type-C): `VCC-5V` in, USB0 D+ and D-, CC1 and CC2 each to ground through
+  5.1 kOhm. A sink with no controller; USB 2.0 only (sheet 11).
+- Data port (24-pin Type-C, "TypeC DP Port"): USB2 D+ and D-, the four COMB0 lanes (USB 3 and
+  DisplayPort), SBU, CC (sheet 11).
+  - VBUS from `VCC-5V` through switch U3 (SY6280), enabled by `TYPEC_EN` (PL8), 100 kOhm pull-down.
+  - CC controller U4, FUSB302MPX, on S_TWI1 (PL12, PL13; 2.2 kOhm pull-ups to `VCC-PL`), interrupt
+    PL9 with 4.7 kOhm pull-up, supplied from `VCC-PL`, VCONN from `VCC-5V`. Address `0x22` in the tree.
+  - DisplayPort AUX is AC-coupled to SBU1 and SBU2; `SBU1-DC` (PL10) and `SBU2-DC` (PL11) bias the
+    SBU lines through 100 kOhm.
+- USB1 reaches no connector.
+- Controllers (dtsi): `usbc0` = `udc@4100000`, `ehci0@4101000`, `ohci0@4101400`, GIC SPI 156 to 158,
+  `CLK_USB_REF`, `CLK_USB0_DEVICE`, `CLK_USB0_EHCI`, `CLK_USB0_OHCI`, `CLK_USB_SYS_AHB_GATE`,
+  `CLK_MSI_LITE2`, `RST_USB_0_*`. `usbc2` = DWC3 `xhci2@6a00000`, GIC SPI 155, `CLK_USB2_MF`,
+  `CLK_USB2_U2_REF`, `CLK_USB2_SUSPEND`, `RST_USB_2`, power domain `SUN60IW2_PCK_USB2`; PHYs
+  `phy@6b00000` and `combo0_usb` in `serdes@6c00000` (`CLK_SERDES_PHY_CFG`, `RST_BUS_SERDES`).
+- Vendor tree: connector node with dual data and power role, sink 5 V up to 2 A, source 5 V up to
+  1.2 A, DisplayPort alternate mode (dts:2578).
 
 ### HDMI
 
-- Controller: `hdmi0@5520000`, GIC SPI 61, power domain `SUN60IW2_PCK_VO1` (dtsi:4287).
-- Clocks: `CLK_HDMI_REF` (CEC), `CLK_HDMI`, `CLK_HDMI_SFR` (24 MHz), `CLK_HDCP_ESM`, `CLK_DCXO` (RTC CCU).
-  Resets: `RST_BUS_HDMI_SUB`, `RST_BUS_HDMI_MAIN`, `RST_BUS_HDMI_HDCP`.
-- Supplies: `dcdc2` and `cldo2`.
-- DDC: the controller's own adapter (`hdmi_ddc_index = 20`), no TWI pins. CEC enabled. No hot-plug
-  GPIO and no 5 V enable GPIO in the tree.
-- Pixel clock from the PHY PLL (`hdmi_clock_source = 0`); on-board termination (`hdmi_resistor_select = 1`).
-- Input: display engine `tcon3`. HDMI audio through `hdmi_codec`.
-- Schematic: agrees. `HSCL`, `HSDA`, `HCEC` and `HHPD` are dedicated SoC pins; the connector's 5 V
-  comes from `VCC-5V` through a diode, with no enable (sheets 10, 15).
+- Sheet 15 was read as text only: mini HDMI connector, `HSCL`, `HSDA`, `HCEC`, `HHPD` on dedicated
+  SoC pins, connector 5 V from `VCC-5V` through a diode.
+- Supplies: `VDD08-HDMI` (DCDC2), `VCC18-HDMI` (CLDO2) (sheet 6).
+- Controller: `hdmi0@5520000`, GIC SPI 61, power domain `SUN60IW2_PCK_VO1`; clocks `CLK_HDMI_REF`,
+  `CLK_HDMI`, `CLK_HDMI_SFR`, `CLK_HDCP_ESM`, `CLK_DCXO`; resets `RST_BUS_HDMI_SUB`,
+  `RST_BUS_HDMI_MAIN`, `RST_BUS_HDMI_HDCP` (dtsi:4287).
 
 ### PCIe
 
-- Controller: `pcie@6000000` (`allwinner,sunxi-pcie-v300-rc`), one lane, `max-link-speed = 3`,
-  power domain `SUN60IW2_PCK_PCIE` (dtsi:5046). GIC SPI 152 (sii), 153 (MSI), 136 to 143 (eDMA).
-- Clocks: `CLK_PCIE0_AUX`, `CLK_PCIE0_AXI_SLV`, `CLK_ITS_PCIE0_A`. Resets: `RST_BUS_PCIE0`,
-  `RST_BUS_PCIE0_PWRUP`, `RST_BUS_ITS_PCIE0`.
-- PHY: `combo1_pcie` in the `serdes` block (1.8 V from `cldo5`).
-- Board side (dts:1794): wake PD21 (active high), 1.8 V from `bldo1`, 3.3 V from `dcdc1`.
-- Not described in the tree: reset (PERST#), clock request, power enable. The schematic has all
-  three as GPIO nets: see the table above.
+- 16-contact FPC connector plus two shell contacts (sheet 16): `VCC-5V` on contacts 1 and 2, the
+  reference clock pair, one RX and one TX pair, then `PCIE_PWREN_H` (PD23), `PCIE-WAKEn` (PD21),
+  `PCIE-CLKREQn` (PD20), `PCIE-PERSTn` (PD22).
+- The board has no 3.3 V switch for PCIe: `PCIE_PWREN_H` is a signal for the board on the other end
+  of the cable. The reference clock is biased from DCDC2.
+- Controller: `pcie@6000000`, one lane, `max-link-speed = 3`, power domain `SUN60IW2_PCK_PCIE`,
+  GIC SPI 152, 153, 136 to 143; `CLK_PCIE0_AUX`, `CLK_PCIE0_AXI_SLV`, `CLK_ITS_PCIE0_A`;
+  `RST_BUS_PCIE0`, `RST_BUS_PCIE0_PWRUP`, `RST_BUS_ITS_PCIE0`; PHY `combo1_pcie` (dtsi:5046).
 
 ### Fan
 
-- Two-wire fan on the board, speed set by PWM: `pwm-fan` node (dts:1527) on PWM0 channel 5, pin PD5,
-  period 25 µs (40 kHz), supply `dc1sw2`.
-- Schematic: agrees. Two-pin connector `FAN` switched by transistor Q2 (WNM2021), driven by net
-  `FAN_EN_PWM`, annotated "PWM0-5" (sheets 5, 9). The product page lists a "2PIN Fan interface".
-- Five levels (`cooling-levels = <0 50 102 170 255>`); it is the cooling device of both CPU thermal zones.
+- Two-contact connector `FAN`: FAN+ from `VCC-5V` through 1 Ohm; FAN- switched to ground by
+  transistor Q2 (WNM2021), gate driven by `FAN_EN_PWM` (PD5, PWM0 channel 5) (sheet 5).
+- Vendor tree: `pwm-fan`, period 25 µs (40 kHz), five levels, cooling device of both CPU thermal
+  zones (dts:1527).
 
 ### LED
 
-- One GPIO LED, `status_led`: PL7, active high, heartbeat trigger (dts:73).
-- Schematic: one LED (LED1) on net `PWM_LED`, high = on.
+- One LED, LED1 (red). It is fed from DCDC1 through 10 kOhm and from `PWM_LED1` (PL7) through
+  1 kOhm: dim whenever the board is powered, bright with PL7 high (sheet 5).
+- Vendor tree: `status_led`, GPIO, active high, heartbeat (dts:73).
 
-### Buttons
+### Pads
 
-- The board has no buttons. The schematic has through-hole pads (H1 to H4) for power-on (`PWRON`),
-  boot mode (`BOOT`, the FEL line) and reset (`AP-RESET`); the product page shows no key.
-- The tree has no `gpio-keys` node. Its power key child of the PMIC matches the `PWRON` pad.
-- The LRADC keys of the tree are not on the board: see the table above.
+- `BOOT`: the SoC's FEL line through 1 kOhm. `PWRON`: the PMIC's power key input through 1 kOhm.
+  One ground pad (sheet 5). No buttons and no reset pad. H1 to H4 are the mounting holes, grounded.
 
 ### Watchdog
 
-- `watchdog@2050000`, `allwinner,wdt-v103`, GIC SPI 106, no clock or reset listed (dtsi:1388).
-  The board file does not touch it.
-- For the mainline tree this is the node to get right with boot chain 1, which hands the watchdog
-  over running (see `docs/mainline-notes.md`).
+- Not a board item. `watchdog@2050000`, `allwinner,wdt-v103`, GIC SPI 106, no clock or reset listed
+  (dtsi:1388); the vendor board file does not touch it. It matters with boot chain 1, which hands
+  the watchdog over running (`docs/mainline-notes.md`).
 
-### Clocks and time
+### Clocks
 
-- Main crystal: the tree declares 24 MHz (`dcxo24M`), the schematic fits 26 MHz (Y1). See the table above.
-- 32.768 kHz crystal (Y2) on the SoC; the tree takes 32 kHz from the RTC CCU (`rtc_ccu@7090000`).
-  16 MHz internal RC.
-- RTC: the tree disables the SoC RTC (`rtc@7090000`) and declares an HYM8563 that is not on the board.
-
-### Other nodes enabled in the tree
-
-| Node | What it claims | Schematic |
-|---|---|---|
-| `sdc2` | 8-bit eMMC on PC0 to PC16, HS400, no supplies | footprint, unpopulated by default (sheet 3) |
-| `ufs` | UFS host (dts:4094) | footprint, unpopulated by default (sheet 4) |
-| `twi12` + `touchscreen@14` | Goodix GT9271 on PK24, PK25; interrupt PK23, reset PK22 | on the LCD connector, with `LCD_RST`, `LCD_PWR_EN` and backlight `PWM1-7` (sheet 17) |
-| `twi9`, `twi11` | buses on PE14, PE15 (100 kHz) and PE7, PE8 (400 kHz), no devices | camera connectors (sheet 13) |
-| `gpadc0` | 8 channels enabled | ADC inputs carry strapping nets (sheet 10) |
-| `npu`, `gpu`, `de`, `vo0`, `vo1`, `tv0`, `tv1`, `mipi0`, `vind0` | display, GPU, NPU and camera blocks | SoC blocks; DSI and two CSI connectors are on the board |
-
-Disabled in the tree: Ethernet (`gmac0`), eDP and DSI panels, AC101 and ES8388 audio codecs, infrared
-receiver, LED strip controller, UART2, 3, 5, 6, 7, 8, TWI0, 1, 2, 3, 5, 7, 8. None of those parts
-is in the schematic; the buses are the 40-pin header signals.
+- Y1, 26 MHz, on the SoC's DCXO pins; Y2, 32.768 kHz, on the SoC's RTC pins (sheet 8, text only).
+- The vendor tree declares 24 MHz for the same oscillator. See the table of differences.
 
 ### 40-pin header
 
-From the "Pin Definition" drawing on the product page (orangepi.org, board marked v1.2, read
-2026-11-12). It agrees with `README.md` on the console pins.
+Sheet 18, which agrees with the pin drawing on every pin.
 
-| Pin | Pad | Functions | Pin | Pad | Functions |
-|---|---|---|---|---|---|
-| 1 | 3.3 V | | 2 | 5 V | |
-| 3 | PB3 | TWI0_SDA | 4 | 5 V | |
-| 5 | PB2 | TWI0_SCK | 6 | GND | |
-| 7 | PB4 | PWM0_0 | 8 | PB9 | UART0_TX (console) |
-| 9 | GND | | 10 | PB10 | UART0_RX (console) |
-| 11 | PB0 | UART2_TX | 12 | PB5 | |
-| 13 | PB1 | UART2_RX | 14 | GND | |
-| 15 | PE11 | | 16 | PL2 | UART7_TX |
-| 17 | 3.3 V | | 18 | PL3 | UART7_RX |
-| 19 | PE2 | TWI2_SDA, SPI3_MOSI | 20 | GND | |
-| 21 | PE3 | TWI3_SCK, SPI3_MISO | 22 | PD0 | |
-| 23 | PE1 | UART6_RX, TWI2_SCK, SPI3_CLK | 24 | PE0 | SPI3_CS0, UART6_TX |
-| 25 | GND | | 26 | PE4 | SPI3_CS1, TWI3_SDA |
-| 27 | PL5 | | 28 | PL4 | |
-| 29 | PE12 | | 30 | GND | |
-| 31 | PE13 | | 32 | PD1 | PWM0_1 |
-| 33 | PD3 | PWM0_3 | 34 | GND | |
-| 35 | PB6 | PWM0_8 | 36 | PD2 | PWM0_2 |
-| 37 | PD4 | PWM0_4 | 38 | PB8 | TWI1_SDA |
-| 39 | GND | | 40 | PB7 | TWI1_SCL, PWM0_9 |
+| Pin | Pad | Schematic net | Pin drawing | Pin | Pad | Schematic net | Pin drawing |
+|---|---|---|---|---|---|---|---|
+| 1 | | 3.3 V (`VCC_3V3_EXT`, 0.5 A) | | 2 | | 5 V | |
+| 3 | PB3 | `EXT_TWI0_SDA` | TWI0_SDA | 4 | | 5 V | |
+| 5 | PB2 | `EXT_TWI0_SCK` | TWI0_SCK | 6 | | GND | |
+| 7 | PB4 | `I2S0-MCLK` | PWM0_0 | 8 | PB9 | `CPUX-TX` | UART0_TX |
+| 9 | | GND | | 10 | PB10 | `CPUX-RX` | UART0_RX |
+| 11 | PB0 | `PB0` | UART2_TX | 12 | PB5 | `I2S0-BCLK` | |
+| 13 | PB1 | `PB1` | UART2_RX | 14 | | GND | |
+| 15 | PE11 | `PE11` | | 16 | PL2 | `PL2` (S-PWM0 channel 0) | UART7_TX |
+| 17 | | 3.3 V | | 18 | PL3 | `PL3` (S-PWM0 channel 1, infrared) | UART7_RX |
+| 19 | PE2 | `SPI3_MOSI` | TWI2_SDA, SPI3_MOSI | 20 | | GND | |
+| 21 | PE3 | `SPI3_MISO` | TWI3_SCK, SPI3_MISO | 22 | PD0 | `PD0` | |
+| 23 | PE1 | `SPI3_CLK` | UART6_RX, TWI2_SCK, SPI3_CLK | 24 | PE0 | `SPI3_CS0` | SPI3_CS0, UART6_TX |
+| 25 | | GND | | 26 | PE4 | `SPI3_CS1` | SPI3_CS1, TWI3_SDA |
+| 27 | PL5 | `PL5` (S-TWI2 SDA) | | 28 | PL4 | `PL4` (S-TWI2 SCK) | |
+| 29 | PE12 | `UART1-TX` | | 30 | | GND | |
+| 31 | PE13 | `UART1-RX` | | 32 | PD1 | `PD1` | PWM0_1 |
+| 33 | PD3 | `PD3` | PWM0_3 | 34 | | GND | |
+| 35 | PB6 | `I2S0-LRCLK` | PWM0_8 | 36 | PD2 | `PD2` | PWM0_2 |
+| 37 | PD4 | `PD4` | PWM0_4 | 38 | PB8 | `I2S0-DIN0` | TWI1_SDA |
+| 39 | | GND | | 40 | PB7 | `I2S0-DOUT0` | TWI1_SCL, PWM0_9 |
 
-Net names on the V1.5 schematic (sheet 9) for the same pads: PB4 to PB8 are I2S0 (MCLK, BCLK,
-LRCLK, DOUT0, DIN0), PE12 and PE13 are named `UART1-TX` and `UART1-RX`, PL2 and PL3 are S-PWM0
-channels 0 and 1 (PL3 also infrared), PL4 and PL5 are S-TWI2. Same pads, other functions of them:
-no difference in wiring between the drawing and the schematic was found.
+TWI0 has 4.7 kOhm pull-ups to `VCC-IO` on the board (sheet 9). Bank PL is 3.3 V, so are PB, PD, PE.
 
 ## To confirm on the board
 
@@ -355,11 +294,12 @@ From the vendor image, before anything else is flashed:
 
 | Question | How |
 |---|---|
-| Oscillator frequency, 24 or 26 MHz | `dmesg` and `/sys/kernel/debug/clk/clk_summary` (`dcxo`, `hosc`) |
-| Rail voltages and which rails are on | `/sys/kernel/debug/regulator/regulator_summary` |
-| Pin mux in use (UART0 on PB9 and PB10 expected) | `/sys/kernel/debug/pinctrl/*/pinmux-pins` |
-| GPIO lines held and their levels, PM0 to PM4 first | `/sys/kernel/debug/gpio` |
-| Nothing answers at `0x34` (AXP515) and `0x51` (RTC) | `dmesg`, `i2cdetect` on S_TWI0 and S_TWI2 |
-| Which tree the image boots | `cat /sys/firmware/devicetree/base/compatible`, keep a copy of `/sys/firmware/fdt` |
+| Oscillator frequency, 24 or 26 MHz | `dmesg`, `/sys/kernel/debug/clk/clk_summary` |
+| Set voltage of each PMIC output, against the table above | `/sys/kernel/debug/regulator/regulator_summary` |
+| Whether PM2 resets Bluetooth (R61 fitted) | toggle PM2 with the module running; or look for R61 and R1130 near U5 |
+| Nothing answers at `0x34` and `0x51` | `i2cdetect` on S_TWI0 and S_TWI2 |
+| Pin mux in use | `/sys/kernel/debug/pinctrl/*/pinmux-pins` |
+| Which tree the image boots | `/sys/firmware/devicetree/base/compatible`; keep a copy of `/sys/firmware/fdt` |
 
-Still to read from the schematic drawings: see "What was checked, and what was not".
+Still to read as drawings: sheets 8, 10, 13, 15, 17 (SoC system pins, analog and high speed, cameras,
+HDMI, LCD).
