@@ -12,8 +12,8 @@ Nothing here was measured or run on the board.
 | `sun60i-a733-orangepi-zero3w.dts` (board, 4100 lines) | `orangepi-xunlong/linux-orangepi` @ `2ac08e8c7cdc` (pinned in `vendor/sources.json`), `arch/arm64/boot/dts/allwinner/` | sha256 `31145367f604fd756f2c6a67447e5134e4be0ad5fae87672cfaa9b7c6d055a39` |
 | `sun60iw2p1.dtsi` (SoC, 5098 lines) | same directory | sha256 `1c7313f655bdc4d018201664adcb1fa1d100280388b8975e193ebbfc6ad4ddfa` |
 | `sys_config.fex` | `vendor/blobs/orangepi-build/external/packages/pack-uboot/sun60iw2/bin/sys_config/` | pinned in `vendor/sources.json` |
-| Schematic `OPi_ZERO_3W_V1_5-DSN.pdf`, 18 sheets | "Schematic" folder linked from the board's download page on orangepi.org | document title `OPI ZERO 3W V1_5_20260409`, author `xunlong`; its title blocks read `V1.2` |
-| Position diagram `OPi_ZERO_3W_V1_5` | same folder | sha256 `634bcc7f7b02858ceaef1bc9bd9abf7fa90f23d18c442548e14a7f1f53254068` |
+| Schematic `OPi_ZERO_3W_V1_5-DSN.pdf`, 18 sheets | `docs/board/` | document title `OPI ZERO 3W V1_5_20260409`; its title blocks read `V1.2` |
+| Position diagram `OPi_ZERO_3W_V1_5` | `docs/board/` | component placement |
 | Product page | orangepi.org, "OrangePi Zero 3W" | read 2026-11-12 |
 
 "dts:N" is a line of the board file, "dtsi:N" a line of the SoC file, "sheet N" a sheet of the
@@ -22,15 +22,13 @@ clock, the mainline bindings use other names and numbers.
 
 ## What was checked, and what was not
 
-- The schematic was read as text only (part names, net names, sheet cross-references, notes).
-  The drawings were not viewed: the download of the PDF was refused by the host ("quota exceeded")
-  on 2026-11-12.
-- So the schematic confirms which parts are fitted, which signals exist and which sheets they join.
-  It does not confirm here on which SoC pin a net sits. Pin numbers below come from the vendor tree,
-  which runs on the board in the vendor image; the 40-pin header pins also agree with `README.md`.
-- "Schematic: agrees" below means the part or net is in the schematic under that function.
-  "Schematic: differs" and "not in the schematic" are spelled out in the next section.
-- Open item: read the drawings to tie each net to its pin (Wi-Fi control lines and PCIe first).
+- The V1.5 schematic was read sheet 9 (SoC GPIO) and sheet 2 (power sequence) as drawings, the
+  other sheets as text (part names, net names, cross-references, notes).
+- Pins marked "sheet 9" below are read from the drawing: net name against SoC pad. The other pins
+  come from the vendor tree, which runs on the board in the vendor image.
+- The V1.2 schematic in `docs/board/` was not compared with V1.5.
+- Not read from the drawings yet: sheet 6 (which regulator output feeds `VCC-3V3-WIFI` and
+  `VCCIO_1V8_WIFI`), sheets 11, 14, 16 (polarity and pull resistors of the control lines).
 
 ## Where the vendor tree and the schematic disagree
 
@@ -44,10 +42,11 @@ Orange Pi 4 Pro tree. These are the places where it does not describe this board
 | External RTC | HYM8563 at `0x51` on S_TWI2, SoC RTC disabled (dts:2670, dts:2565) | no such part; S-TWI2 goes to the 40-pin header; a 32.768 kHz crystal (Y2) is on the SoC | use the SoC RTC |
 | USB1 | `usbc1`, `ehci1`, `ohci1` enabled | USB1 D+ and D- leave the SoC on no net | leave it disabled |
 | LRADC keys | five keys enabled (dts:3319) | no key; the ADC inputs carry strapping nets (boot select, DDR parameters, board ID, LCD select) | leave it out |
-| Bluetooth reset | `bt_rst_n` on PM2 (dts:2972) | five nets on PM0 to PM4: `WL-REG-ON`, `WL-WAKE-AP`, `AP_WAKE_WL`, `BT-WAKE-AP`, `AP-WAKE-BT`; none is a Bluetooth reset | PM2 is probably `AP_WAKE_WL`; settle it on the drawing |
+| Bluetooth reset | `bt_rst_n` on PM2 (dts:2972) | five nets on PM0 to PM4: `WL-REG-ON`, `WL-WAKE-AP`, `AP_WAKE_WL`, `BT-WAKE-AP`, `AP-WAKE-BT`; none is a Bluetooth reset | PM2 is `AP_WAKE_WL` (sheet 9): host wakes the Wi-Fi side. No Bluetooth reset line |
 | Wi-Fi 32 kHz clock | none listed | `AP-CK32K-OUT` from the SoC to the module's low-power clock input (sheets 8, 14) | the module needs the SoC's 32 kHz output enabled |
 | Wi-Fi supplies | two 1.8 V rails by name, no 3.3 V | `VCC-3V3-WIFI` (module supply) and `VCCIO_1V8_WIFI` (I/O) | describe both |
-| PCIe control | wake only (PD21) | `PCIE-PERSTn`, `PCIE-CLKREQn`, `PCIE-WAKEn`, `PCIE_PWREN_H` (sheets 9, 16) | reset, clock request and a power enable exist; pins to read from the drawing |
+| PCIe control | wake only (PD21) | `PCIE-PERSTn`, `PCIE-CLKREQn`, `PCIE-WAKEn`, `PCIE_PWREN_H` (sheets 9, 16) | PD20 clock request, PD21 wake, PD22 reset, PD23 power enable, active high (sheet 9) |
+| S_TWI2 pins | PL10, PL11 (dts:1248) | PL10 and PL11 are `SBU1-DC` and `SBU2-DC`; S-TWI2 is on PL4, PL5, on the 40-pin header (sheet 9) | the tree's S_TWI2 pin group is wrong for this board |
 | Type-C controller | label `husb311`, compatible `fcs,fusb302` | U4 is an FUSB302MPX | the compatible is right, the label is not |
 | PMIC name | `x-powers,axp8191` at `0x36` | U1 is an AXP318 | one part, two names; rail names match (DCDC1 to 9, ALDO, BLDO, CLDO, DLDO, ELDO, two switches) |
 | Status LED | GPIO PL7 | net `PWM_LED`, annotated "PWM0-7", high = on | polarity agrees; it can be driven as GPIO or PWM |
@@ -71,7 +70,7 @@ go to the two camera connectors.
 | PG1 to PG5 | SDIO Wi-Fi CMD and D0 to D3 (order not given) | dtsi:1056 |
 | PG6 to PG9 | UART1 to Bluetooth (four pins: data and flow control, order not given) | dts:549 |
 | PD5 | fan speed, PWM0 channel 5 | dts:669, dts:1527 |
-| PD21 | PCIe wake, active high | dts:1797 |
+| PD20, PD21, PD22, PD23 | PCIe clock request, wake, reset (PERST#), power enable | sheet 9; the tree has PD21 only (dts:1797) |
 | PK22, PK23 | touchscreen reset, interrupt | dts:1878 |
 | PK24, PK25 | TWI12 | dts:897 |
 | PE7, PE8 | TWI11 | dts:885 |
@@ -80,11 +79,12 @@ go to the two camera connectors.
 | PL7 | status LED, active high | dts:75 |
 | PL8 | USB-C VBUS enable (fixed regulator), active high | dts:16 |
 | PL9 | USB-C controller interrupt, active low, pull-up | dts:1217, dts:2584 |
-| PL10, PL11 | S_TWI2 (40-pin header; the RTC of the tree is not fitted) | dts:1248 |
+| PL10, PL11 | `SBU1-DC`, `SBU2-DC` (DisplayPort AUX polarity on the USB-C data port) | sheet 9; the tree puts S_TWI2 here (dts:1248) |
+| PL4, PL5 | S-TWI2 SCK, SDA (40-pin header, pins 28 and 27) | sheet 9 |
 | PL12, PL13 | S_TWI1 to the USB-C controller | dts:1236 |
 | PM0 | Wi-Fi host wake, active high | dts:2961 |
 | PM1 | Wi-Fi enable (`wlan_regon`), active high | dts:2960 |
-| PM2 | Bluetooth reset, active low, per the tree; the schematic disagrees | dts:2972 |
+| PM2 | `AP_WAKE_WL`, host wakes Wi-Fi | sheet 9; the tree calls it Bluetooth reset (dts:2972) |
 | PM3 | Bluetooth wake, active high | dts:2979 |
 | PM4 | Bluetooth host wake, active high | dts:2980 |
 | NMI | PMIC interrupt (`intc-nmi@7010320`, GIC SPI 188) | dtsi:408 |
@@ -188,9 +188,34 @@ Three controllers are enabled in the tree. The schematic says which connector ea
   CPU cluster (`VDD-CPUB`), DCDC5 for the little cluster (`VDD-CPUL`), DCDC4 for the GPU, DCDC2 for
   `VDD-SYS`, NPU and the 0.8 V of HDMI, DCDC1 feeding both switches.
 
-Rails. The tree gives each rail its full range only, never a set voltage. The schematic has the
-set voltages on sheets 2 and 6, but tying each value to its rail needs the drawing; until then,
-read them from the running vendor system.
+Rails. The tree gives each rail its full range only, never a set voltage. Set voltages from the
+power sequence drawing (sheet 2), which is a reference sequence and names DCDC3 for both CPU
+clusters; sheet 6 has DCDC5 for the little cluster, as the tree does. Confirm on the running system.
+
+| Output | Nets | Voltage |
+|---|---|---|
+| DCDC1 | Wi-Fi supply; input of both switches | 3.3 V |
+| DCDC1 switch 2 | `VCC-IO`, `VCC-3V3`, `VCC-CARD`, eMMC | 3.3 V |
+| DCDC1 switch 1 | `VCC33-LCD` | 3.3 V |
+| DCDC2 | `VDD-SYS`, `VDD-VE`, `VDD-NPU`, 0.8 V of HDMI, UFS and both combo PHYs | 0.8 V |
+| DCDC3 | `VDD-CPUB` | 0.8 V at start |
+| DCDC4 | `VDD-GPU` | 0.8 V at start |
+| DCDC5 | `VDD-CPUL` | 0.8 V at start |
+| DCDC9, then an ELDO | `VDD-CPUS`, `VDD-USB` | 0.8 V |
+| ALDO1 | `VCC-PL`, `VCC33-USB` | 3.3 V |
+| BLDO1 | `VCC-PK`, `VCC-MCSI`, camera I/O | 1.8 V |
+| BLDO2 | `VCC-PJ`, `VCC-LVDS0`, `VCC18-LCD` | 1.8 V |
+| CLDO1 | `VCC-PM`, `VDD18-LPDDR` | 1.8 V |
+| CLDO2 | `VCC18-HDMI` | 1.8 V |
+| CLDO3 | `AVCC`, `VCC-DCXO`, `VCC-PLL`, `VDD18-DRAM` | 1.8 V |
+| CLDO5 | `VCC-PC`, `VCC18-PF`, `AVDD-H-COMB0` | 1.8 V |
+| DLDO1 | `VCC-EFUSE` | 1.8 V |
+| DLDO6 | `VCC25-UFS` | 2.5 V |
+
+GPIO bank voltages on sheet 9: PB 3.3 V (`VCC-IO`), PD 3.3 V, PE 3.3 V, PL 3.3 V; PC, PG, PH, PJ, PM 1.8 V.
+Sheet 2 lists `VCC-PE` and `VCC-PD` with 1.8 V rails: the two sheets disagree on those two banks.
+
+Rail uses named in the vendor tree:
 
 | Rail | Always on | Consumers named in the tree |
 |---|---|---|
@@ -319,8 +344,10 @@ From the "Pin Definition" drawing on the product page (orangepi.org, board marke
 | 37 | PD4 | PWM0_4 | 38 | PB8 | TWI1_SDA |
 | 39 | GND | | 40 | PB7 | TWI1_SCL, PWM0_9 |
 
-The schematic text (sheet 18, document V1.5) names I2S0 and S-TWI2 on this header and does not
-name PE12 or PE13; whether that is a difference between board revisions is not settled.
+Net names on the V1.5 schematic (sheet 9) for the same pads: PB4 to PB8 are I2S0 (MCLK, BCLK,
+LRCLK, DOUT0, DIN0), PE12 and PE13 are named `UART1-TX` and `UART1-RX`, PL2 and PL3 are S-PWM0
+channels 0 and 1 (PL3 also infrared), PL4 and PL5 are S-TWI2. Same pads, other functions of them:
+no difference in wiring between the drawing and the schematic was found.
 
 ## To confirm on the board
 
@@ -335,5 +362,4 @@ From the vendor image, before anything else is flashed:
 | Nothing answers at `0x34` (AXP515) and `0x51` (RTC) | `dmesg`, `i2cdetect` on S_TWI0 and S_TWI2 |
 | Which tree the image boots | `cat /sys/firmware/devicetree/base/compatible`, keep a copy of `/sys/firmware/fdt` |
 
-From the schematic drawings: the SoC pin of each Wi-Fi and Bluetooth control net, of the four PCIe
-control nets, of `SBU1-DC` and `SBU2-DC`, and the set voltage of each rail.
+Still to read from the schematic drawings: see "What was checked, and what was not".
