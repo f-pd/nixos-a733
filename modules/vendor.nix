@@ -27,6 +27,67 @@ let
   npu = pkgs.callPackage ../vendor/npu.nix { };
   gpu = pkgs.callPackage ../vendor/gpu.nix { };
   gpuModule = config.boot.kernelPackages.callPackage ../vendor/gpu-module.nix { };
+
+  # Wi-Fi and Bluetooth share the antenna, and transmitting without one can
+  # burn the radio's amplifiers. The image cannot see whether it is there, so
+  # both start off and "radio on" turns them on only after the user confirms
+  # it. The answer is kept: they come back at every boot until "radio off".
+  # The welcome screen (modules/welcome-info.sh) reads radioState to say so
+  # above the login prompt, the only place a headless user sees.
+  radioState = "/var/lib/a733-radio/on";
+  radio = pkgs.writeShellApplication {
+    name = "radio";
+    runtimeInputs = [
+      pkgs.kmod
+      pkgs.coreutils
+      config.systemd.package
+    ];
+    text = ''
+      start() {
+        :
+        ${lib.optionalString cfg.wifi.enable "modprobe aic8800_fdrv"}
+        ${lib.optionalString cfg.bluetooth.enable "systemctl start --no-block a733-bluetooth.service"}
+      }
+
+      case "''${1:-status}" in
+        on | off) [ "$(id -u)" = 0 ] || exec sudo "$0" "$@" ;;
+      esac
+
+      case "''${1:-status}" in
+        on)
+          if [ ! -e ${radioState} ]; then
+            echo "Wi-Fi and Bluetooth share the antenna. Transmitting without it can"
+            echo "burn the radio's amplifiers."
+            read -r -p 'Is the antenna connected? Type "yes" to turn the radio on: ' answer
+            if [ "$answer" != yes ]; then
+              echo "Radio left off."
+              exit 1
+            fi
+            mkdir -p ${dirOf radioState}
+            touch ${radioState}
+          fi
+          start
+          echo "Radio on, and on at every boot until \"radio off\". Run nmtui to join a network."
+          ;;
+        off)
+          rm -f ${radioState}
+          systemctl stop a733-bluetooth.service || true
+          [ ! -e /sys/module/aic8800_fdrv ] || rmmod aic8800_fdrv
+          echo "Radio off."
+          ;;
+        boot)
+          [ ! -e ${radioState} ] || start
+          ;;
+        status)
+          if [ -e ${radioState} ]; then echo on; else echo off; fi
+          ;;
+        *)
+          echo "usage: radio [on|off|status]" >&2
+          exit 2
+          ;;
+      esac
+    '';
+  };
   # Only the Vulkan and OpenCL ICD files go to /run/opengl-driver: the
   # package's own libEGL and libgbm would collide with Mesa's there.
   gpuIcds = pkgs.runCommand "a733-vendor-gpu-icds" { } ''
@@ -76,15 +137,19 @@ in
     wifi.enable = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = "AIC8800 Wi-Fi: its firmware and the aic8800_fdrv driver.";
+      description = ''
+        AIC8800 Wi-Fi: its firmware and the aic8800_fdrv driver. Off until
+        "radio on", which asks first whether the antenna is connected.
+      '';
     };
 
     bluetooth.enable = lib.mkOption {
       type = lib.types.bool;
       default = true;
       description = ''
-        AIC8800 Bluetooth on ttyS1, attached at boot the way the
-        manufacturer's orangepi-hardware-optimization does it, with BlueZ.
+        AIC8800 Bluetooth on ttyS1, attached the way the manufacturer's
+        orangepi-hardware-optimization does it, with BlueZ. Off until
+        "radio on", which asks first whether the antenna is connected.
       '';
     };
 
@@ -203,8 +268,10 @@ in
     # without CONFIG_FW_LOADER_COMPRESS and cannot load compressed firmware.
     hardware.firmwareCompression = "none";
 
-    boot.kernelModules = modules;
-    hardware.a733.drivers = modules;
+    # aic8800_fdrv is loaded by "radio on", not at boot, so the welcome
+    # screen leaves it out of the drivers it expects loaded.
+    boot.kernelModules = lib.remove "aic8800_fdrv" modules;
+    hardware.a733.drivers = lib.remove "aic8800_fdrv" modules;
 
     boot.extraModulePackages = lib.mkIf cfg.gpu.enable [ gpuModule ];
 
@@ -218,8 +285,7 @@ in
 
     systemd.services.a733-bluetooth = lib.mkIf cfg.bluetooth.enable {
       description = "Attach the AIC8800 Bluetooth core on ttyS1";
-      wantedBy = [ "bluetooth.target" ];
-      before = [ "bluetooth.service" ];
+      # Started by "radio on", never at boot by itself: see radio above.
       after = [ "systemd-modules-load.service" ];
       # aic8800_btlpm creates btwrite; writing 1 wakes the Bluetooth core.
       preStart = ''
@@ -236,7 +302,21 @@ in
       };
     };
 
-    environment.systemPackages = lib.optional cfg.video.enable media ++ lib.optional cfg.npu.enable npu;
+    systemd.services.a733-radio = lib.mkIf (cfg.wifi.enable || cfg.bluetooth.enable) {
+      description = "Turn Wi-Fi and Bluetooth on if radio on was run";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "systemd-modules-load.service" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${lib.getExe radio} boot";
+      };
+    };
+
+    environment.systemPackages =
+      lib.optional (cfg.wifi.enable || cfg.bluetooth.enable) radio
+      ++ lib.optional cfg.video.enable media
+      ++ lib.optional cfg.npu.enable npu;
     environment.pathsToLink = lib.mkIf cfg.video.enable [ "/lib/gstreamer-1.0" ];
     environment.sessionVariables = lib.mkIf cfg.video.enable {
       GST_PLUGIN_PATH_1_0 = [ "/run/current-system/sw/lib/gstreamer-1.0" ];
