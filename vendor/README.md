@@ -41,7 +41,7 @@ Wi-Fi and Bluetooth start off, unlike on the manufacturer's image: they
 share the antenna, transmitting without it can burn the radio's amplifiers,
 and nothing tells the image whether it is connected. `radio on` asks for
 confirmation, then turns both on, now and at every boot, until `radio off`.
-The login prompt says which state the radio is in.
+The welcome screen above the login prompt says which state the radio is in.
 
 The kernel command line adds the manufacturer's `swiotlb=65536` and
 `consoleblank=0`. Firmware is installed uncompressed: this kernel has no

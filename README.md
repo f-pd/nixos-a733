@@ -184,7 +184,7 @@ The first login:
   (or `no`), then log in again.
 - Wi-Fi and Bluetooth are off: they share the antenna, and transmitting
   without it can burn the radio's amplifiers. The board has no Ethernet, so
-  the login prompt says so. Connect the antenna, log in on the serial console
+  the welcome screen says so. Connect the antenna, log in on the serial console
   or HDMI, run `radio on` and confirm, then `nmtui` to join a network. The
   radio then stays on across reboots until `radio off`.
 - SSH starts once an account has a password, so not before the first login.

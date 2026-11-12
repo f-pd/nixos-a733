@@ -448,7 +448,19 @@ network() {
   else
     row Internet "$(off "no default route")"
   fi
-  [ $any = yes ] || printf '  %sNo address yet: plug in a USB Ethernet adapter, or set up Wi-Fi in your configuration.%s\n' "$DIM" "$R"
+  # The radio command of the vendor module: Wi-Fi and Bluetooth stay off
+  # until the user confirms the antenna is connected.
+  if [ -x /run/current-system/sw/bin/radio ]; then
+    if [ -e /var/lib/a733-radio/on ]; then
+      row Radio "$(ok on) ${DIM}Wi-Fi and Bluetooth; radio off turns them off$R"
+    else
+      row Radio "$(off off) ${DIM}Wi-Fi and Bluetooth$R"
+      printf '  %sWithout an antenna, transmitting can damage the radio. Connect it, log in\n' "$DIM"
+      printf '  here and run %sradio on%s%s, then %snmtui%s%s to join a network.%s\n' "$B" "$R" "$DIM" "$B" "$R" "$DIM" "$R"
+    fi
+  elif [ $any = no ]; then
+    printf '  %sNo address yet: plug in a USB Ethernet adapter, or set up Wi-Fi in your configuration.%s\n' "$DIM" "$R"
+  fi
 }
 
 services() {

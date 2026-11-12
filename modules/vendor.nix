@@ -32,8 +32,8 @@ let
   # burn the radio's amplifiers. The image cannot see whether it is there, so
   # both start off and "radio on" turns them on only after the user confirms
   # it. The answer is kept: they come back at every boot until "radio off".
-  # The state is written above the login prompt, the only place a headless
-  # user sees before logging in.
+  # The welcome screen (modules/welcome-info.sh) reads radioState to say so
+  # above the login prompt, the only place a headless user sees.
   radioState = "/var/lib/a733-radio/on";
   radio = pkgs.writeShellApplication {
     name = "radio";
@@ -47,17 +47,6 @@ let
         :
         ${lib.optionalString cfg.wifi.enable "modprobe aic8800_fdrv"}
         ${lib.optionalString cfg.bluetooth.enable "systemctl start --no-block a733-bluetooth.service"}
-      }
-
-      issue() {
-        mkdir -p /run/issue.d
-        if [ -e ${radioState} ]; then
-          printf 'Wi-Fi and Bluetooth are on (IP: \\4). "radio off" turns them off.\n\n'
-        else
-          printf 'Wi-Fi and Bluetooth are off: without an antenna, transmitting can damage\n'
-          printf 'the radio. Connect the antenna, log in on this console and run "radio on",\n'
-          printf 'then "nmtui" to join a network.\n\n'
-        fi > /run/issue.d/a733-radio.issue
       }
 
       case "''${1:-status}" in
@@ -97,7 +86,6 @@ let
           exit 2
           ;;
       esac
-      issue
     '';
   };
   # Only the Vulkan and OpenCL ICD files go to /run/opengl-driver: the
@@ -318,8 +306,6 @@ in
       description = "Turn Wi-Fi and Bluetooth on if radio on was run";
       wantedBy = [ "multi-user.target" ];
       after = [ "systemd-modules-load.service" ];
-      # The login prompt shows the file it writes.
-      before = [ "systemd-user-sessions.service" ];
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
