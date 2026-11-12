@@ -29,13 +29,19 @@ All under `hardware.a733.vendor`, on by default unless noted:
 
 | Option | What it does | Manufacturer equivalent |
 |--------|--------------|-------------------------|
-| `wifi.enable` | AIC8800 firmware, `aic8800_fdrv` | `MODULES=` in the board config |
-| `bluetooth.enable` | `aic8800_btlpm`, wakes the core and runs `hciattach_opi -n -s 1500000 /dev/ttyS1 aic`, BlueZ | `orangepi-hardware-optimization` |
+| `wifi.enable` | AIC8800 firmware and `aic8800_fdrv`, loaded by `radio on` (see below) | `MODULES=` in the board config, loaded at every boot |
+| `bluetooth.enable` | `aic8800_btlpm`, BlueZ; `radio on` wakes the core and runs `hciattach_opi -n -s 1500000 /dev/ttyS1 aic` | `orangepi-hardware-optimization`, at every boot |
 | `video.enable` | Cedar video engine (`libcedarc`: decoders, H.264 and H.265 encoders, OpenMAX), camera ISP library, GStreamer `omx` plugin, `/etc/cedarc.conf`, device permissions | `libcedarc`, `libAWIspApi`, `gst-omx` packages and `99-t527-permissions.rules` |
 | `npu.enable` | NPU runtime `libVIPhal`, `libNBGlinker`, headers, `vpm_run` with its sample and the YOLOv5 model, for the `aw_nna_vip` module | `npu/` of `sun60iw2_packages`; their `yolov5` demo is left out, it links Debian's OpenCV 4.5 |
 | `gpu.enable` | `pvrsrvkm` built from the kernel tree, GPU firmware, Vulkan (`libVK_IMG`) and OpenCL (`libPVROCL`) ICDs through `hardware.graphics`; their EGL/GLES Mesa fork stays in the package, outside `/run/opengl-driver` | `pvrsrvkm` built by `orangepi-build`, `xserver-xorg-img-bxm`, `img_icd.json`, `pvr.icd`. |
 | `usbHost` | USB-C in host mode | `orangepi-hardware-optimization` |
 | `overlays` (default none) | device tree overlays applied by U-Boot, e.g. `[ "uart2" "i2c1" ]` | `overlays=` in `orangepiEnv.txt` |
+
+Wi-Fi and Bluetooth start off, unlike on the manufacturer's image: they
+share the antenna, transmitting without it can burn the radio's amplifiers,
+and nothing tells the image whether it is connected. `radio on` asks for
+confirmation, then turns both on, now and at every boot, until `radio off`.
+The login prompt says which state the radio is in.
 
 The kernel command line adds the manufacturer's `swiotlb=65536` and
 `consoleblank=0`. Firmware is installed uncompressed: this kernel has no

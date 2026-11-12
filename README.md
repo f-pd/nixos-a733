@@ -51,6 +51,7 @@ Latest LTS and latest stable kernel.org kernels with the A733 patches: not avail
 | `images/` | the generic image configuration |
 | `vendor/` | the vendor variant: the manufacturer's kernel, U-Boot, firmware and drivers; their files are copied in `vendor/blobs/`, with their origin |
 | `ci/` | scripts used by the workflows |
+| `tools/` | `a733-bench.sh`, installed on the generic images as `a733-bench` |
 
 ## Flake outputs
 
@@ -181,6 +182,11 @@ The first login:
   Tokyo Night preset; without, both stay plain text, as they always do on the
   HDMI console. To change the answer: `echo yes > /var/lib/a733-welcome/icons`
   (or `no`), then log in again.
+- Wi-Fi and Bluetooth are off: they share the antenna, and transmitting
+  without it can burn the radio's amplifiers. The board has no Ethernet, so
+  the login prompt says so. Connect the antenna, log in on the serial console
+  or HDMI, run `radio on` and confirm, then `nmtui` to join a network. The
+  radio then stays on across reboots until `radio off`.
 - SSH starts once an account has a password, so not before the first login.
   Root cannot log in over SSH with a password; the main user can.
 - After every login, SSH included: the snowflake and the system in short
@@ -197,6 +203,22 @@ The first login:
 
 A host's own configuration can add lines to the versions with
 `hardware.a733.components` and to the drivers with `hardware.a733.drivers`.
+
+## Benchmark
+
+`a733-bench` runs the same measurements on any image and saves them to a
+text file: CPU and memory (`sysbench`), SD card (`fio`), the GPU through
+Vulkan and OpenCL (`vulkaninfo`, `clinfo`, `clpeak`), the video engine (H.264
+1080p encode with `omxh264videoenc`), the NPU (the manufacturer's sample
+network with `vpm_run`), temperatures before and after. A test whose tool or
+driver is missing says `skipped`. To compare with the manufacturer's Debian,
+copy `tools/a733-bench.sh` there and install its tools first (the list is at
+the top of the script).
+
+`btop` cannot show this GPU: it reads only NVIDIA, AMD, Intel and Apple GPUs.
+The PowerVR driver exposes its frequency through devfreq
+(`/sys/class/devfreq/*gpu*/cur_freq`) and its state in debugfs
+(`/sys/kernel/debug/pvr/`).
 
 ## Boot logs without a serial adapter
 
