@@ -179,7 +179,7 @@ Three controllers are enabled in the tree. The schematic says which connector ea
   (`TYPEC_CC_INT`) and on the VBUS enable (`TYPEC_EN`). It also has two GPIO nets for the AUX
   polarity, `SBU1-DC` and `SBU2-DC`, which the tree does not use.
 
-### PMICs (S_TWI0: PL0, PL1, 400 kHz, clock `CLK_R_TWI0`, reset `RST_BUS_R_TWI0`)
+### PMIC (S_TWI0: PL0, PL1, 400 kHz, clock `CLK_R_TWI0`, reset `RST_BUS_R_TWI0`)
 
 - `pmu@36`: `x-powers,axp8191`, the main regulator; the schematic calls the part AXP318 (U1).
   Interrupt: NMI (`AP-NMI`). Power key child `x-powers,axp2101-pek`; the schematic has a `PWRON` pad.
@@ -291,8 +291,36 @@ Disabled in the tree: Ethernet (`gmac0`), eDP and DSI panels, AC101 and ES8388 a
 receiver, LED strip controller, UART2, 3, 5, 6, 7, 8, TWI0, 1, 2, 3, 5, 7, 8. None of those parts
 is in the schematic; the buses are the 40-pin header signals.
 
-40-pin header (sheet 18): UART0 as debug console, TWI0, SPI3, I2S0, S-TWI2, PWM0 channels 0 to 4,
-two S-PWM channels, and GPIOs PB0, PB1, PD0 to PD4, PE11, PL2 to PL5.
+### 40-pin header
+
+From the "Pin Definition" drawing on the product page (orangepi.org, board marked v1.2, read
+2026-11-12). It agrees with `README.md` on the console pins.
+
+| Pin | Pad | Functions | Pin | Pad | Functions |
+|---|---|---|---|---|---|
+| 1 | 3.3 V | | 2 | 5 V | |
+| 3 | PB3 | TWI0_SDA | 4 | 5 V | |
+| 5 | PB2 | TWI0_SCK | 6 | GND | |
+| 7 | PB4 | PWM0_0 | 8 | PB9 | UART0_TX (console) |
+| 9 | GND | | 10 | PB10 | UART0_RX (console) |
+| 11 | PB0 | UART2_TX | 12 | PB5 | |
+| 13 | PB1 | UART2_RX | 14 | GND | |
+| 15 | PE11 | | 16 | PL2 | UART7_TX |
+| 17 | 3.3 V | | 18 | PL3 | UART7_RX |
+| 19 | PE2 | TWI2_SDA, SPI3_MOSI | 20 | GND | |
+| 21 | PE3 | TWI3_SCK, SPI3_MISO | 22 | PD0 | |
+| 23 | PE1 | UART6_RX, TWI2_SCK, SPI3_CLK | 24 | PE0 | SPI3_CS0, UART6_TX |
+| 25 | GND | | 26 | PE4 | SPI3_CS1, TWI3_SDA |
+| 27 | PL5 | | 28 | PL4 | |
+| 29 | PE12 | | 30 | GND | |
+| 31 | PE13 | | 32 | PD1 | PWM0_1 |
+| 33 | PD3 | PWM0_3 | 34 | GND | |
+| 35 | PB6 | PWM0_8 | 36 | PD2 | PWM0_2 |
+| 37 | PD4 | PWM0_4 | 38 | PB8 | TWI1_SDA |
+| 39 | GND | | 40 | PB7 | TWI1_SCL, PWM0_9 |
+
+The schematic text (sheet 18, document V1.5) names I2S0 and S-TWI2 on this header and does not
+name PE12 or PE13; whether that is a difference between board revisions is not settled.
 
 ## To confirm on the board
 
