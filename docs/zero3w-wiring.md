@@ -16,16 +16,16 @@ patch stack is chosen. Nothing here was measured or run on the board.
 are the vendor clock and reset identifiers (`dt-bindings/clock/sun60iw2-ccu.h` and friends); they
 identify the clock, the mainline bindings use other names and numbers.
 
-## Read this first: how far to trust the vendor tree
+## Limits of the vendor tree
 
-- The board file declares `compatible = "xunlong,orangepi-4-pro"` (dts:9). It was derived from the
-  Orange Pi 4 Pro tree and not cleaned up.
-- It enables hardware the Zero 3W is not known to have: an 8-bit eMMC on `sdc2`, a PWM fan, a Goodix
-  touchscreen, five LRADC keys, a battery charger (AXP515) with a battery table.
-- It leaves out things a mainline tree needs: the UART0 pins are empty strings, the PCIe node has no
-  reset GPIO, the Wi-Fi module has no 3.3 V supply, and no regulator carries a set voltage.
-- Consequence: an entry that is `okay` here is a claim to confirm on the board, not a fact. The last
-  section lists what to confirm and how.
+- The board file declares `compatible = "xunlong,orangepi-4-pro"` (dts:9): it shares its origin with
+  the Orange Pi 4 Pro tree, so a node can describe that board and not this one.
+- This inventory was checked against the vendor tree, `sys_config.fex` and `README.md` only. The
+  fan and the UART0 header pins are confirmed by the maintainer. The other nodes were not compared
+  with the board documentation or with the board.
+- The tree leaves out things a mainline tree needs: the UART0 pins are empty strings, the PCIe node
+  has no reset GPIO, the Wi-Fi module has no 3.3 V supply, and no regulator carries a set voltage.
+- The last section lists what to read from the running vendor system.
 
 ## Pin summary
 
@@ -34,13 +34,13 @@ identify the clock, the mainline bindings use other names and numbers.
 
 | Pin | Use | Source |
 |---|---|---|
-| PB9, PB10 | UART0 TX, RX (console), mux 2 | `sys_config.fex` `[uart_para]`; not in the dts |
+| PB9, PB10 | UART0 TX, RX (console), mux 2. On the 40-pin header: pin 8 (TX), pin 10 (RX), ground on pin 6 | `sys_config.fex` `[uart_para]`, `README.md`; not in the dts |
 | PF0 to PF5 | microSD: D1, D0, CLK, CMD, D3, D2 | dtsi:1013, `sys_config.fex` `[card0_boot_para]` |
 | PF6 | microSD card detect, active low, pull-up | dts:1625 |
 | PG0 | SDIO Wi-Fi clock | dtsi:1070 |
 | PG1 to PG5 | SDIO Wi-Fi CMD and D0 to D3 (order not given) | dtsi:1056 |
 | PG6 to PG9 | UART1 to Bluetooth (four pins: data and flow control, order not given) | dts:549 |
-| PD5 | PWM0 channel 5, fan | dts:669, dts:1527 |
+| PD5 | fan speed, PWM0 channel 5 | dts:669, dts:1527 |
 | PD21 | PCIe wake, active high | dts:1797 |
 | PK22, PK23 | touchscreen reset, interrupt | dts:1878 |
 | PK24, PK25 | TWI12 | dts:897 |
@@ -68,6 +68,8 @@ PM4 is also `test-gpios` of the vendor `pinctrl_test` node (dtsi:1614); that nod
 - Controller: `uart@2500000`, GIC SPI 2, FIFO 64, clock `CLK_UART0`, reset `RST_BUS_UART0` (dtsi:1621).
 - Pins: the board file sets `pins = "", ""` (dts:537), so the vendor kernel relies on the pin mux the
   boot chain left behind. `sys_config.fex` gives PB9 (TX) and PB10 (RX), function 2.
+- PB9 and PB10 are SoC pad names, not header positions. On the 40-pin header the console is
+  pin 8 (TX), pin 10 (RX) and pin 6 (ground), 115200 baud (`README.md`).
 - A mainline tree must name the pins itself. No supply is listed.
 
 ### microSD (`sdc0`)
@@ -133,7 +135,6 @@ Three controllers are enabled. The tree does not say which physical USB-C connec
   `x-powers,axp2101-pek`.
 - `pmu@34`: AXP515 (`x-powers,axp515`), charger and USB power path: power key, USB power supply
   (`pmu_usb_typec_used = 1`), battery supply with a 7085 mAh table, `drivevbus` regulator. Interrupt: NMI.
-  A battery charger on this board is unexpected; see the first section.
 
 AXP8191 rails. The tree gives each rail its full range only, never a set voltage: the working
 voltages are set by the boot chain and must be read from the running vendor system.
@@ -185,6 +186,12 @@ voltages are set by the boot chain and must be read from the running vendor syst
 - Board side (dts:1794): wake PD21 (active high), 1.8 V from `bldo1`, 3.3 V from `dcdc1`.
 - Not described: reset (PERST#) GPIO, clock request, a switch for the connector's 3.3 V.
 
+### Fan
+
+- Two-wire fan on the board, speed set by PWM: `pwm-fan` node (dts:1527) on PWM0 channel 5, pin PD5,
+  period 25 µs (40 kHz), supply `dc1sw2`.
+- Five levels (`cooling-levels = <0 50 102 170 255>`); it is the cooling device of both CPU thermal zones.
+
 ### LED
 
 - One GPIO LED, `status_led`: PL7, active high, heartbeat trigger (dts:73).
@@ -193,7 +200,7 @@ voltages are set by the boot chain and must be read from the running vendor syst
 
 - No `gpio-keys` node. Power key through the PMIC (`axp2101-pek` on the AXP8191, `axp515-pek` on the AXP515).
 - LRADC (`lradc@2524000`, GIC SPI 37, `CLK_LRADC`, `RST_BUS_LRADC`) is enabled with five keys
-  (key codes 115, 114, 139, 28, 172): probably inherited, to confirm.
+  (key codes 115, 114, 139, 28, 172).
 
 ### Watchdog
 
@@ -208,12 +215,11 @@ voltages are set by the boot chain and must be read from the running vendor syst
 - SoC RTC (`rtc@7090000`) is disabled; an external HYM8563 sits on S_TWI2 (PL10, PL11) at `0x51`
   and outputs `xin32k` (dts:2670).
 
-### Enabled in the tree, relevance to this board unconfirmed
+### Other nodes enabled in the tree
 
 | Node | What it claims |
 |---|---|
-| `sdc2` | 8-bit eMMC on PC0 to PC16, HS400, no supplies |
-| `fan0` | PWM fan on PWM0 channel 5 (PD5), 25 kHz, supply `dc1sw2`, used by both CPU thermal zones |
+| `sdc2` | 8-bit eMMC on PC0 to PC16, HS400, no supplies (the board has an optional eMMC footprint, see `docs/research.md`) |
 | `twi12` + `touchscreen@14` | Goodix GT9271 on PK24, PK25; interrupt PK23, reset PK22 |
 | `twi9`, `twi11` | buses on PE14, PE15 (100 kHz) and PE7, PE8 (400 kHz), no devices |
 | `gpadc0` | 8 channels enabled |
@@ -234,10 +240,10 @@ From the vendor image, before anything else is flashed:
 |---|---|
 | Which tree the board really boots | `cat /sys/firmware/devicetree/base/compatible`, keep a copy of `/sys/firmware/fdt` |
 | Rail voltages and which rails are on | `/sys/kernel/debug/regulator/regulator_summary` |
-| Pin mux in use, UART0 pins included | `/sys/kernel/debug/pinctrl/*/pinmux-pins` |
+| Pin mux in use (UART0 on PB9 and PB10 expected) | `/sys/kernel/debug/pinctrl/*/pinmux-pins` |
 | GPIO lines held and their levels | `/sys/kernel/debug/gpio` |
 | Is an AXP515 present at `0x34`, an RTC at `0x51`, a Type-C controller at `0x22` | `dmesg`, `i2cdetect` on the three S_TWI buses |
-| Is there an eMMC, a fan, a touchscreen | `dmesg`, `lsblk`; visual check of the board |
+| Is an eMMC fitted, is a touchscreen connected | `dmesg`, `lsblk` |
 | Which USB-C connector is `usbc0`, `usbc1`, `usbc2` | plug a device in each, read `dmesg` |
 | Wi-Fi module supply and 32 kHz clock | schematic if Orange Pi publishes one; otherwise the regulator and clock summaries |
 | PCIe reset line | schematic; `/sys/kernel/debug/gpio` with a device on the FPC connector |
