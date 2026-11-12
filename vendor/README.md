@@ -82,6 +82,37 @@ kernel from `extlinux.conf`, so `/boot/boot.scr` loads `/boot/nixos/uImage`,
 `uInitrd` and the device tree with `bootm`, as the Orange Pi images do.
 Only the current generation is bootable: there is no boot menu.
 
+## Known issues
+
+### `wait dma hold bit clear timeout` on the SD card
+
+Now and then the console shows, at boot or at runtime:
+
+```
+sunxi:sunxi_mmc_host-4020000.sdmmc:[ERR]: wait dma hold bit clear timeout
+```
+
+It is harmless, and it stays as it is: the vendor variant is low priority and
+the kernel is not patched for it. `4020000.sdmmc` is `sdc0`, the microSD slot.
+The message comes from the manufacturer's MMC driver,
+`bsp/drivers/mmc/sunxi-mmc.c`. At the end of every request with data,
+`sunxi_mmc_finalize_request()` resets the internal DMA controller and only
+then, in `sunxi_mmc_wait_dma_done()`, polls the `OWN` bit of the DMA
+descriptors. When the reset lands before the controller has written the
+descriptors back, the bit never clears and the driver logs the timeout. The
+transfer has already completed, and the request is not failed or retried.
+
+It is a real problem only when it follows an error dump of the same
+controller, `err, cmd …` lines, or comes with `I/O error` or ext4 errors.
+To check:
+
+```sh
+sudo dmesg | grep -iE "4020000|I/O error|EXT4-fs (error|warning)"
+```
+
+To keep it off the serial console, set `boot.consoleLogLevel = 3;` in the
+host configuration: it stays in `dmesg`.
+
 ## Using it
 
 ```sh
