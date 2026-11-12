@@ -4,11 +4,13 @@
 #   a733-info --issue      the same under the header (pride snowflake, and
 #                          beside it the system in short) with the first boot
 #                          instructions, as an agetty issue file, on stdout
-#   a733-info --logo       the header, its colours turning, left on screen
+#   a733-info --logo       the header, its colours turning (still on a serial
+#                          line), left on screen
 #   a733-info --logo-still the same, still
 #   a733-info --new-slogan pick another slogan for the next --issue
 #   a733-info --intro TTY  the header of the issue file, its colours turning,
-#                          on TTY just before agetty prints it in place
+#                          on TTY just before agetty prints it in place; only
+#                          used on the virtual consoles
 #
 # Set by welcome.nix before this text: COMPONENTS, SLOGANS, NIXOS_VERSION,
 # NIXOS_RELEASE, MODULES, BLOB_OFFSETS, UBOOT_BUILT, PROMPT_COLOURS, CACHE.
@@ -576,10 +578,15 @@ case ${1:-} in
     } > "$tty"
     ;;
   --logo | --logo-still)
-    # After a login, in as many colours as the terminal has.
+    # After a login, in as many colours as the terminal has. Animated only
+    # on the local console and over SSH, never on a serial line.
     prepare "$(colour_mode)"
     echo
-    if [ "$1" = --logo ]; then
+    case $(tty 2> /dev/null) in
+      /dev/tty[0-9]* | /dev/pts/*) animate=yes ;;
+      *) animate=no ;;
+    esac
+    if [ "$1" = --logo ] && [ "$animate" = yes ]; then
       header_animate 2 0.06
     else
       header 0

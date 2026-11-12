@@ -1,6 +1,6 @@
 # A friendly first contact: above the login prompt the NixOS snowflake in
-# the colours of the pride flag (they turn around it each time the prompt
-# appears, and stop where they stay) with the system in short beside it,
+# the colours of the pride flag (on HDMI they turn around it each time the
+# prompt appears, and stop where they stay; never on a serial line) with the system in short beside it,
 # then the hardware, the versions of what is installed, the network, the
 # services, the first boot instructions, refreshed while the prompt waits.
 # After the login the snowflake again (serial console, local console and
@@ -136,12 +136,17 @@ let
     exit 0
   '';
 
-  # Before each login prompt: the screen, then the logo animation on that
-  # terminal. Bounded in time: the prompt must come whatever happens.
+  # Before each login prompt: the screen, then, on the virtual consoles
+  # only (HDMI), the snowflake animation. Never on a serial line. Bounded in
+  # time: the prompt must come whatever happens.
   beforePrompt = pkgs.writeShellScript "a733-before-prompt" ''
     ${lib.getExe info} --new-slogan
     ${pkgs.coreutils}/bin/timeout 20 ${writeIssue}
-    ${lib.optionalString cfg.animation "${pkgs.coreutils}/bin/timeout 10 ${lib.getExe info} --intro /dev/$1"}
+    ${lib.optionalString cfg.animation ''
+      case $1 in
+        tty[0-9]*) ${pkgs.coreutils}/bin/timeout 10 ${lib.getExe info} --intro /dev/$1 ;;
+      esac
+    ''}
     exit 0
   '';
 
@@ -179,7 +184,8 @@ in
       default = true;
       description = ''
         Turn the colours around the snowflake before the login prompt and
-        after each interactive login. Off, the snowflake stays still.
+        after each interactive login, on the local console (HDMI) and over
+        SSH. Never on a serial console. Off, the snowflake stays still.
       '';
     };
   };

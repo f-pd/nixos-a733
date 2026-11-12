@@ -146,9 +146,10 @@ The generic images turn on `hardware.a733.welcome.enable`
 
 Above the login prompt, on the serial console and on HDMI:
 
-- the NixOS snowflake in the colours of the pride flag, one per lambda. Each
-  time the prompt appears the colours turn around it twice and stop where
-  they stay: the animation is drawn on the very rows the prompt then prints.
+- the NixOS snowflake in the colours of the pride flag, one per lambda. On
+  HDMI, each time the prompt appears the colours turn around it twice and
+  stop where they stay: the animation is drawn on the very rows the prompt
+  then prints. Never on the serial console, where the snowflake is still.
   Beside it the system in short: release, board, host, image, kernel, CPU,
   memory, address, SSH, the slogan;
 - the hardware: CPU cores and clocks, memory, storage, the manufacturer's
@@ -184,7 +185,8 @@ The first login:
 - SSH starts once an account has a password, so not before the first login.
   Root cannot log in over SSH with a password; the main user can.
 - After every login, SSH included: the snowflake and the system in short
-  again, in as many colours as the terminal has (24-bit, 256 or 16).
+  again, in as many colours as the terminal has (24-bit, 256 or 16),
+  animated on HDMI and over SSH, still on the serial console.
   `hardware.a733.welcome.animation = false` keeps the snowflake still, here
   and above the prompt. `fastfetch` is still there for a longer list.
 - Colours are Tokyo Night: the palette of the HDMI console, `btop` and
