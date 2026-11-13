@@ -41,7 +41,7 @@ single-channel operation, the rank and size scan, and anything that needs the bo
    i.MX 95 OEI, JEDEC LPDDR5 documents, Allwinner's published `spl-pub` code.
 2. Do not disassemble, decompile, emulate or otherwise inspect `boot0` or `ddr.bin`, and do not
    look for or read analysis output of them anywhere on this machine. In particular, stay out of
-   `/home/fulgidus/Documents/a733-re`.
+   `/home/fulgidus/Documents/a733-re` and of `analysis/` in this repository.
 3. The boot0 file in `vendor/blobs/` may be used for one thing: as the opaque source of the
    payload bytes for the test, through `expand_ops.py` and the offsets the spec gives.
 4. Write the code as a driver, not as a replay of the script: named steps, loops over channels,

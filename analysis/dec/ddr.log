@@ -1,0 +1,22 @@
+error: Analysis failed
+code: cancelled
+category: cancelled
+message: Analysis was cancelled. Start it again when ready.
+retryable: true
+remediation:
+  action: Analysis was cancelled. Start it again when ready.
+details:
+  operation: decompile_all
+  cleanup: complete
+  diagnostics:
+    published_output:
+      output_directory: /home/fulgidus/Documents/a733-re/dec/ddr
+      index_path: /home/fulgidus/Documents/a733-re/dec/ddr/decompile-index.json
+ inspect_input_contract
+  operation: decompile_all
+details:
+  operation: decompile_all
+  issues[1]:
+    - path[1]: output_directory
+      reason: invalid_value
+      message: Output directory already exists. Pass resume to continue an export that matches this target and analysis profile.
