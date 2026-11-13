@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alessio Corsi <alessio.corsi@gmail.com>
+Date: Fri, 13 Nov 2026 11:07:57 +0100
+Subject: [PATCH] dt-bindings: arm: sunxi: Add the Xunlong Orange Pi Zero 3W
+
+The Orange Pi Zero 3W is a board in the Raspberry Pi Zero form factor
+with the Allwinner A733.
+---
+ Documentation/devicetree/bindings/arm/sunxi.yaml | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/arm/sunxi.yaml b/Documentation/devicetree/bindings/arm/sunxi.yaml
+index 18e676476..75d88e317 100644
+--- a/Documentation/devicetree/bindings/arm/sunxi.yaml
++++ b/Documentation/devicetree/bindings/arm/sunxi.yaml
+@@ -1118,6 +1118,11 @@ properties:
+           - const: xunlong,orangepi-zero3
+           - const: allwinner,sun50i-h618
+ 
++      - description: Xunlong OrangePi Zero 3W
++        items:
++          - const: xunlong,orangepi-zero3w
++          - const: allwinner,sun60i-a733
++
+       - description: YuzukiHD Avaota A1
+         items:
+           - const: yuzukihd,avaota-a1

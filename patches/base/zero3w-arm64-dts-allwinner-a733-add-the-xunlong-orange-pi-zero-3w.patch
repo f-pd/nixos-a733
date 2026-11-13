@@ -1,0 +1,341 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alessio Corsi <alessio.corsi@gmail.com>
+Date: Fri, 13 Nov 2026 11:07:57 +0100
+Subject: [PATCH] arm64: dts: allwinner: a733: Add the Xunlong Orange Pi Zero
+ 3W
+
+A board in the Raspberry Pi Zero form factor: Allwinner A733, LPDDR5,
+an AXP318W PMIC, microSD, a Wi-Fi and Bluetooth module on SDIO and
+UART1, two Type-C ports (power with USB 2.0, and data with USB 3 and
+DisplayPort behind an FUSB302), mini HDMI, PCIe on an FPC connector,
+and a 40-pin header. The crystal is 26 MHz.
+
+Describe the console, the microSD slot at 3.3 V signalling, the PMIC
+with the rails that are named here, the Type-C data port as a USB host,
+USB0 as a peripheral, PCIe, the LED, and the memory BL31 occupies at
+the start of DRAM.
+
+The wiring is taken from the manufacturer's schematic for board
+revision V1.2. Not run on the board.
+
+Not covered: the Wi-Fi and Bluetooth module, HDMI and DisplayPort, the
+GPU, CPU frequency scaling, the fan, UHS modes of the card, the 32 kHz
+crystal, and the header functions.
+---
+ arch/arm64/boot/dts/allwinner/Makefile        |   1 +
+ .../allwinner/sun60i-a733-orangepi-zero3w.dts | 294 ++++++++++++++++++
+ 2 files changed, 295 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/allwinner/sun60i-a733-orangepi-zero3w.dts
+
+diff --git a/arch/arm64/boot/dts/allwinner/Makefile b/arch/arm64/boot/dts/allwinner/Makefile
+index 5540aa7b8..a9dcf16e4 100644
+--- a/arch/arm64/boot/dts/allwinner/Makefile
++++ b/arch/arm64/boot/dts/allwinner/Makefile
+@@ -65,6 +65,7 @@ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h700-anbernic-rg35xx-h.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h700-anbernic-rg35xx-plus.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h700-anbernic-rg35xx-sp.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun60i-a733-cubie-a7s.dtb
++dtb-$(CONFIG_ARCH_SUNXI) += sun60i-a733-orangepi-zero3w.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun55i-a527-cubie-a5e.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun55i-h728-x96qpro+.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun55i-t527-avaota-a1.dtb
+diff --git a/arch/arm64/boot/dts/allwinner/sun60i-a733-orangepi-zero3w.dts b/arch/arm64/boot/dts/allwinner/sun60i-a733-orangepi-zero3w.dts
+new file mode 100644
+index 000000000..3615f4af3
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/sun60i-a733-orangepi-zero3w.dts
+@@ -0,0 +1,294 @@
++// SPDX-License-Identifier: (GPL-2.0-only OR MIT)
++/*
++ * Orange Pi Zero 3W
++ *
++ * Wiring from the manufacturer's schematic, board revision V1.2. Not yet
++ * run on the board.
++ */
++
++/dts-v1/;
++
++#include "sun60i-a733.dtsi"
++
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/leds/common.h>
++#include <dt-bindings/usb/pd.h>
++
++/ {
++	model = "Xunlong Orange Pi Zero 3W";
++	compatible = "xunlong,orangepi-zero3w", "allwinner,sun60i-a733";
++
++	aliases {
++		serial0 = &uart0;
++		mmc0 = &mmc0;
++	};
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	leds {
++		compatible = "gpio-leds";
++
++		/*
++		 * LED1 is also fed from the 3.3 V rail through 10 kOhm: dim
++		 * whenever the board is powered, bright with PL7 high.
++		 */
++		led-0 {
++			function = LED_FUNCTION_STATUS;
++			color = <LED_COLOR_ID_RED>;
++			gpios = <&r_pio 0 7 GPIO_ACTIVE_HIGH>; /* PL7 */
++			linux,default-trigger = "heartbeat";
++		};
++	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		/* BL31, loaded to the start of DRAM by the boot chain */
++		bl31@40000000 {
++			reg = <0x0 0x40000000 0x0 0x40000>;
++			no-map;
++		};
++	};
++
++	/*
++	 * PCIE_PWREN_H (PD23) on the FPC connector: the enable of the supply
++	 * on the adapter at the other end of the cable. The board itself only
++	 * puts VCC-5V on the connector.
++	 */
++	reg_pcie: regulator-pcie {
++		compatible = "regulator-fixed";
++		regulator-name = "pcie-pwren";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		gpio = <&pio 3 23 GPIO_ACTIVE_HIGH>; /* PD23 */
++		enable-active-high;
++		startup-delay-us = <20000>;
++		vin-supply = <&reg_vcc5v>;
++	};
++
++	/*
++	 * VBUS of the Type-C data port: switch U3 (SY6280) from VCC-5V, enabled
++	 * by TYPEC_EN (PL8).
++	 */
++	reg_usbc_vbus: regulator-usbc-vbus {
++		compatible = "regulator-fixed";
++		regulator-name = "usbc-vbus";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		gpio = <&r_pio 0 8 GPIO_ACTIVE_HIGH>; /* PL8 */
++		enable-active-high;
++		vin-supply = <&reg_vcc5v>;
++	};
++
++	/* VCC-5V: VBUS of the Type-C power port, with no switch */
++	reg_vcc5v: regulator-vcc5v {
++		compatible = "regulator-fixed";
++		regulator-name = "vcc-5v";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		regulator-always-on;
++	};
++};
++
++/* The Type-C data port: USB 3 on two of the four lanes, either way up */
++&combophy0 {
++	orientation-switch;
++	status = "okay";
++
++	port {
++		combophy0_ss: endpoint {
++			remote-endpoint = <&usbc_ss>;
++		};
++	};
++};
++
++&combophy1 {
++	status = "okay";
++};
++
++/*
++ * microSD. The card supply VCC-CARD comes from DCDC1 through 1 Ohm, with
++ * no switch. Card detect on PF6 is low with a card.
++ *
++ * Kept at 3.3 V signalling: bank PF can run at 1.8 V from CLDO5, which the
++ * UHS modes need, but that is not described yet.
++ */
++&mmc0 {
++	vmmc-supply = <&reg_dcdc1>;
++	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>; /* PF6 */
++	bus-width = <4>;
++	no-sdio;
++	status = "okay";
++};
++
++/* Y1 is 26 MHz */
++&osc {
++	clock-frequency = <26000000>;
++};
++
++/* PCIe on the FPC connector: one lane, CLKREQ# PD20, WAKE# PD21 */
++&pcie {
++	reset-gpios = <&pio 3 22 GPIO_ACTIVE_LOW>; /* PD22 */
++	vpcie3v3-supply = <&reg_pcie>;
++	status = "okay";
++};
++
++&pio {
++	vcc-pb-supply = <&reg_swout2>;
++	vcc-pc-supply = <&reg_dcdc8>;
++	vcc-pd-supply = <&reg_swout2>;
++	vcc-pe-supply = <&reg_swout2>;
++	vcc-pf-supply = <&reg_swout2>;	/* or VCC18-PF from CLDO5 */
++	vcc-pg-supply = <&reg_dcdc8>;
++	vcc-ph-supply = <&reg_dcdc8>;
++	vcc-pj-supply = <&reg_dcdc8>;
++	vcc-pk-supply = <&reg_dcdc8>;
++};
++
++&r_i2c0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&r_i2c0_pl_pins>;
++	status = "okay";
++
++	axp318: pmic@36 {
++		compatible = "x-powers,axp318w";
++		reg = <0x36>;
++		interrupts-extended = <&nmi_intc 0 IRQ_TYPE_LEVEL_LOW>;
++		interrupt-controller;
++		#interrupt-cells = <1>;
++
++		/*
++		 * Only the outputs that something here names are described,
++		 * all of them always on at the voltage the schematic gives.
++		 * The others, the CPU, GPU and DRAM rails among them, are left
++		 * as the boot chain set them. The inputs of the regulator
++		 * groups are not described: the schematic sheet was not read
++		 * for them.
++		 */
++		regulators {
++			/* VCC-3V3: card, Wi-Fi module, header pins 1 and 17 */
++			reg_dcdc1: dcdc1 {
++				regulator-name = "vcc-3v3";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-always-on;
++			};
++
++			/*
++			 * 1.8 V I/O: banks PC, PG, PH, PJ, PK and PM, the Wi-Fi
++			 * module's I/O, VDD18 of the LPDDR5.
++			 */
++			reg_dcdc8: dcdc8 {
++				regulator-name = "vcc-1v8";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
++			};
++
++			/*
++			 * VCC-IO, a switch on DCDC1: banks PB (console), PD, PE
++			 * and PL (the bus of this PMIC), the 3.3 V of the USB
++			 * PHYs. Bank PL has no vcc-pl-supply on r_pio: the pin
++			 * driver would ask for it when r_i2c0 takes its pins,
++			 * before the PMIC that provides it has probed.
++			 */
++			reg_swout2: swout2 {
++				regulator-name = "vcc-io";
++				regulator-always-on;
++			};
++		};
++	};
++};
++
++&r_i2c1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&r_i2c1_pl12_pins>;
++	clock-frequency = <400000>;
++	status = "okay";
++
++	/* U4, FUSB302MPX, supplied from VCC-PL, VCONN from VCC-5V */
++	typec@22 {
++		compatible = "fcs,fusb302";
++		reg = <0x22>;
++		interrupt-parent = <&r_pio>;
++		interrupts = <0 9 IRQ_TYPE_LEVEL_LOW>; /* PL9 */
++		vbus-supply = <&reg_usbc_vbus>;
++
++		connector {
++			compatible = "usb-c-connector";
++			label = "USB-C";
++			data-role = "host";
++			power-role = "source";
++			/* the board is powered through the other port */
++			self-powered;
++			typec-power-opmode = "default";
++			source-pdos = <PDO_FIXED(5000, 900, PDO_FIXED_USB_COMM)>;
++
++			ports {
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				port@0 {
++					reg = <0>;
++
++					usbc_hs: endpoint {
++						remote-endpoint = <&usb3_hs>;
++					};
++				};
++
++				port@1 {
++					reg = <1>;
++
++					usbc_ss: endpoint {
++						remote-endpoint = <&combophy0_ss>;
++					};
++				};
++			};
++		};
++	};
++};
++
++&r_pio {
++	/* No vcc-pl-supply: see SWOUT2 */
++	vcc-pm-supply = <&reg_dcdc8>;
++};
++
++/* PB9 TX, PB10 RX, on pins 8 and 10 of the 40-pin header */
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart0_pb_pins>;
++	status = "okay";
++};
++
++/* USB2 of the SoC, on the Type-C data port */
++&usb3 {
++	dr_mode = "host";
++	status = "okay";
++
++	port {
++		usb3_hs: endpoint {
++			remote-endpoint = <&usbc_hs>;
++		};
++	};
++};
++
++&usb3_u2phy {
++	status = "okay";
++};
++
++/*
++ * USB0 is on the Type-C port the board is powered through: fixed pull-downs
++ * on CC, no VBUS switch, no ID or VBUS detect line. A peripheral only.
++ */
++&usb_otg {
++	dr_mode = "peripheral";
++	status = "okay";
++};
++
++&usbphy {
++	status = "okay";
++};

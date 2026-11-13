@@ -2652,6 +2652,18 @@
       "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-i2s-clk-rate/asoc-sun4i-i2s-set-the-module-clock-rate-with-the-module-clock-off.patch",
       "description": "ASoC: sun4i-i2s: Set the module clock rate with the module clock off",
       "stack": "sun4i-i2s-clk-rate"
+    },
+    {
+      "file": "zero3w-dt-bindings-arm-sunxi-add-the-xunlong-orange-pi-zero-3w.patch",
+      "layer": "base",
+      "origin": "this repository",
+      "description": "dt-bindings: arm: sunxi: Add the Xunlong Orange Pi Zero 3W"
+    },
+    {
+      "file": "zero3w-arm64-dts-allwinner-a733-add-the-xunlong-orange-pi-zero-3w.patch",
+      "layer": "base",
+      "origin": "this repository",
+      "description": "arm64: dts: allwinner: a733: Add the Xunlong Orange Pi Zero 3W"
     }
   ]
 }

@@ -19,11 +19,10 @@ in
 
     deviceTree = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
-      default = null;
-      example = "allwinner/sun60i-a733-orangepi-zero3w.dtb";
+      default = "allwinner/sun60i-a733-orangepi-zero3w.dtb";
       description = ''
         Device tree blob to boot with, relative to the kernel's dtbs directory.
-        Left unset until the board's device tree is part of the base patches.
+        The default is the Orange Pi Zero 3W tree of the base patches.
       '';
     };
 
