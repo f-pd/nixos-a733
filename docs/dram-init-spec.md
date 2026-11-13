@@ -291,6 +291,83 @@ Most of this non-DRAM code corresponds to Allwinner's `spl-pub` loader, whose so
 publishes under the GPL (**I**, from the strings); only the DRAM library is shipped without
 source. None of it is needed by our chain, where U-Boot SPL does these jobs.
 
+## boot0 before and after the DRAM routine, in registers
+
+Obtained like the scripts, by running boot0 from its entry point up to the DRAM routine under
+the same register model, with the PMIC modelled at the level of its register reads and writes
+(**O**). Order as executed. The values of reads are the model's, so read-modify-write results
+are shown as bits set or cleared.
+
+**Memory use.** Loaded at `0x47000`; initialised data to `0x82dd0`; BSS `0x82dd0`–`0x83c28`;
+initial stack pointer `0x8d000`, growing down. `ddr.bin` occupies `0x90000`–`0xc94a4`. So
+`0x47000`–`0xc9500` is usable RAM before DRAM is up. No heap is used before DRAM.
+
+**Reference clock.** Everything assumes 24 MHz: the UART divisor is 13 for 115200 baud, PLL
+factors are `frequency / 24`, the delay loop counts 24 ticks per microsecond. Nothing reads a
+crystal-select strap.
+
+**UART0.** `CCU+0xe00`: write 0, set bit 16 (reset released), set bit 0 (gate). Pins PB9 and
+PB10 to function 2 (`0x02000104` bits for pins 9 and 10), drive level and pull-up set. UART at
+`0x02500000`: `+0x10` = 3; `+0x0c` = `0x80`; `+0x04` = 0; `+0x00` = 13; `+0x0c` = 3; `+0x08` = 7.
+
+**PMIC, first contact.** Device address `0x36` on the R-domain TWI. Read register `0x0e`,
+expect 3. Set bit 3 of `0x10`. Set bit 7 of each of `0x13`–`0x1a`. Then, before the CPU
+PLLs: write `0xa7070025` to `0x08000144` twice; set register `0x13` to `0x9e` (bit 7 kept, code
+`0x1e`); set bit 1 of `0x10`.
+
+**PLL enables.** Set bit 24 of `CCU` `+0x20`, `+0xa0`, `+0xc0`, `+0xe0`, `+0x120`, `+0x140`,
+`+0x160`, `+0x220`, `+0x240`, `+0x260`, `+0x280`, `+0x2a0`, `+0x2e0`. boot0 does not otherwise
+program PLL_PERI0 (`+0xa0`), nor any bus divider: it runs on what the boot ROM left.
+
+**CPU PLLs.** Skipped when bit 14 or bit 15 of `0x07090160` is set. Otherwise, for each of
+`0x08871000` (little cores), `0x08872000` (big cores), `0x08873000` (DSU), the register is
+taken through: set bit 30; set bit 27; factor field bits 8–15 = `0x14`; delay 20 us; set bit
+31; set bit 29; set bit 26; wait for lock (bit 28); delay 20 us; clear the source select at
+`+0x1c`; clear bit 27; clear bit 29; factor = `0x2a` (`0x1f` for the DSU); delay 20 us; set
+bit 29; wait for lock; delay 20 us; set bit 27; delay 20 us. Final values `0xec002a00`,
+`0xec002a00`, `0xec001f00`: 1008, 1008 and 744 MHz. Then `+0x1c` = `0x03000000` on each
+(switch to the PLL), 20 us apart.
+
+**Bus clock.** `CCU+0x518` bits cleared; `0x07010010` = `0x04000000`; `CCU+0x580`: set bit 27
+and wait for it to clear; then source bits 24–26 = 3 with bits 27 and 31 set, and wait for bit
+27 to clear.
+
+**GPADC.** `CCU+0xfc0` = `0x80000000`; `CCU+0xfc4`: write 0, delay 2 us, set bit 16, set bit
+0. At `0x02521000`: `+0x00` upper half = `0x5dbf`; `+0x04` set bit 19, clear bit 18, set bit
+16; `+0x28` = 0; `+0x38` = 1. Then `0x07090000` = `0xc`.
+
+**Strap read.** One sample of channel *c*: set bit *c* of `0x02521008`; delay 1500 us; read
+`0x02521038`, keep bit *c* and write it back; if it was set, the sample is the register at
+`0x02521080 + 4c`, else 0. The value in mV is `sample * 1800 / 4095`. Three samples are
+averaged; this repeats until the average is within 5 mV of the first of the three, for at most
+2 s. The eight thresholds of "DRAM parameters" are in mV; the index is the number of midpoints
+between consecutive thresholds that the value has reached, 0 to 7. The pin of the GPIO part of
+the selection (port I, pin 16) is set to input with pull-up even though mode 2 does not use it.
+
+**DRAM rails.** From boot0's regulator table (voltage register, 7- or 6-bit code, enable
+register and bit):
+
+| Rail | Voltage register | Code | Enable |
+|---|---|---|---|
+| `dcdc6` | `0x17`, bits 0–6 | `(mV - 500) / 10` up to 1200 mV; 560 mV = 6 | `0x10` bit 5 |
+| `dcdc7` | `0x18`, bits 0–6 | same; 1080 mV = 58, 1120 mV = 62 | `0x10` bit 6 |
+| `dcdc8` | `0x19`, bits 0–6 | same | `0x10` bit 7 |
+| `eldo1` | `0x3a`, bits 0–5 | `(mV - 500) / 25`, rounded down; 1080 mV = 23 (1075 mV), 1120 mV = 24 (1100 mV) | `0x22` bit 6 |
+| `eldo2` | `0x3b`, bits 0–5 | same | `0x22` bit 7 |
+
+Each is a read-modify-write of the voltage register, then of the enable register. The other
+bits of the voltage registers, including bit 7 set at first contact, are kept.
+
+**MMC0, as far as the model lets it run.** Pins PF0–PF5 to function 2. `CCU+0xd0c`: set bit
+0, then bit 16. `CCU+0xd00` = `0x80000000`: gated on, source 0, no divider, which is the
+24 MHz oscillator, not PLL_PERI0. The driver then caps the card clock at 25 MHz.
+
+**After the DRAM routine.** In this image the secure-memory step makes no register write: the
+routine it calls only touches CPU system registers. boot0 then sets up a heap at
+`0x40800000`, loads the next stage and passes the DRAM size and parameter block in fixed
+offsets of the U-Boot image, as described above. Nothing BL31 or U-Boot would rely on is left
+in a peripheral register beyond what is listed here.
+
 ## What `ddr.bin` does differently
 
 (**O**) Same DRAM driver, but board data comes from the appended device tree: UART, the R-domain
