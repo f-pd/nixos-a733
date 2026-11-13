@@ -1,0 +1,182 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alessio Corsi <alessio.corsi@gmail.com>
+Date: Fri, 13 Nov 2026 11:05:33 +0100
+Subject: [PATCH] feat(allwinner): a733: power off through the AXP318W
+
+PSCI SYSTEM_OFF stopped the cores and left the board powered.
+
+Look for an AXP318W in the device tree of the next stage and, on
+SYSTEM_OFF, set the power-off bit of its shutdown register (0x55,
+bit 7) over R_TWI0. The bus is not touched before that: its controller
+is reset then, as the rich OS has used it, and the pins stay as they
+are.
+
+The watchdog variable of the platform makefile had the wrong name and
+no effect; SYSTEM_RESET already used the watchdog's reset register,
+because the code tests the macro with #ifdef. Name it correctly.
+---
+ plat/allwinner/sun60i_a733/platform.mk   |  12 +--
+ plat/allwinner/sun60i_a733/sunxi_power.c | 108 ++++++++++++++++++++++-
+ 2 files changed, 113 insertions(+), 7 deletions(-)
+
+diff --git a/plat/allwinner/sun60i_a733/platform.mk b/plat/allwinner/sun60i_a733/platform.mk
+index 7f94bdf..47c9789 100644
+--- a/plat/allwinner/sun60i_a733/platform.mk
++++ b/plat/allwinner/sun60i_a733/platform.mk
+@@ -10,7 +10,7 @@ ARM_ARCH_MINOR := 2
+ PLATFORM_MAX_CPUS_PER_CLUSTER := 8
+ 
+ # A733 has new style of watchdog core
+-STANDALONE_WATCHDOG := 1
++SUNXI_STANDALONE_WATCHDOG := 1
+ 
+ # BL31 runs from DRAM, like on the H616. The SRAM stays with the SPL, which
+ # may initialise DRAM from there and is larger than the SRAM A2 slot leaves
+@@ -28,10 +28,12 @@ include plat/allwinner/common/allwinner-common.mk
+ include plat/allwinner/common/allwinner-common-a55.mk
+ include plat/allwinner/common/allwinner-common-a76.mk
+ 
+-ifeq (${SUNXI_BL31_IN_DRAM},1)
+-# For the memory reservation added to the next stage's device tree.
+-BL31_SOURCES		+=	common/fdt_wrappers.c
+-else
++# The device tree is read for the PMIC and, with BL31 in DRAM, changed for
++# the memory reservation. The PMIC is reached over I2C to power off.
++BL31_SOURCES		+=	common/fdt_wrappers.c			\
++				drivers/mentor/i2c/mi2cv.c
++
++ifneq (${SUNXI_BL31_IN_DRAM},1)
+ # Put NOBITS memory in the first 64K of SRAM A2, overwriting U-Boot's SPL.
+ SEPARATE_NOBITS_REGION	:=	1
+ endif
+diff --git a/plat/allwinner/sun60i_a733/sunxi_power.c b/plat/allwinner/sun60i_a733/sunxi_power.c
+index eaea81c..fd3f7cd 100644
+--- a/plat/allwinner/sun60i_a733/sunxi_power.c
++++ b/plat/allwinner/sun60i_a733/sunxi_power.c
+@@ -2,20 +2,124 @@
+  * SPDX-License-Identifier: BSD-3-Clause
+  */
+ 
++#include <errno.h>
++
++#include <arch_helpers.h>
++#include <common/debug.h>
++#include <common/fdt_wrappers.h>
++#include <drivers/mentor/mi2cv.h>
++#include <lib/mmio.h>
++#include <lib/utils_def.h>
++#include <libfdt.h>
++
+ #include <platform_def.h>
+ 
+-#include <sunxi_mmap.h>
+ #include <sunxi_cpucfg.h>
++#include <sunxi_mmap.h>
+ #include <sunxi_private.h>
+ 
++/* R_TWI0, the bus of the PMIC: gate in bit 0, reset in bit 16 */
++#define SUNXI_R_TWI_GATE_RESET_REG	(SUNXI_R_PRCM_BASE + 0x019c)
++#define R_TWI_GATE			BIT_32(0)
++#define R_TWI_RESET			BIT_32(16)
++
++/* AXP318W */
++#define AXP318_CHIP_ID_REG		0x0e
++#define AXP318_CHIP_ID			0x03
++#define AXP318_SHUTDOWN_CTRL_REG	0x55
++#define AXP318_POWER_OFF		BIT_32(7)
++
++/* The I2C address of the AXP318W, from the device tree; 0 if there is none */
++static uint8_t pmic_bus_addr;
++
++static int pmic_read(uint8_t reg)
++{
++	uint8_t val;
++	int ret;
++
++	ret = i2c_write(pmic_bus_addr, 0, 0, &reg, 1);
++	if (ret == 0) {
++		ret = i2c_read(pmic_bus_addr, 0, 0, &val, 1);
++	}
++	if (ret != 0) {
++		return -EIO;
++	}
++
++	return val;
++}
++
++/*
++ * The pins of the bus, PL0 and PL1, are left as they are: every stage
++ * before BL31 and the rich OS use the PMIC on them.
++ */
++static void pmic_bus_init(void)
++{
++	mmio_setbits_32(SUNXI_R_TWI_GATE_RESET_REG, R_TWI_GATE);
++	mmio_clrbits_32(SUNXI_R_TWI_GATE_RESET_REG, R_TWI_RESET);
++	mmio_setbits_32(SUNXI_R_TWI_GATE_RESET_REG, R_TWI_RESET);
++
++	i2c_init((void *)SUNXI_R_I2C_BASE);
++}
++
++/*
++ * Only look for the PMIC in the device tree here. The bus is not touched
++ * before the system is powered off, so a board without the PMIC, or with
++ * the bus in another state, starts all the same.
++ */
+ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
+ {
++	uint32_t reg;
++	int node;
++
++	if (fdt == NULL) {
++		return -ENODEV;
++	}
++
++	node = fdt_node_offset_by_compatible(fdt, 0, "x-powers,axp318w");
++	if (node < 0) {
++		INFO("PMIC: no AXP318W in DT, no power off through the PMIC\n");
++		return -ENODEV;
++	}
++
++	if (fdt_read_uint32(fdt, node, "reg", &reg) != 0 || reg > 0x7f) {
++		ERROR("PMIC: AXP318W node without a usable reg property\n");
++		return -EINVAL;
++	}
++
++	pmic_bus_addr = reg;
++	INFO("PMIC: AXP318W at 0x%x\n", reg);
++
+ 	return 0;
+ }
+ 
+ void sunxi_power_down(void)
+ {
+-	return;
++	uint8_t val;
++	int ret;
++
++	if (pmic_bus_addr == 0U) {
++		return;
++	}
++
++	/* The rich OS has used the bus: start from a reset controller. */
++	pmic_bus_init();
++
++	ret = pmic_read(AXP318_CHIP_ID_REG);
++	if (ret != AXP318_CHIP_ID) {
++		ERROR("PMIC: no AXP318W on the bus (%d)\n", ret);
++		return;
++	}
++
++	ret = pmic_read(AXP318_SHUTDOWN_CTRL_REG);
++	if (ret < 0) {
++		ERROR("PMIC: cannot read the shutdown register\n");
++		return;
++	}
++
++	val = (uint8_t)ret | AXP318_POWER_OFF;
++	if (i2c_write(pmic_bus_addr, AXP318_SHUTDOWN_CTRL_REG, 1, &val, 1) != 0) {
++		ERROR("PMIC: cannot write the shutdown register\n");
++	}
+ }
+ 
+ void sunxi_cpu_power_off_self(void)

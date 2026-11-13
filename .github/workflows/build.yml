@@ -67,20 +67,38 @@ jobs:
           nix build -L .#kernel-source -o source
           echo "version=$(jq -r .version kernel/version.json)" >> "$GITHUB_OUTPUT"
 
+      # Issues are for the branches that are meant to build: a branch in
+      # progress reports in its own run.
       - name: Report skipped optional patches
+        if: github.ref_name == 'main' || github.ref_name == 'develop'
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.source.outputs.version }}
         run: ci/report-skipped.sh source/.a733-optional-skipped "$VERSION"
 
-      - name: Build kernel
-        run: nix build -L .#kernel
+      - name: List skipped optional patches
+        run: |
+          if [ -s source/.a733-optional-skipped ]; then
+            echo "Optional patches that did not apply:"
+            cat source/.a733-optional-skipped
+          else
+            echo "Every optional patch applied"
+          fi
 
+      - name: Build kernel
+        run: nix build -L .#kernel -o result-kernel
+
+      - name: Check the board device tree
+        run: ls -l result-kernel/dtbs/allwinner/sun60i-a733-orangepi-zero3w.dtb
+
+      # The image holds the firmware with the PHY training firmware in it:
+      # it is built to prove that it builds, and is neither cached (push
+      # filter) nor uploaded.
       - name: Build generic image
         run: nix build -L .#sd-image-generic
 
       - name: Open an issue on failure
-        if: failure()
+        if: failure() && (github.ref_name == 'main' || github.ref_name == 'develop')
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.source.outputs.version }}

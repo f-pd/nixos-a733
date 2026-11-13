@@ -9,25 +9,20 @@
   stdenvNoCC,
   fetchurl,
   patch,
+  writeText,
 }:
 let
   pin = lib.importJSON ./version.json;
   patches = import ../patches { inherit lib; };
 
-  applyBase = p: ''
-    echo "a733: applying base patch ${p.file}"
-    patch -p1 --batch --forward < ${p.path}
-  '';
-
-  applyOptional = p: ''
-    if patch -p1 --batch --forward --dry-run --silent < ${p.path} > /dev/null 2>&1; then
-      echo "a733: applying optional patch ${p.file}"
-      patch -p1 --batch --forward --silent < ${p.path}
-    else
-      echo "a733: skipping optional patch ${p.file}, it does not apply"
-      echo "${p.file}" >> .a733-optional-skipped
-    fi
-  '';
+  # One line per patch, store path and name. The lists go through files:
+  # with a few hundred patches the commands no longer fit in the builder's
+  # environment.
+  series =
+    layer: list:
+    writeText "linux-a733-patches-${layer}" (lib.concatMapStrings (p: "${p.path} ${p.file}\n") list);
+  baseSeries = series "base" patches.base;
+  optionalSeries = series "optional" patches.optional;
 in
 stdenvNoCC.mkDerivation {
   pname = "linux-a733-source";
@@ -43,12 +38,21 @@ stdenvNoCC.mkDerivation {
   patchPhase = ''
     runHook prePatch
     : > .a733-optional-skipped
-    ${lib.concatMapStrings applyBase patches.base}
-    ${lib.concatMapStrings applyOptional patches.optional}
+    while read -r path file; do
+      echo "a733: applying base patch $file"
+      patch -p1 --batch --forward < "$path"
+    done < ${baseSeries}
+    while read -r path file; do
+      if patch -p1 --batch --forward --dry-run --silent < "$path" > /dev/null 2>&1; then
+        echo "a733: applying optional patch $file"
+        patch -p1 --batch --forward --silent < "$path"
+      else
+        echo "a733: skipping optional patch $file, it does not apply"
+        echo "$file" >> .a733-optional-skipped
+      fi
+    done < ${optionalSeries}
+    find . -name '*.orig' -delete
 
-    # The board is arm64 and nothing else: drop every other architecture from
-    # the tree. arch/arm stays because arm64 device trees include its dtsi.
-    find arch -mindepth 1 -maxdepth 1 -type d ! -name arm64 ! -name arm -exec rm -rf {} +
     runHook postPatch
   '';
 

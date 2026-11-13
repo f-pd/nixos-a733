@@ -8,7 +8,8 @@
     "hash": "sha256-fZr5Io+IU3UE2kLatWScNTo0R1xFOfb7h26iv5BmPIE=",
     "platform": "sun60i_a733",
     "patches": [
-      "0001-feat-allwinner-a733-run-BL31-from-DRAM-by-default.patch"
+      "0001-feat-allwinner-a733-run-BL31-from-DRAM-by-default.patch",
+      "0002-feat-allwinner-a733-power-off-through-the-AXP318W.patch"
     ]
   },
   "u-boot": {
@@ -24,7 +25,8 @@
       "0001-sunxi-a733-make-the-libdram-blob-optional.patch",
       "0002-sunxi-a733-initialise-DRAM-with-the-A733-DRAM-librar.patch",
       "0003-mmc-sunxi-a733-clock-the-card-from-the-oscillator-in.patch",
-      "0004-sunxi-add-the-Orange-Pi-Zero-3W.patch"
+      "0004-sunxi-add-the-Orange-Pi-Zero-3W.patch",
+      "0005-sunxi-a733-set-up-the-CPU-and-bus-clocks-as-the-vend.patch"
     ]
   }
 }

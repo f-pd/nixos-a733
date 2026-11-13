@@ -105,7 +105,7 @@ Consequences for `bootloader/`:
 - Vendor boot0 loads a packed `boot_package.fex` at 16 400 KiB, not a raw `u-boot-sunxi-with-spl.bin`.
 - The BROM reads the first stage at 8 KiB and at 128 KiB.
 - The Zero 3W has no wired Ethernet, and no mainline kernel has an AIC8800 driver.
-- No mainline-style device tree for the Zero 3W exists. The vendor device tree is the wiring reference.
+- No mainline-style device tree for the Zero 3W exists upstream. Ours is in `patches/base/`, written from `docs/zero3w-wiring.md` and not yet run (`docs/kernel-zero3w.md`).
 - The two community kernel stacks (7.3 and 6.18) use different bindings: one device tree does not serve both.
 - A boot chain built with Radxa's `ddr.bin` contains a blob with no redistribution grant: keep it out of Cachix and Releases.
 - Revisions here are dated. Re-check them before pinning.

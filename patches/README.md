@@ -30,3 +30,10 @@ Every patch needs an entry in `index.json`:
 
 A patch file without an entry is ignored, and an entry without a file fails
 evaluation. Patches apply with `patch -p1` from the root of the kernel tree.
+
+## Where the patches come from
+
+The numbered files are a vendored copy of `DockSeed/a7s-linux-mainline`, written by
+`import-stack.py` together with their index entries (which carry a `stack` field); do not
+edit them by hand. The `zero3w-*` files are ours and come last in the base layer.
+`docs/kernel-zero3w.md` has the details, the split into layers and how to refresh the copy.
