@@ -58,7 +58,8 @@ jobs:
           name: nixos-a733
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           # SD images and patched kernel sources are big and rebuilt every run; keep them out of the cache.
-          pushFilter: '(-source$|-source-[0-9][^/]*$|\.img(\.zst)?$)'
+          # Anything marked nopublish holds firmware without a redistribution grant.
+          pushFilter: '(-source$|-source-[0-9][^/]*$|\.img(\.zst)?$|-nopublish)'
 
       - name: Patch kernel source
         id: source
@@ -75,16 +76,6 @@ jobs:
       - name: Build kernel
         run: nix build -L .#kernel
 
-      - name: Build boot chain
-        run: |
-          for pkg in boot0 tf-a uboot; do
-            if nix eval .#packages.aarch64-linux --apply "p: p ? \"$pkg\"" | grep -q true; then
-              nix build -L ".#$pkg"
-            else
-              echo "$pkg is not pinned yet, skipping"
-            fi
-          done
-
       - name: Build generic image
         run: nix build -L .#sd-image-generic
 
@@ -95,6 +86,56 @@ jobs:
           VERSION: ${{ steps.source.outputs.version }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: ci/report-failure.sh "$VERSION" "$RUN_URL"
+
+  # The mainline boot chain: BL31 and U-Boot with our DRAM init, one file for
+  # the card. It links the PHY training firmware, which has no redistribution
+  # grant: the push filter keeps it out of the cache, and nothing of it is
+  # uploaded. What is uploaded is the SPL built with zeros in place of that
+  # firmware, ELF and symbols included, for checking its DRAM path against
+  # the reference scripts.
+  firmware:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+      - uses: cachix/cachix-action@v17
+        with:
+          name: nixos-a733
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          # SD images and patched kernel sources are big and rebuilt every run; keep them out of the cache.
+          # Anything marked nopublish holds firmware without a redistribution grant.
+          pushFilter: '(-source$|-source-[0-9][^/]*$|\.img(\.zst)?$|-nopublish)'
+
+      - name: Check the DRAM library against the reference scripts
+        run: make -C bootloader/dram check
+
+      - name: Build BL31
+        run: nix build -L .#tf-a -o result-tf-a
+
+      - name: Build firmware
+        run: nix build -L .#firmware -o result-firmware
+
+      - name: Check firmware layout
+        run: |
+          ls -l result-firmware/
+          python3 ci/check-firmware.py result-firmware/u-boot-sunxi-with-spl.bin
+
+      - name: Build SPL without the PHY firmware
+        run: |
+          nix build -L .#spl-zero-payload -o result-spl
+          mkdir spl-zero-payload
+          cp result-spl/sunxi-spl.bin result-spl/u-boot-spl result-spl/u-boot-spl.map result-spl/.config spl-zero-payload/
+          cp result-tf-a/bl31.elf spl-zero-payload/
+          python3 ci/check-firmware.py result-spl/u-boot-sunxi-with-spl.bin
+          sha256sum spl-zero-payload/* | tee spl-zero-payload/SHA256SUMS
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: a733-spl-zero-payload
+          path: spl-zero-payload/
+          include-hidden-files: true
+          retention-days: 30
 
   # The manufacturer's U-Boot is built with a compiler that only exists for
   # x86-64 hosts (and crashes under qemu-user), so it is built on an x86-64
@@ -110,7 +151,8 @@ jobs:
           name: nixos-a733
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           # SD images and patched kernel sources are big and rebuilt every run; keep them out of the cache.
-          pushFilter: '(-source$|-source-[0-9][^/]*$|\.img(\.zst)?$)'
+          # Anything marked nopublish holds firmware without a redistribution grant.
+          pushFilter: '(-source$|-source-[0-9][^/]*$|\.img(\.zst)?$|-nopublish)'
       - name: Build manufacturer U-Boot
         run: nix build -L .#packages.aarch64-linux.boot-vendor.uboot
 
@@ -128,7 +170,8 @@ jobs:
           name: nixos-a733
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           # SD images and patched kernel sources are big and rebuilt every run; keep them out of the cache.
-          pushFilter: '(-source$|-source-[0-9][^/]*$|\.img(\.zst)?$)'
+          # Anything marked nopublish holds firmware without a redistribution grant.
+          pushFilter: '(-source$|-source-[0-9][^/]*$|\.img(\.zst)?$|-nopublish)'
 
       - name: Build manufacturer kernel
         run: nix build -L .#kernel-vendor
