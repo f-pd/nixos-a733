@@ -10,11 +10,13 @@ hook then only switches to AArch64.
 
 Such an SPL runs DRAM init from SRAM, so the SRAM is not free for BL31,
 and nothing starts the SCP: load BL31 to DRAM at 0x40000000 and drop the
-SCP image in that case.
+SCP image in that case. The command that starts the arisc core takes its
+DRAM parameters from the blob's copy in SRAM and is not built either.
 ---
  arch/arm/include/asm/arch-sunxi/boot0.h |  6 ++++--
  arch/arm/mach-sunxi/Kconfig             | 26 +++++++++++++++++++++++--
- 2 files changed, 28 insertions(+), 4 deletions(-)
+ cmd/Kconfig                             |  1 +
+ 3 files changed, 29 insertions(+), 4 deletions(-)
 
 diff --git a/arch/arm/include/asm/arch-sunxi/boot0.h b/arch/arm/include/asm/arch-sunxi/boot0.h
 index bd76a08d..6d01ddd9 100644
@@ -93,3 +95,15 @@ index d090c1fa..63ee25b4 100644
  	default 0x00090000
  	help
  	  SRAM address where the early A733 SPL boot hook copies and enters
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 43f05cae..ceb014d5 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -3231,6 +3231,7 @@ config CMD_SPAWN_NUM_JOBS
+ 
+ config CMD_SUNXI_BOOT_ARISC
+ 		bool "Load and run arisc cpu"
++		depends on !SUNXI_A733_DRAM_SOURCE
+ 		default MACH_SUN60I_A733
+ 
+ config CMD_SUNXI_SID
