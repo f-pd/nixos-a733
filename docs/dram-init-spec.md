@@ -427,6 +427,31 @@ bits are packed into words 32–49 of the parameter block. Mode registers 14 and
 15 are read on both channels and ranks into words 50 and 51, between a write of 5 and a
 write of 4 to mode register 16. The block is then handed to the next stage.
 
+## Answers to the implementer's questions
+
+Points raised in `bootloader/dram/README.md` that the analysis can settle (**O**):
+
+- **Chip-revision flag.** The flag that selects the first DRAM clock divider and a few PHY
+  values is a variable that nothing in this boot0 ever sets: it is 0 before, during and after
+  the DRAM routine. The scripts show the only reachable case, divider 3.
+- **Reference values after the last Pstate.** That step runs only when bit 29 of word 27 is
+  clear. The bit is set in all four blocks (`0x325f0000`, `0xb25f0000`), so the step never
+  runs on this board and an implementation need not have it.
+- **Size.** With w6, w7, w30 the parameter words:
+  `n = (w7 >> 12 & 0xf) + (w6 >> 14 & 3) + (w6 >> 4 & 0xff) + (w6 >> 12 & 3) + (w6 & 0xf)`;
+  the size in MiB is `1 << (n - 18)` when `w7 & 0xf` is 0 or bit 6 of w30 is set, and
+  `1 << (n - 19)` otherwise; it is then multiplied by 3/4 when `w30 & 0x70000` is not 0 and
+  bits 30–31 of w7 are not 2.
+- **Read-back layout.** Word `32 + k` (k = 0…8) holds register `0x1004e + 0x100 * k` of the
+  four byte lanes, lane 0 in bits 0–6, lane 1 in bits 8–14, lane 2 in 16–22, lane 3 in 24–30.
+  Word `41 + k` holds the same for register `0x1004f + 0x100 * k`. Word 50 holds mode
+  register 14 as channel 0 rank 0, channel 0 rank 1, channel 1 rank 0, channel 1 rank 1 from
+  the low byte up; word 51 the same for mode register 15.
+
+Not settled: the rules behind the per-frequency timing values, the address map registers and
+the message block words. They sit in the functions the decompiler could not process, and the
+four tables cover this board.
+
 ## Method, tools and licences
 
 How this was obtained, in order:
