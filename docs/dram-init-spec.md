@@ -323,6 +323,35 @@ The CPU PLLs are the exception: they take the oscillator directly, and boot0 rea
 
 On this board the second row applies.
 
+**Exact operations, PMIC first contact to GPADC.** From a second run with complemented reads,
+which gives the mask of every read-modify-write. `clr` and `set` are bit masks; `N` is the
+factor of the table above (`0x2a`/`0x1f` at 24 MHz, `0x27`/`0x1e` at 26 MHz). There is no delay
+between the PMIC writes and the PLL writes other than the bus transfers themselves.
+
+1. PMIC: set bit 3 of `0x10`; set bit 7 of `0x13`…`0x1a`.
+2. `0x08000144` = `0xa7070025`, written twice.
+3. PMIC: `0x13` = `0x9e`; set bit 1 of `0x10`.
+4. Set bit 24 of the thirteen CCU PLL registers.
+5. Unless the oscillator is 19.2 MHz, for `P` = `0x08871000`, `0x08872000`, `0x08873000` in
+   turn: set bit 30; set bit 27; clr `0x3feb0f` set `0x1400`; delay 20; set bit 31; set bit 29;
+   set bit 26; wait for bit 28; delay 20; `P+0x1c` clr `0x03000000`; clr bit 27; clr bit 29;
+   clr `0x3fd80f` set `N << 8` (for `N` = `0x1e`/`0x1f` the clear mask is the complement within
+   `0x3fff0f`); delay 20; set bit 29; set bit 26; wait for bit 28; delay 20; set bit 27;
+   delay 20.
+6. Unless 19.2 MHz, after all three: `P+0x1c` clr `0x04030000` set `0x03000000`, delay 20, for
+   each `P` in the same order.
+7. `CCU+0x518` clr `0x0300001f`. `0x07010010` clr `0x03000000` set `0x04000000`.
+8. `CCU+0x580` clr `0x8000001f` set `0x08000000`; poll every 1 us until bit 27 reads 0; then
+   clr `0x04000000` set `0x8b000000`; poll until bit 27 reads 0.
+9. `CCU+0xfc0` clr `0x1f` set `0x80000000`. `CCU+0xfc4` clr bit 16; delay 2; set bit 16; set
+   bit 0.
+10. `0x02521000` clr `0xa2400000` set `0x5dbf0000`; `0x02521004` clr bit 18 set bit 19, then
+    set bit 16; `0x02521028` = 0; `0x02521038` = 1.
+11. `0x07090000` clr `0x4001` set `0xc`.
+12. The PMIC first contact is repeated (it changes nothing), then the strap is read.
+
+With a 19.2 MHz oscillator steps 5 and 6 are skipped and everything else is done.
+
 **UART0.** `CCU+0xe00`: write 0, set bit 16 (reset released), set bit 0 (gate). Pins PB9 and
 PB10 to function 2 (`0x02000104` bits for pins 9 and 10), drive level and pull-up set. UART at
 `0x02500000`: `+0x10` = 3; `+0x0c` = `0x80`; `+0x04` = 0; `+0x00` = 13; `+0x0c` = 3; `+0x08` = 7.
