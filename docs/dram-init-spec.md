@@ -409,7 +409,7 @@ How this was obtained, in order:
 6. The logs were normalised into the operation scripts, and the scripts were expanded again
    and compared with the logs.
 7. A sweep flipping each bit of each parameter word and recording which writes change is in
-   `docs/dram-init/sensitivity.tsv`, where complete.
+   `docs/dram-init/sensitivity.tsv` (12 GiB block, words 2 to 31).
 
 The scripts used for steps 4 to 7 are in `docs/dram-init/method/`. They need the two binaries
 and the decompiler output, which are not in this repository.

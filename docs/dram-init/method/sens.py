@@ -11,15 +11,22 @@ PHY=0x0A900000
 def name(a):
     if PHY<=a<0x0AB00000: return "PHY:%05x"%((a-PHY)>>1)
     return "%08x"%a
-res=open("emu/sensitivity.tsv","w"); res.write("word\tbit\tstatus\tchanged_writes\tregisters\n")
-for w in range(32):
-    for bit in range(32):
-        if w in (0,1) : continue
-        st=run({w:ext5[w]^(1<<bit)},"emu/tmp.jsonl")
-        ws=writes("emu/tmp.jsonl") if st.startswith("ok") else []
-        if len(ws)==len(base):
-            ch=collections.Counter(name(a) for (a,v),(a2,v2) in zip(ws,base) if v!=v2 or a!=a2)
-            res.write("%d\t%d\t%s\t%d\t%s\n"%(w,bit,"ok",sum(ch.values())," ".join(sorted(ch)[:40])))
-        else:
-            res.write("%d\t%d\t%s\t%d\t%s\n"%(w,bit,"flow-changed" if st.startswith("ok") else "fail",len(ws)-len(base),st[:60]))
-        res.flush()
+from multiprocessing import Pool
+def job(wb):
+    w,bit=wb
+    tmp="emu/tmp.%d.%d.jsonl"%(w,bit)
+    st=run({w:ext5[w]^(1<<bit)},tmp)
+    ws=writes(tmp) if st.startswith("ok") else []
+    import os
+    try: os.remove(tmp)
+    except OSError: pass
+    if len(ws)==len(base):
+        ch=collections.Counter(name(a) for (a,v),(a2,v2) in zip(ws,base) if v!=v2 or a!=a2)
+        return "%d\t%d\t%s\t%d\t%s\n"%(w,bit,"ok",sum(ch.values())," ".join(sorted(ch)[:40]))
+    return "%d\t%d\t%s\t%d\t%s\n"%(w,bit,"flow-changed" if st.startswith("ok") else "fail",len(ws)-len(base),st[:60])
+if __name__=="__main__":
+    jobs=[(w,b) for w in range(2,32) for b in range(32)]
+    with Pool(6) as pool, open("emu/sensitivity.tsv","w") as res:
+        res.write("word\tbit\tstatus\tchanged_writes\tregisters\n")
+        for line in pool.imap(job,jobs,chunksize=1):
+            res.write(line); res.flush()
