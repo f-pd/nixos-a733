@@ -18,8 +18,8 @@ feeds power into it. The data port is on USB2, a DWC3 with PHYs this
 tree has no driver for.
 ---
  arch/arm/dts/sun60i-a733-orangepi-zero3w.dts | 94 ++++++++++++++++++++
- configs/orangepi_zero3w_defconfig            | 29 ++++++
- 2 files changed, 123 insertions(+)
+ configs/orangepi_zero3w_defconfig            | 30 ++++++
+ 2 files changed, 124 insertions(+)
  create mode 100644 arch/arm/dts/sun60i-a733-orangepi-zero3w.dts
  create mode 100644 configs/orangepi_zero3w_defconfig
 
@@ -128,7 +128,7 @@ new file mode 100644
 index 00000000..0b188c89
 --- /dev/null
 +++ b/configs/orangepi_zero3w_defconfig
-@@ -0,0 +1,29 @@
+@@ -0,0 +1,30 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_SUNXI=y
 +CONFIG_HAS_CUSTOM_SYS_INIT_SP_ADDR=y
@@ -153,6 +153,7 @@ index 00000000..0b188c89
 +CONFIG_CMD_I2C=y
 +CONFIG_SYS_I2C_MVTWSI=y
 +CONFIG_REGULATOR_AXP=y
++CONFIG_SYSRESET_PSCI=y
 +CONFIG_USB_EHCI_HCD=y
 +CONFIG_USB_OHCI_HCD=y
 +CONFIG_USB_KEYBOARD=y
