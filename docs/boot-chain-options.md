@@ -220,10 +220,5 @@ Recorded in `SPEC.md` as D2 and D7. They replace the proposal above where the tw
 | DRAM init | Written here, after studying how boot0 and Radxa's `ddr.bin` do it. Both are study material, not build inputs |
 | The recipe's 35 patches | Reference only, not imported. The Zero 3W port is our own code; once it exists the patches are dropped, and watched only for security fixes that concern the hardware |
 | Keeping firmware out of Cachix and Releases | No longer needed for the target chain: it holds no binary without a redistribution grant |
-
-Still open:
-
-| Decision | Why it is needed |
-|---|---|
-| Which U-Boot tree the Zero 3W port targets | Radxa's branch and dlan17's branches are different trees; upstream has no A733 support yet |
-| Whether `ddr.bin` or boot0 may be run on the bench (FEL) as a reference while our init is written | sets how the two are studied: by readback on the board, or statically only |
+| U-Boot tree for the Zero 3W port | The most reliable of the existing A733 branches is the base, and our own patches go on top. Which branch that is gets settled when the port starts |
+| Running `ddr.bin` or boot0 over FEL as a reference | Allowed, but later: it needs the board on the work host. Until then the two are studied statically |
