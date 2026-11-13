@@ -89,7 +89,7 @@ void phy_write_msg_block(struct dram *d, unsigned int pstate)
 	uint16_t val;
 
 	phy_wr(d, PHY_MUX, 0);
-	udelay(d, 1);
+	dram_udelay(d, 1);
 
 	for (i = 0; i < ARRAY_SIZE(msg_block); i++) {
 		const struct msg_item *m = &msg_block[i];
@@ -203,7 +203,7 @@ void phy_post_train(struct dram *d, unsigned int pstate)
 	uint16_t records;
 
 	phy_wr(d, PHY_MUX, 0);
-	udelay(d, 1);
+	dram_udelay(d, 1);
 
 	phy_save_seek(d, area + PHY_SAVE_HEAD_POST);
 	phy_run_groups(d, phy_post_head, phy_post_head_count, pstate);

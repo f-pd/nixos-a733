@@ -1,0 +1,109 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alessio Corsi <alessio.corsi@gmail.com>
+Date: Fri, 13 Nov 2026 04:41:38 +0100
+Subject: [PATCH] sunxi: a733: make the libdram blob optional
+
+On the A733 the SPL carries an AArch32 blob that the boot hook copies to
+SRAM and runs before the SPL proper, to initialise DRAM. Add
+SUNXI_A733_DRAM_SOURCE for an SPL that initialises DRAM itself: the boot
+hook then only switches to AArch64.
+
+Such an SPL runs DRAM init from SRAM, so the SRAM is not free for BL31,
+and nothing starts the SCP: load BL31 to DRAM at 0x40000000 and drop the
+SCP image in that case. The command that starts the arisc core takes its
+DRAM parameters from the blob's copy in SRAM and is not built either.
+---
+ arch/arm/include/asm/arch-sunxi/boot0.h |  6 ++++--
+ arch/arm/mach-sunxi/Kconfig             | 26 +++++++++++++++++++++++--
+ cmd/Kconfig                             |  1 +
+ 3 files changed, 29 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-sunxi/boot0.h b/arch/arm/include/asm/arch-sunxi/boot0.h
+index bd76a08d..6d01ddd9 100644
+--- a/arch/arm/include/asm/arch-sunxi/boot0.h
++++ b/arch/arm/include/asm/arch-sunxi/boot0.h
+@@ -41,7 +41,8 @@
+ 	.word	0xee1ceffc	// mrc     15, 0, lr, cr12, cr12, {7}
+ 	.word	0xe580e01c	// str     lr, [r0, #28]
+ #endif
+-#if defined(CONFIG_MACH_SUN60I_A733) && defined(CONFIG_XPL_BUILD)
++#if defined(CONFIG_MACH_SUN60I_A733) && defined(CONFIG_XPL_BUILD) && \
++	!defined(CONFIG_SUNXI_A733_DRAM_SOURCE)
+ 	.word	0xe59f3084	// ldr     r3, [pc, #132] ; CONFIG_SUNXI_LIBDRAM_BASE
+ 	.word	0xe59f0084	// ldr     r0, [pc, #132] ; sunxi_libdram_blob_start
+ 	.word	0xe1a01003	// mov     r1, r3
+@@ -80,7 +81,8 @@
+ 	.word	CONFIG_SUNXI_RVBAR_ALTERNATIVE	// address for die variant
+ #ifdef CONFIG_XPL_BUILD
+ 	.word	CONFIG_SPL_TEXT_BASE
+-#ifdef CONFIG_MACH_SUN60I_A733
++#if defined(CONFIG_MACH_SUN60I_A733) && \
++	!defined(CONFIG_SUNXI_A733_DRAM_SOURCE)
+ 	.word	CONFIG_SUNXI_LIBDRAM_BASE
+ 	.word	sunxi_libdram_blob_start
+ 	.word	sunxi_libdram_blob_end
+diff --git a/arch/arm/mach-sunxi/Kconfig b/arch/arm/mach-sunxi/Kconfig
+index d090c1fa..63ee25b4 100644
+--- a/arch/arm/mach-sunxi/Kconfig
++++ b/arch/arm/mach-sunxi/Kconfig
+@@ -265,6 +265,7 @@ config SUNXI_BL31_BASE
+ 	default 0x40000000 if MACH_SUN50I_H616
+ 	default 0x00104000 if SUN50I_GEN_H6
+ 	default 0x00054000 if MACH_SUN55I_A523
++	default 0x40000000 if MACH_SUN60I_A733 && SUNXI_A733_DRAM_SOURCE
+ 	default 0x48000000 if MACH_SUN60I_A733
+ 	default 0x0
+ 	help
+@@ -274,7 +275,7 @@ config SUNXI_SCP_BASE
+ 	hex
+ 	default 0x00050000 if MACH_SUN50I || MACH_SUN50I_H5
+ 	default 0x00114000 if MACH_SUN50I_H6
+-	default 0x48100000 if MACH_SUN60I_A733
++	default 0x48100000 if MACH_SUN60I_A733 && !SUNXI_A733_DRAM_SOURCE
+ 	default 0x0
+ 	help
+ 	  Address where SCP firmware is loaded, or zero if it is not used.
+@@ -610,9 +611,30 @@ config ARM_BOOT_HOOK_RMR
+ 	This allows both the SPL and the U-Boot proper to be entered in
+ 	either mode and switch to AArch64 if needed.
+ 
++config SUNXI_A733_DRAM_SOURCE
++	bool "A733 DRAM init built from source"
++	depends on SPL && MACH_SUN60I_A733
++	help
++	  Initialise DRAM in the SPL with the A733 DRAM library, built from
++	  source, instead of running the AArch32 libdram blob before the SPL.
++	  The library sources are expected in arch/arm/mach-sunxi/a733_dram/
++	  (include/ and src/), and the PHY training firmware in the file
++	  named by the make variable A733_DRAM_PAYLOAD.
++
++	  With this option BL31 is loaded to DRAM: the SPL runs DRAM init
++	  from SRAM, so the SRAM is not free for it.
++
++config SUNXI_A733_DRAM_STRAP
++	int "A733 DRAM parameter block, or -1 to read the board strap"
++	depends on SUNXI_A733_DRAM_SOURCE
++	default -1
++	help
++	  Boards tell their memory fits apart by a resistor on a GPADC
++	  input. Set this to a strap index to skip reading it.
++
+ config SUNXI_LIBDRAM_BASE
+ 	hex "libdram blob runtime address"
+-	depends on SPL && MACH_SUN60I_A733
++	depends on SPL && MACH_SUN60I_A733 && !SUNXI_A733_DRAM_SOURCE
+ 	default 0x00090000
+ 	help
+ 	  SRAM address where the early A733 SPL boot hook copies and enters
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 43f05cae..ceb014d5 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -3231,6 +3231,7 @@ config CMD_SPAWN_NUM_JOBS
+ 
+ config CMD_SUNXI_BOOT_ARISC
+ 		bool "Load and run arisc cpu"
++		depends on !SUNXI_A733_DRAM_SOURCE
+ 		default MACH_SUN60I_A733
+ 
+ config CMD_SUNXI_SID

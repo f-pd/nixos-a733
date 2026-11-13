@@ -87,14 +87,16 @@ All settings use `lib.mkDefault` (nixos-hardware rule).
 
 ### 3.3 Firmware
 
-- Target chain: U-Boot SPL with our own DRAM init, BL31 from TF-A source, U-Boot with EFI and extlinux. One output file, written at sector 256. No vendor binary in it: no boot0, no `ddr.bin`.
+- Target chain: U-Boot SPL with our own DRAM init, BL31 from TF-A source, U-Boot with EFI and extlinux. One output file, written at sector 256. No vendor code runs on the ARM cores: no boot0, no `ddr.bin`. One vendor binary remains, the training firmware that runs inside the DRAM PHY (`docs/dram-init-spec.md`): the build cuts it out of boot0, and nothing that holds it is published (§5).
+- State (2026-11-13): the chain builds in CI from `bootloader/` and its image layout is checked; it has not run on a board. Bases, layout and open points: `docs/boot-chain-bases.md`. First session with the board: `docs/bring-up.md`.
 - DRAM init is written here, after studying how the two existing ones work: Orange Pi's boot0 (known to train this board) and Radxa's `ddr.bin`. Both are study material only (§5).
 - Needs a Zero 3W port: U-Boot defconfig + board DTS (SD on `mmc0`, UART0, USB). The port is our own code: the out-of-tree TF-A and U-Boot patches are a reference, not an import (D7).
 - There is no boot0 fallback: a chain that ships Orange Pi's boot0 is not an option for the mainline variants.
 - Bring-up is done over **FEL** (USB) and from a spare SD card. The board boots from SD first, so a bad firmware cannot brick it.
 - The vendor image stays on a second card as reference and recovery.
 - Firmware is not updated automatically. `nix build .#firmware` plus an explicit flash command.
-- U-Boot hands a running watchdog to Linux: the device tree must drive `WDT_CPUS`, otherwise the board resets about 16 s into boot. For an always-on box the watchdog stays enabled.
+- Watchdog: the chain as built does not start it, so nothing running is handed to Linux during bring-up. For an always-on box it is to be started by U-Boot once the kernel device tree drives `WDT_CPUS`; from then on a kernel that does not drive it resets about 16 s into boot.
+- BL31 runs from the first 256 KiB of DRAM: the kernel device tree must reserve `0x40000000` to `0x40040000`.
 
 ### 3.4 Disk image (disko)
 
@@ -133,7 +135,8 @@ Verified against disko `1dd30c2` (2026-11-10):
 | Blob | Origin | Licence | Policy |
 |---|---|---|---|
 | `ddr.bin` (DRAM init, AArch32) | `radxa-pkg/u-boot-dlan17`, pinned by sha256 | none, no redistribution grant | study material only: not in the built chain, never published |
-| `boot0_sdcard_orangepizero3w.fex` | `orangepi-xunlong/orangepi-build`, pinned by sha256 | none | same |
+| `boot0_sdcard_orangepizero3w.fex` | `orangepi-xunlong/orangepi-build`, pinned by sha256 | none | same, except as the source of the DRAM PHY firmware below |
+| DRAM PHY training firmware (72 678 bytes of boot0) | cut out of boot0 at build time by documented offsets | none | built into the SPL locally; never in the tree, never in a cache, a release or a CI artifact |
 | AIC8800 firmware | vendor | to check | same until checked |
 
 - The project publishes the **recipe** (flake, patches, device tree). Users build their own firmware and image locally.

@@ -1,7 +1,8 @@
 name: ci
 
 # Cheap checks on every push and pull request: the flake evaluates, the patch
-# index is consistent, the Nix files are formatted. Nothing is built here.
+# index is consistent, the Nix files are formatted, the DRAM library issues
+# the register writes of the reference scripts. No derivation is built here.
 on:
   push:
   pull_request:
@@ -20,4 +21,13 @@ jobs:
       - name: Evaluate generic image
         run: nix eval --raw .#packages.aarch64-linux.sd-image-generic.drvPath
       - name: Check formatting
-        run: nix fmt -- --fail-on-change
+        run: nix fmt -- --fail-on-change || { git diff; exit 1; }
+
+  # The DRAM library against the reference scripts: needs a C compiler and
+  # Python only.
+  dram:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check the DRAM library
+        run: make -C bootloader/dram check

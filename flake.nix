@@ -62,8 +62,10 @@
         ];
       };
 
-      # Bootloader pieces are exported only once their sources are pinned in
-      # bootloader/sources.json, so evaluation never trips over a placeholder.
+      # The mainline boot chain: BL31 and U-Boot with our DRAM init, in one
+      # file for the SD card. "firmware" and "dram-payload" hold the PHY
+      # training firmware and are for local use only; "spl-zero-payload" is
+      # the same SPL with zeros in its place.
       packages.${system} = {
         kernel-source = pkgs.callPackage ./kernel/source.nix { };
         kernel = pkgs.callPackage ./kernel { };
@@ -86,15 +88,19 @@
             { };
         sd-image-vendor = self.nixosConfigurations.generic-vendor.config.system.build.sdImage;
       }
-      // lib.optionalAttrs (pinned "boot0") {
-        boot0 = pkgs.callPackage ./bootloader/boot0.nix { };
-      }
       // lib.optionalAttrs (pinned "tf-a") {
         tf-a = pkgs.callPackage ./bootloader/tf-a.nix { };
       }
-      // lib.optionalAttrs (pinned "u-boot" && pinned "tf-a") {
+      // lib.optionalAttrs (pinned "u-boot" && pinned "tf-a") rec {
+        dram-payload = pkgs.callPackage ./bootloader/dram-payload.nix { };
         uboot = pkgs.callPackage ./bootloader/u-boot.nix {
           tf-a = self.packages.${system}.tf-a;
+          dramPayload = dram-payload;
+        };
+        firmware = uboot;
+        spl-zero-payload = pkgs.callPackage ./bootloader/u-boot.nix {
+          tf-a = self.packages.${system}.tf-a;
+          dramPayload = pkgs.callPackage ./bootloader/dram-payload.nix { zero = true; };
         };
       };
 

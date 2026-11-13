@@ -1,5 +1,6 @@
-# SD card image for A733 boards: the NixOS sd-image with boot0 and U-Boot
-# (TF-A inside) written at their offsets, before the first partition.
+# SD card image for A733 boards: the NixOS sd-image with the boot chain
+# written before the first partition. For the mainline chain that is one
+# file, u-boot-sunxi-with-spl.bin (SPL, BL31 and U-Boot), at 128 KiB.
 {
   config,
   lib,
@@ -13,22 +14,16 @@ let
   sources = lib.importJSON ../bootloader/sources.json;
   pinned = name: sources.${name}.hash != null;
 
-  boot0 = pkgs.callPackage ../bootloader/boot0.nix { };
   uboot = pkgs.callPackage ../bootloader/u-boot.nix {
     tf-a = pkgs.callPackage ../bootloader/tf-a.nix { };
+    dramPayload = pkgs.callPackage ../bootloader/dram-payload.nix { };
   };
 
-  pinnedBlobs =
-    lib.optional (pinned "boot0") {
-      name = "boot0";
-      file = boot0;
-      offsetKiB = sources.boot0.sdOffsetKiB;
-    }
-    ++ lib.optional (pinned "u-boot" && pinned "tf-a") {
-      name = "u-boot";
-      file = "${uboot}/u-boot-sunxi-with-spl.bin";
-      offsetKiB = sources.u-boot.sdOffsetKiB;
-    };
+  pinnedBlobs = lib.optional (pinned "u-boot" && pinned "tf-a") {
+    name = "u-boot";
+    file = "${uboot}/u-boot-sunxi-with-spl.bin";
+    offsetKiB = sources.u-boot.sdOffsetKiB;
+  };
 
   writeBlob = blob: ''
     echo "a733: writing ${blob.name} at ${toString blob.offsetKiB} KiB"
@@ -49,11 +44,12 @@ in
       }
     );
     default = pinnedBlobs;
-    defaultText = lib.literalMD "boot0 and U-Boot, once pinned in `bootloader/sources.json`";
+    defaultText = lib.literalMD "U-Boot with SPL and BL31, once pinned in `bootloader/sources.json`";
     description = ''
-      Raw blobs written before the first partition, in order: boot0 first,
-      then U-Boot. Empty until the boot chain is pinned in
-      bootloader/sources.json, in which case the image is not bootable.
+      Raw blobs written before the first partition, in order. The mainline
+      chain has one, u-boot-sunxi-with-spl.bin at 128 KiB. Empty while the
+      boot chain is not pinned in bootloader/sources.json, in which case
+      the image is not bootable.
     '';
   };
 
@@ -62,7 +58,7 @@ in
     hardware.enableAllHardware = lib.mkForce false;
 
     sdImage = {
-      # Room for boot0 and U-Boot before the firmware partition.
+      # Room for the boot chain before the firmware partition.
       firmwarePartitionOffset = lib.mkDefault 32;
       # The partition stays empty unless boot logs are written to it.
       populateFirmwareCommands = lib.optionalString (config.hardware.a733.bootLog.enable or false) ''
@@ -78,8 +74,8 @@ in
     };
 
     warnings = lib.optional (cfg.bootBlobs == [ ]) ''
-      hardware.a733.sdImage.bootBlobs is empty: the SD image has no boot0 and
-      no U-Boot and will not boot until the boot chain is pinned.
+      hardware.a733.sdImage.bootBlobs is empty: the SD image has no boot
+      chain and will not boot until it is pinned.
     '';
   };
 }

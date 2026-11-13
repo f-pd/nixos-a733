@@ -1,0 +1,51 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alessio Corsi <alessio.corsi@gmail.com>
+Date: Fri, 13 Nov 2026 04:42:17 +0100
+Subject: [PATCH] feat(allwinner): a733: run BL31 from DRAM by default
+
+The A733 port links BL31 into SRAM A2 at 0x62000 and puts its NOBITS
+sections over the SPL in SRAM A1. That needs an SPL that is done with the
+SRAM by the time it loads BL31, and smaller than what lies below 0x62000.
+
+An SPL that initialises DRAM itself runs from that SRAM and, with the PHY
+training firmware it carries, reaches beyond 0x62000. Run BL31 from the
+start of DRAM instead, as the H616 does: the common code already supports
+it and reserves the memory in the device tree it hands to the next stage.
+As on the H616, power management is then native only: the SCPI variant
+looks for the SCP firmware in SRAM. SUNXI_BL31_IN_DRAM=0 gives the
+former layout.
+---
+ plat/allwinner/sun60i_a733/platform.mk | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/plat/allwinner/sun60i_a733/platform.mk b/plat/allwinner/sun60i_a733/platform.mk
+index 65ce4f3..7f94bdf 100644
+--- a/plat/allwinner/sun60i_a733/platform.mk
++++ b/plat/allwinner/sun60i_a733/platform.mk
+@@ -12,10 +12,26 @@ PLATFORM_MAX_CPUS_PER_CLUSTER := 8
+ # A733 has new style of watchdog core
+ STANDALONE_WATCHDOG := 1
+ 
++# BL31 runs from DRAM, like on the H616. The SRAM stays with the SPL, which
++# may initialise DRAM from there and is larger than the SRAM A2 slot leaves
++# room for. Build with SUNXI_BL31_IN_DRAM=0 for an SPL that leaves it free.
++SUNXI_BL31_IN_DRAM ?= 1
++
++# The SCPI power management needs the SCP firmware next to BL31 in SRAM.
++ifeq (${SUNXI_BL31_IN_DRAM},1)
++SUNXI_PSCI_USE_SCPI := 0
++SUNXI_PSCI_USE_NATIVE := 1
++endif
++
+ # The differences between the platforms are covered by the include files.
+ include plat/allwinner/common/allwinner-common.mk
+ include plat/allwinner/common/allwinner-common-a55.mk
+ include plat/allwinner/common/allwinner-common-a76.mk
+ 
++ifeq (${SUNXI_BL31_IN_DRAM},1)
++# For the memory reservation added to the next stage's device tree.
++BL31_SOURCES		+=	common/fdt_wrappers.c
++else
+ # Put NOBITS memory in the first 64K of SRAM A2, overwriting U-Boot's SPL.
+ SEPARATE_NOBITS_REGION	:=	1
++endif

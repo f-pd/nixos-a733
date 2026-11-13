@@ -67,7 +67,8 @@ uint32_t a733_dram_init_para(const struct a733_dram_ops *ops,
 	unsigned int ch, i;
 	uint32_t size_mib;
 
-	if (!payload || payload_len < A733_DRAM_PAYLOAD_SIZE) {
+	if (!payload || (payload_len < A733_DRAM_PAYLOAD_SIZE &&
+			 payload_len != a733_dram_payload_packed_size())) {
 		dram_fail(d, "DRAM: firmware payload missing or too short",
 			  (uint32_t)payload_len);
 		return 0;

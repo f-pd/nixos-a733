@@ -14,7 +14,10 @@
  *   R <MiB>                              return value
  * Accesses to DRAM itself (the memory test) are served but not printed.
  *
- * usage: harness <boot0 file> <strap index>
+ * usage: harness <boot0 file> <strap index> [packed]
+ *
+ * With "packed" the library gets only the ranges of the payload it reads,
+ * as an SPL does, instead of the whole payload.
  */
 
 #include <stdint.h>
@@ -164,8 +167,8 @@ int main(int argc, char **argv)
 	uint32_t mib;
 	FILE *f;
 
-	if (argc != 3) {
-		fprintf(stderr, "usage: %s <boot0 file> <strap index>\n",
+	if (argc != 3 && !(argc == 4 && !strcmp(argv[3], "packed"))) {
+		fprintf(stderr, "usage: %s <boot0 file> <strap index> [packed]\n",
 			argv[0]);
 		return 2;
 	}
@@ -183,7 +186,22 @@ int main(int argc, char **argv)
 	if (!regs)
 		return 2;
 
-	mib = a733_dram_init(&ops, payload, sizeof(payload), &para);
+	if (argc == 4) {
+		static uint8_t packed[sizeof(payload)];
+		size_t len = 0;
+		unsigned int i;
+
+		for (i = 0; i < a733_dram_payload_range_count; i++) {
+			const struct a733_dram_payload_range *r =
+				&a733_dram_payload_ranges[i];
+
+			memcpy(packed + len, payload + r->offset, r->len);
+			len += r->len;
+		}
+		mib = a733_dram_init(&ops, packed, len, &para);
+	} else {
+		mib = a733_dram_init(&ops, payload, sizeof(payload), &para);
+	}
 	printf("R %u\n", mib);
 	fprintf(stderr, "para1 = %x, para2 = %x, tpr13 = %x\n",
 		para.word[A733_DRAM_PARA1], para.word[A733_DRAM_PARA2],

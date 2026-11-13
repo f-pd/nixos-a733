@@ -1,0 +1,130 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alessio Corsi <alessio.corsi@gmail.com>
+Date: Fri, 13 Nov 2026 04:41:39 +0100
+Subject: [PATCH] sunxi: add the Orange Pi Zero 3W
+
+An Allwinner A733 board in the Raspberry Pi Zero form factor: LPDDR5,
+microSD, AXP318W, no Ethernet. Console on UART0 (PB9, PB10), microSD on
+mmc0, PMIC on R_TWI0.
+
+The SPL initialises DRAM from source. It is kept below 164 KiB so that
+it also loads over FEL, with its early stack below 0x90000, above the
+image, and it looks for the FIT where binman puts it, 0x4a000 into the
+image.
+---
+ arch/arm/dts/sun60i-a733-orangepi-zero3w.dts | 73 ++++++++++++++++++++
+ configs/orangepi_zero3w_defconfig            | 25 +++++++
+ 2 files changed, 98 insertions(+)
+ create mode 100644 arch/arm/dts/sun60i-a733-orangepi-zero3w.dts
+ create mode 100644 configs/orangepi_zero3w_defconfig
+
+diff --git a/arch/arm/dts/sun60i-a733-orangepi-zero3w.dts b/arch/arm/dts/sun60i-a733-orangepi-zero3w.dts
+new file mode 100644
+index 00000000..f7235f00
+--- /dev/null
++++ b/arch/arm/dts/sun60i-a733-orangepi-zero3w.dts
+@@ -0,0 +1,73 @@
++// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
++/*
++ * Orange Pi Zero 3W, for U-Boot: console, microSD and the PMIC.
++ *
++ * Wiring from the manufacturer's schematic, board revision V1.2.
++ */
++
++/dts-v1/;
++
++#include "sun60i-a733.dtsi"
++
++#include <dt-bindings/gpio/gpio.h>
++
++/ {
++	model = "Orange Pi Zero 3W";
++	compatible = "xunlong,orangepi-zero3w", "allwinner,sun60i-a733";
++
++	aliases {
++		serial0 = &uart0;
++	};
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	reg_vcc5v: vcc5v {
++		/* board wide 5V supply from the USB-C connector */
++		compatible = "regulator-fixed";
++		regulator-name = "vcc-5v";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		regulator-always-on;
++	};
++};
++
++/* PB9 TX, PB10 RX, on pins 8 and 10 of the 40-pin header */
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart0_pb_pins>;
++	status = "okay";
++};
++
++/*
++ * microSD on PF0 to PF5. The card detect switch is on PF6, low with a card;
++ * the firmware boots from this card and does not need it.
++ */
++&mmc0 {
++	bootph-all;
++	bus-width = <4>;
++	broken-cd;
++	status = "okay";
++};
++
++/*
++ * AXP318W on PL0 and PL1. No regulators are described: U-Boot leaves every
++ * rail as the PMIC and the SPL's DRAM init set it.
++ */
++&r_i2c0 {
++	status = "okay";
++
++	axp318w: pmic@36 {
++		compatible = "x-powers,axp318w";
++		reg = <0x36>;
++		#interrupt-cells = <1>;
++		interrupt-controller;
++		interrupt-parent = <&nmi_intc>;
++		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
++
++		vin1-supply = <&reg_vcc5v>;
++		vin2-supply = <&reg_vcc5v>;
++		vin3-supply = <&reg_vcc5v>;
++	};
++};
+diff --git a/configs/orangepi_zero3w_defconfig b/configs/orangepi_zero3w_defconfig
+new file mode 100644
+index 00000000..dfcde1ad
+--- /dev/null
++++ b/configs/orangepi_zero3w_defconfig
+@@ -0,0 +1,25 @@
++CONFIG_ARM=y
++CONFIG_ARCH_SUNXI=y
++CONFIG_HAS_CUSTOM_SYS_INIT_SP_ADDR=y
++CONFIG_CUSTOM_SYS_INIT_SP_ADDR=0x4F000000
++CONFIG_DEFAULT_DEVICE_TREE="sun60i-a733-orangepi-zero3w"
++CONFIG_SPL=y
++CONFIG_SPL_DM=y
++CONFIG_SPL_OF_CONTROL=y
++# CONFIG_SPL_DM_I2C is not set
++# CONFIG_SPL_DM_PMIC is not set
++CONFIG_SPL_STACK=0x90000
++CONFIG_SPL_MAX_SIZE=0x29000
++CONFIG_MACH_SUN60I_A733=y
++CONFIG_SUNXI_A733_DRAM_SOURCE=y
++# CONFIG_VIDEO_SUNXI is not set
++# CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
++CONFIG_SPL_LOAD_FIT_ADDRESS=0x47a00000
++CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR=0x250
++# CONFIG_SPL_DM_SERIAL is not set
++CONFIG_BOOTDELAY=3
++CONFIG_SPL_RAM_DEVICE=y
++CONFIG_CMD_I2C=y
++CONFIG_SYS_I2C_MVTWSI=y
++CONFIG_REGULATOR_AXP=y
++CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN=0x140000

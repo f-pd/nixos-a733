@@ -39,15 +39,24 @@ build/libdram.a: $(OBJS)
 build/harness: test/harness.c build/libdram.a
 	$(CC) $(WARN) $(CFLAGS) -Iinclude -o $@ $< build/libdram.a
 
+# Packs the ranges of the payload the library reads into one file, for an SPL.
+build/payload-pack: tools/payload-pack.c build/libdram.a
+	$(CC) $(WARN) $(CFLAGS) -Iinclude -o $@ $< build/libdram.a
+
+tools: build/payload-pack
+
 check: build/harness
 	@for fit in $(FITS); do \
 		name=$${fit%%:*}; strap=$${fit##*:}; \
 		build/harness $(BOOT0) $$strap > build/run-$$name.txt 2> build/log-$$name.txt; \
 		$(PYTHON) test/compare.py $(DOCS)/ops-$$name.tsv $(BOOT0) build/run-$$name.txt || exit 1; \
+		build/harness $(BOOT0) $$strap packed 2> /dev/null | cmp -s - build/run-$$name.txt \
+			|| { echo "FAIL $$name: packed payload gives a different run"; exit 1; }; \
 	done
-	@$(PYTHON) test/check_payload.py $(BOOT0) build/libdram.a src include test Makefile README.md
+	@echo "PASS packed payload: same runs"
+	@$(PYTHON) test/check_payload.py $(BOOT0) build/libdram.a src include test tools Makefile README.md
 
 clean:
 	$(RM) -r build
 
-.PHONY: all lib check clean
+.PHONY: all lib tools check clean

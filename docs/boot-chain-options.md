@@ -212,6 +212,11 @@ Board work: a Zero 3W defconfig and U-Boot device tree, as for chain 1.
 
 ## Decisions taken (2026-11-13)
 
+What was built from these decisions is described in `docs/boot-chain-bases.md`. One row below
+is superseded by it: the chain does hold a binary without a redistribution grant, the
+training firmware of the DRAM PHY, so keeping the firmware out of Cachix and Releases is
+needed after all.
+
 Recorded in `SPEC.md` as D2 and D7. They replace the proposal above where the two differ.
 
 | Question | Decision |

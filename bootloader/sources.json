@@ -1,28 +1,30 @@
 {
-  "boot0": {
-    "comment": "LPDDR5 init blob, extracted from the official Orange Pi image. The only binary allowed in the boot chain.",
-    "image": {
-      "url": null,
-      "hash": null
-    },
-    "offsetBytes": null,
-    "sizeBytes": null,
-    "sdOffsetKiB": null,
-    "hash": null
-  },
   "tf-a": {
-    "comment": "Trusted Firmware-A, A733 port, built from source.",
-    "url": null,
-    "rev": null,
-    "hash": null,
-    "platform": null
+    "comment": "Trusted Firmware-A with the A733 platform: the out-of-tree branch of the series' author, plus our patches. See docs/boot-chain-bases.md.",
+    "owner": "dlan17",
+    "repo": "trusted-firmware-a",
+    "branch": "A733",
+    "rev": "f4c0b0dba78a2d9916154c130979992caa3f3156",
+    "hash": "sha256-fZr5Io+IU3UE2kLatWScNTo0R1xFOfb7h26iv5BmPIE=",
+    "platform": "sun60i_a733",
+    "patches": [
+      "0001-feat-allwinner-a733-run-BL31-from-DRAM-by-default.patch"
+    ]
   },
   "u-boot": {
-    "comment": "U-Boot with the A733 patches under review, built from source.",
-    "url": null,
-    "rev": null,
-    "hash": null,
-    "defconfig": null,
-    "sdOffsetKiB": null
+    "comment": "U-Boot with A733 support: Radxa's branch, plus our patches for the Orange Pi Zero 3W and the DRAM library. See docs/boot-chain-bases.md.",
+    "owner": "radxa",
+    "repo": "u-boot",
+    "branch": "u-boot-dlan17",
+    "rev": "d79733d67cc54120a7897f7dba9cb84611acfb4c",
+    "hash": "sha256-bCy1V4N/Qb1MBYK9njg3KbtLeIOYSizho4utAIw+y2g=",
+    "defconfig": "orangepi_zero3w_defconfig",
+    "sdOffsetKiB": 128,
+    "patches": [
+      "0001-sunxi-a733-make-the-libdram-blob-optional.patch",
+      "0002-sunxi-a733-initialise-DRAM-with-the-A733-DRAM-librar.patch",
+      "0003-mmc-sunxi-a733-clock-the-card-from-the-oscillator-in.patch",
+      "0004-sunxi-add-the-Orange-Pi-Zero-3W.patch"
+    ]
   }
 }

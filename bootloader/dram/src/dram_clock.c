@@ -77,7 +77,7 @@ void dram_clocks_init(struct dram *d)
 	rmw32(d, GLUE_BASE + GLUE_CTRL, 0x0100, 0x2600);
 	clrbits32(d, CCU_BASE + CCU_PLL_DDR, PLL_ENABLE);
 	rmw32(d, CCU_BASE + CCU_DRAM_CLK, DRAM_CLK_GATE, DRAM_CLK_UPDATE);
-	udelay(d, 5);
+	dram_udelay(d, 5);
 
 	/* 24 MHz * N */
 	rmw32(d, CCU_BASE + CCU_PLL_DDR, PLL_FACTOR_FIELDS & ~factors,
@@ -85,7 +85,7 @@ void dram_clocks_init(struct dram *d)
 	setbits32(d, CCU_BASE + CCU_PLL_DDR, PLL_ENABLE | PLL_LDO_ENABLE);
 	setbits32(d, CCU_BASE + CCU_PLL_DDR,
 		  PLL_ENABLE | PLL_LDO_ENABLE | PLL_LOCK_ENABLE);
-	udelay(d, 20);
+	dram_udelay(d, 20);
 	wait32(d, CCU_BASE + CCU_PLL_DDR, PLL_LOCKED, PLL_LOCKED);
 	setbits32(d, CCU_BASE + CCU_PLL_DDR, PLL_ENABLE | PLL_LDO_ENABLE |
 		  PLL_LOCK_ENABLE | PLL_OUTPUT_ENABLE);
@@ -100,7 +100,7 @@ void dram_clocks_init(struct dram *d)
 	setbits32(d, CCU_BASE + CCU_DRAM_GATE1, 1u << 0);
 	rmw32(d, CCU_BASE + CCU_DRAM_GATE0, 0x04000000, 0xcb000000);
 	setbits32(d, CCU_BASE + CCU_DRAM_CLK, DRAM_CLK_GATE | DRAM_CLK_UPDATE);
-	udelay(d, 5);
+	dram_udelay(d, 5);
 
 	/* Glue: two channels, LPDDR5 */
 	clrbits32(d, GLUE_BASE + GLUE_CTRL, 0x0014);
@@ -115,7 +115,7 @@ void dram_clocks_init(struct dram *d)
 	wr32(d, GLUE_BASE + 0x224, 0x0107);
 
 	setbits32(d, PRCM_BASE + PRCM_PAD_HOLD, 1);
-	udelay(d, 10000);
+	dram_udelay(d, 10000);
 }
 
 /* Controller and PHY out of reset, in two steps. */
@@ -123,9 +123,9 @@ void dram_glue_release_resets(struct dram *d)
 {
 	setbits32(d, GLUE_BASE + GLUE_CTRL, 0x14);
 	rmw32(d, GLUE_BASE + GLUE_CTRL, 0x1, 0x2);
-	udelay(d, 1);
+	dram_udelay(d, 1);
 	setbits32(d, GLUE_BASE + GLUE_CTRL, 0x3);
-	udelay(d, 1);
+	dram_udelay(d, 1);
 }
 
 /* Switch the DRAM clock to the divider of a Pstate. */
@@ -136,5 +136,5 @@ void dram_clock_set_pstate(struct dram *d, unsigned int pstate)
 	clrbits32(d, CCU_BASE + CCU_DRAM_CLK, DRAM_CLK_SRC_MASK);
 	rmw32(d, CCU_BASE + CCU_DRAM_CLK, DRAM_CLK_DIV_MASK & ~div, div);
 	dram_clock_set_divider(d, div);
-	udelay(d, 1000);
+	dram_udelay(d, 1000);
 }

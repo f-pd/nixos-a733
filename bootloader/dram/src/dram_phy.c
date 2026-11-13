@@ -202,6 +202,6 @@ void phy_config_pstate(struct dram *d, unsigned int pstate)
 void phy_finish(struct dram *d)
 {
 	phy_wr(d, PHY_MUX, 0);
-	udelay(d, 1);
+	dram_udelay(d, 1);
 	phy_run_steps(d, phy_final_steps, phy_final_step_count, 0);
 }

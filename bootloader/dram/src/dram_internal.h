@@ -5,13 +5,12 @@
 #ifndef DRAM_INTERNAL_H
 #define DRAM_INTERNAL_H
 
-#include <stddef.h>
-#include <stdint.h>
-
 #include "a733_dram.h"
 #include "dram_fields.h"
 
+#ifndef ARRAY_SIZE
 #define ARRAY_SIZE(a)	(sizeof(a) / sizeof((a)[0]))
+#endif
 
 /* Hardware blocks */
 #define CCU_BASE	0x02002000u
@@ -236,7 +235,7 @@ void rmw32(struct dram *d, uint32_t addr, uint32_t clear, uint32_t set);
 void setbits32(struct dram *d, uint32_t addr, uint32_t set);
 void clrbits32(struct dram *d, uint32_t addr, uint32_t clear);
 void wait32(struct dram *d, uint32_t addr, uint32_t mask, uint32_t match);
-void udelay(struct dram *d, uint32_t usec);
+void dram_udelay(struct dram *d, uint32_t usec);
 void dram_log(struct dram *d, const char *text, uint32_t value);
 void dram_fail(struct dram *d, const char *text, uint32_t value);
 uint16_t phy_rd(struct dram *d, uint32_t reg);

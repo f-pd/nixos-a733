@@ -1,0 +1,622 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alessio Corsi <alessio.corsi@gmail.com>
+Date: Fri, 13 Nov 2026 04:41:39 +0100
+Subject: [PATCH] sunxi: a733: initialise DRAM with the A733 DRAM library
+
+Build the A733 DRAM library into the SPL and call it from
+sunxi_dram_init(). The library is freestanding and reaches the hardware
+through a few callbacks; implement them: register access, polling with a
+timeout, delays, the DRAM rails on the AXP318W, and the index of the
+memory strap on GPADC channel 1.
+
+The library sources are not part of this tree: the build copies them to
+arch/arm/mach-sunxi/a733_dram/. The PHY training firmware is linked from
+the file named by A733_DRAM_PAYLOAD.
+
+DRAM init runs before relocation, without BSS and driver model, so the
+PMIC is reached with a small polling driver for R_TWI0 in the same file.
+A rail is only written if it differs from what the library asks for, and
+never outside the window an LPDDR5 board can ask for.
+
+Without the blob, three things the manufacturer's loader does before
+DRAM init are left to the SPL, and are done here the same way: the
+enable bit of the PLLs, the first contact with the PMIC, and the clock
+of the GPADC before the strap is read.
+---
+ arch/arm/mach-sunxi/Makefile                  |  23 +
+ arch/arm/mach-sunxi/a733_dram/Makefile        |  12 +
+ arch/arm/mach-sunxi/a733_dram_payload.S       |  13 +
+ arch/arm/mach-sunxi/dram_sun60i_a733_source.c | 508 ++++++++++++++++++
+ 4 files changed, 556 insertions(+)
+ create mode 100644 arch/arm/mach-sunxi/a733_dram/Makefile
+ create mode 100644 arch/arm/mach-sunxi/a733_dram_payload.S
+ create mode 100644 arch/arm/mach-sunxi/dram_sun60i_a733_source.c
+
+diff --git a/arch/arm/mach-sunxi/Makefile b/arch/arm/mach-sunxi/Makefile
+index ebabdc90..2c983ae4 100644
+--- a/arch/arm/mach-sunxi/Makefile
++++ b/arch/arm/mach-sunxi/Makefile
+@@ -49,9 +49,32 @@ obj-$(CONFIG_DRAM_SUN50I_A133)	+= dram_sun50i_a133.o
+ obj-$(CONFIG_DRAM_SUN50I_A133)	+= dram_timings/
+ obj-$(CONFIG_MACH_SUN55I_A523)	+= dram_sun55i_a523.o dram_dw_helpers.o
+ obj-$(CONFIG_DRAM_SUN55I_A523)	+= dram_timings/
++ifdef CONFIG_SUNXI_A733_DRAM_SOURCE
++obj-y				+= dram_sun60i_a733_source.o
++obj-y				+= a733_dram_payload.o
++obj-y				+= a733_dram/
++else
+ obj-$(CONFIG_MACH_SUN60I_A733)	+= dram_sun60i_a733.o
+ obj-$(CONFIG_MACH_SUN60I_A733)	+= sunxi_libdram.o
+ endif
++endif
++
++A733_DRAM_PAYLOAD_TARGET = $(objtree)/a733-dram-payload.bin
++
++$(obj)/a733_dram_payload.o: $(A733_DRAM_PAYLOAD_TARGET)
++AFLAGS_a733_dram_payload.o := -DA733_DRAM_PAYLOAD_BIN=\"$(abspath $(A733_DRAM_PAYLOAD_TARGET))\"
++
++$(A733_DRAM_PAYLOAD_TARGET): FORCE
++	@if [ -z "$(A733_DRAM_PAYLOAD)" ] || [ ! -f "$(A733_DRAM_PAYLOAD)" ]; then \
++		echo "  Error: no A733 DRAM PHY firmware payload"; \
++		echo "  Set A733_DRAM_PAYLOAD to the packed payload file"; \
++		false; \
++	elif ! cmp -s "$(A733_DRAM_PAYLOAD)" $@ 2>/dev/null; then \
++		echo "  Copying A733 DRAM payload from: $(A733_DRAM_PAYLOAD)"; \
++		cp "$(A733_DRAM_PAYLOAD)" $@; \
++	fi
++
++clean-files += $(A733_DRAM_PAYLOAD_TARGET)
+ 
+ SUNXI_LIBDRAM_TARGET = $(objtree)/sunxi-libdram.bin
+ 
+diff --git a/arch/arm/mach-sunxi/a733_dram/Makefile b/arch/arm/mach-sunxi/a733_dram/Makefile
+new file mode 100644
+index 00000000..f5f2d1df
+--- /dev/null
++++ b/arch/arm/mach-sunxi/a733_dram/Makefile
+@@ -0,0 +1,12 @@
++# SPDX-License-Identifier: GPL-2.0-or-later
++#
++# The A733 DRAM library. Its sources are not part of this tree: the build
++# copies include/ and src/ of the library next to this file.
++
++ccflags-y += -I$(srctree)/$(src)/include -I$(srctree)/$(src)/src
++
++obj-y += $(patsubst $(srctree)/$(src)/%.c,%.o,$(wildcard $(srctree)/$(src)/src/*.c))
++
++ifeq ($(wildcard $(srctree)/$(src)/src/*.c),)
++$(error A733 DRAM library sources missing in $(src)/src)
++endif
+diff --git a/arch/arm/mach-sunxi/a733_dram_payload.S b/arch/arm/mach-sunxi/a733_dram_payload.S
+new file mode 100644
+index 00000000..3a55dea5
+--- /dev/null
++++ b/arch/arm/mach-sunxi/a733_dram_payload.S
+@@ -0,0 +1,13 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * The PHY training firmware for the A733 DRAM library: the packed payload,
++ * taken at build time from the file named by A733_DRAM_PAYLOAD.
++ */
++
++.section .rodata.a733_dram_payload, "a"
++.balign 4
++.global a733_dram_payload
++a733_dram_payload:
++.incbin A733_DRAM_PAYLOAD_BIN
++.global a733_dram_payload_end
++a733_dram_payload_end:
+diff --git a/arch/arm/mach-sunxi/dram_sun60i_a733_source.c b/arch/arm/mach-sunxi/dram_sun60i_a733_source.c
+new file mode 100644
+index 00000000..438adb7d
+--- /dev/null
++++ b/arch/arm/mach-sunxi/dram_sun60i_a733_source.c
+@@ -0,0 +1,508 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * DRAM init for the Allwinner A733 with the A733 DRAM library: the platform
++ * interface of the library on top of U-Boot.
++ *
++ * The library does the sequence. This file gives it register access, delays
++ * and polling, the DRAM rails on the AXP318W, and the index of the memory
++ * strap, and links the PHY training firmware. It also does the few things
++ * the manufacturer's loader does before DRAM init that nothing else in the
++ * SPL does: the PLL enable bits, the first contact with the PMIC, the clock
++ * of the GPADC. They are described in the DRAM init specification of the
++ * nixos-a733 project, "boot0 before and after the DRAM routine".
++ *
++ * It runs before relocation: no BSS, no driver model. The PMIC is therefore
++ * reached with a small polling driver for the R_TWI controller here.
++ */
++
++#include <stdio.h>
++#include <asm/io.h>
++#include <asm/arch/cpu.h>
++#include <asm/arch/dram.h>
++#include <linux/bitops.h>
++#include <linux/delay.h>
++#include <linux/errno.h>
++#include <linux/kernel.h>
++#include <linux/sizes.h>
++#include <sunxi_gpio.h>
++
++#include "a733_dram/include/a733_dram.h"
++
++extern const u8 a733_dram_payload[];
++extern const u8 a733_dram_payload_end[];
++
++/* A poll of the library gives up after this long. Training takes < 1 s. */
++#define DRAM_WAIT_TIMEOUT_US	5000000
++#define DRAM_WAIT_STEP_US	10
++
++/* R_TWI0, the bus of the PMIC */
++#define R_TWI_GATE_RESET	(SUNXI_PRCM_BASE + 0x19cUL)
++#define R_TWI_GATE		BIT(0)
++#define R_TWI_RESET		BIT(16)
++#define R_TWI_PIN_FUNC		2	/* PL0 SCK, PL1 SDA */
++
++#define TWI_DATA		(SUNXI_R_TWI_BASE + 0x08UL)
++#define TWI_CNTR		(SUNXI_R_TWI_BASE + 0x0cUL)
++#define TWI_STAT		(SUNXI_R_TWI_BASE + 0x10UL)
++#define TWI_CCR			(SUNXI_R_TWI_BASE + 0x14UL)
++#define TWI_SRST		(SUNXI_R_TWI_BASE + 0x18UL)
++
++#define TWI_CNTR_ACK		BIT(2)
++#define TWI_CNTR_FLAG		BIT(3)	/* write 1 to clear */
++#define TWI_CNTR_STOP		BIT(4)
++#define TWI_CNTR_START		BIT(5)
++#define TWI_CNTR_BUS_EN		BIT(6)
++
++#define TWI_STAT_START		0x08
++#define TWI_STAT_RESTART	0x10
++#define TWI_STAT_ADDR_W_ACK	0x18
++#define TWI_STAT_DATA_W_ACK	0x28
++#define TWI_STAT_ADDR_R_ACK	0x40
++#define TWI_STAT_DATA_R_NAK	0x58
++
++/* 100 kHz from a 24 MHz bus clock: 24 MHz / (2^1 * (11 + 1) * 10) */
++#define TWI_CCR_100K		((11 << 3) | 1)
++#define TWI_TIMEOUT_US		10000
++
++#define AXP318W_ADDR		0x36
++#define AXP318W_CHIP_ID_REG	0x0e
++#define AXP318W_CHIP_ID		0x03
++#define AXP318W_DCDC_ENABLE	0x10
++#define AXP318W_DCDC2_VOLT	0x13
++#define AXP318W_DCDC9_VOLT	0x1a
++
++/* Bit 24 of every PLL register the manufacturer's loader touches */
++#define CCU_PLL_ENABLE_BIT	BIT(24)
++
++/* GPADC, where the memory strap is */
++#define CCU_GPADC_CLK		(SUNXI_CCM_BASE + 0xfc0UL)
++#define CCU_GPADC_GATE_RESET	(SUNXI_CCM_BASE + 0xfc4UL)
++#define GPADC_BASE		0x02521000UL
++#define GPADC_SR_CON		(GPADC_BASE + 0x00)
++#define GPADC_CTRL		(GPADC_BASE + 0x04)
++#define GPADC_CS_EN		(GPADC_BASE + 0x08)
++#define GPADC_DATA_INTC		(GPADC_BASE + 0x28)
++#define GPADC_DATA_INTS		(GPADC_BASE + 0x38)
++#define GPADC_CH_DATA(ch)	(GPADC_BASE + 0x80 + 4 * (ch))
++#define GPADC_STRAP_CHANNEL	1
++#define GPADC_FULL_SCALE_MV	1800
++#define GPADC_MAX		4095
++#define GPADC_SAMPLE_US		1500
++#define GPADC_SAMPLES		3
++#define GPADC_STABLE_MV		5
++#define GPADC_TIMEOUT_US	2000000
++
++static u32 a733_read32(void *ctx, u32 addr)
++{
++	return readl((uintptr_t)addr);
++}
++
++static void a733_write32(void *ctx, u32 addr, u32 val)
++{
++	writel(val, (uintptr_t)addr);
++}
++
++static u16 a733_read16(void *ctx, u32 addr)
++{
++	return readw((uintptr_t)addr);
++}
++
++static void a733_write16(void *ctx, u32 addr, u16 val)
++{
++	writew(val, (uintptr_t)addr);
++}
++
++static int a733_wait(void *ctx, u32 addr, unsigned int width, u32 mask,
++		     u32 match)
++{
++	u32 waited, val;
++
++	for (waited = 0; waited <= DRAM_WAIT_TIMEOUT_US;
++	     waited += DRAM_WAIT_STEP_US) {
++		val = width == 16 ? readw((uintptr_t)addr) :
++				    readl((uintptr_t)addr);
++		if ((val & mask) == match)
++			return 0;
++		udelay(DRAM_WAIT_STEP_US);
++	}
++
++	return -ETIMEDOUT;
++}
++
++static void a733_udelay(void *ctx, u32 usec)
++{
++	udelay(usec);
++}
++
++static void a733_log(void *ctx, const char *text, u32 value)
++{
++	printf("%s %u (0x%x)\n", text, value, value);
++}
++
++static void twi_init(void)
++{
++	sunxi_gpio_set_cfgpin(SUNXI_GPL(0), R_TWI_PIN_FUNC);
++	sunxi_gpio_set_cfgpin(SUNXI_GPL(1), R_TWI_PIN_FUNC);
++
++	setbits_le32(R_TWI_GATE_RESET, R_TWI_RESET);
++	setbits_le32(R_TWI_GATE_RESET, R_TWI_GATE);
++
++	writel(1, TWI_SRST);
++	udelay(10);
++	writel(TWI_CCR_100K, TWI_CCR);
++	writel(TWI_CNTR_BUS_EN, TWI_CNTR);
++}
++
++/* Wait for the controller to finish a step and check how it ended. */
++static int twi_wait(u32 expect)
++{
++	u32 waited;
++
++	for (waited = 0; waited <= TWI_TIMEOUT_US; waited += 5) {
++		if (readl(TWI_CNTR) & TWI_CNTR_FLAG)
++			return readl(TWI_STAT) == expect ? 0 : -EIO;
++		udelay(5);
++	}
++
++	return -ETIMEDOUT;
++}
++
++static int twi_start(u32 expect)
++{
++	writel(TWI_CNTR_BUS_EN | TWI_CNTR_START | TWI_CNTR_FLAG, TWI_CNTR);
++
++	return twi_wait(expect);
++}
++
++static int twi_send(u8 byte, u32 expect)
++{
++	writel(byte, TWI_DATA);
++	writel(TWI_CNTR_BUS_EN | TWI_CNTR_FLAG, TWI_CNTR);
++
++	return twi_wait(expect);
++}
++
++static void twi_stop(void)
++{
++	writel(TWI_CNTR_BUS_EN | TWI_CNTR_STOP | TWI_CNTR_FLAG, TWI_CNTR);
++	udelay(100);
++}
++
++static int axp_write(u8 reg, u8 val)
++{
++	int ret;
++
++	ret = twi_start(TWI_STAT_START);
++	if (!ret)
++		ret = twi_send(AXP318W_ADDR << 1, TWI_STAT_ADDR_W_ACK);
++	if (!ret)
++		ret = twi_send(reg, TWI_STAT_DATA_W_ACK);
++	if (!ret)
++		ret = twi_send(val, TWI_STAT_DATA_W_ACK);
++	twi_stop();
++
++	return ret;
++}
++
++static int axp_read(u8 reg, u8 *val)
++{
++	int ret;
++
++	ret = twi_start(TWI_STAT_START);
++	if (!ret)
++		ret = twi_send(AXP318W_ADDR << 1, TWI_STAT_ADDR_W_ACK);
++	if (!ret)
++		ret = twi_send(reg, TWI_STAT_DATA_W_ACK);
++	if (!ret)
++		ret = twi_start(TWI_STAT_RESTART);
++	if (!ret)
++		ret = twi_send((AXP318W_ADDR << 1) | 1, TWI_STAT_ADDR_R_ACK);
++	if (!ret) {
++		/* One byte, not acknowledged */
++		writel(TWI_CNTR_BUS_EN | TWI_CNTR_FLAG, TWI_CNTR);
++		ret = twi_wait(TWI_STAT_DATA_R_NAK);
++	}
++	if (!ret)
++		*val = readl(TWI_DATA);
++	twi_stop();
++
++	return ret;
++}
++
++/*
++ * The DRAM rails of the AXP318W. A voltage outside [min_mv, limit_mv] is
++ * refused: limit_mv is what the rail may be asked for on an LPDDR5 board,
++ * not what the regulator can do.
++ */
++struct axp_rail {
++	const char *name;
++	u8 enable_reg;
++	u8 enable_bit;
++	u8 volt_reg;
++	u8 volt_mask;
++	u16 min_mv;
++	u16 limit_mv;
++	u8 step_mv;
++	u8 split;	/* steps of step_mv, then steps of twice that; 0: none */
++};
++
++static const struct axp_rail axp_rails[] = {
++	[A733_DRAM_RAIL_DCDC6] = { "dcdc6", 0x10, 5, 0x17, 0x7f, 500,  700, 10, 70 },
++	[A733_DRAM_RAIL_DCDC7] = { "dcdc7", 0x10, 6, 0x18, 0x7f, 500, 1250, 10, 70 },
++	[A733_DRAM_RAIL_DCDC8] = { "dcdc8", 0x10, 7, 0x19, 0x7f, 500, 1250, 10, 70 },
++	[A733_DRAM_RAIL_ELDO1] = { "eldo1", 0x22, 6, 0x3a, 0x3f, 500, 1250, 25, 0 },
++	[A733_DRAM_RAIL_ELDO2] = { "eldo2", 0x22, 7, 0x3b, 0x3f, 500, 1250, 25, 0 },
++};
++
++static int axp_setbits(u8 reg, u8 bits)
++{
++	u8 val;
++	int ret;
++
++	ret = axp_read(reg, &val);
++	if (ret || (val & bits) == bits)
++		return ret;
++
++	return axp_write(reg, val | bits);
++}
++
++/*
++ * First contact, as the manufacturer's loader makes it: check the chip,
++ * turn DCDC4 on, and set bit 7 of the voltage registers of DCDC2 to DCDC9.
++ * The rail settings below keep that bit.
++ */
++static int axp_init(void)
++{
++	u8 id, reg;
++	int ret;
++
++	ret = axp_read(AXP318W_CHIP_ID_REG, &id);
++	if (ret) {
++		printf("DRAM: no answer from the PMIC (%d)\n", ret);
++		return ret;
++	}
++	if (id != AXP318W_CHIP_ID) {
++		printf("DRAM: unexpected PMIC, ID 0x%02x\n", id);
++		return -ENODEV;
++	}
++
++	ret = axp_setbits(AXP318W_DCDC_ENABLE, BIT(3));
++	for (reg = AXP318W_DCDC2_VOLT; !ret && reg <= AXP318W_DCDC9_VOLT; reg++)
++		ret = axp_setbits(reg, BIT(7));
++	if (ret)
++		printf("DRAM: PMIC setup failed (%d)\n", ret);
++
++	return ret;
++}
++
++static u8 axp_rail_code(const struct axp_rail *rail, unsigned int mv)
++{
++	unsigned int steps = (mv - rail->min_mv) / rail->step_mv;
++
++	if (rail->split && steps > rail->split)
++		steps = rail->split + (steps - rail->split) / 2;
++
++	return steps;
++}
++
++static int a733_pmic_set(void *ctx, enum a733_dram_rail id, unsigned int mv)
++{
++	const struct axp_rail *rail;
++	u8 code, old, enable;
++	int ret;
++
++	if (id >= ARRAY_SIZE(axp_rails))
++		return -EINVAL;
++	rail = &axp_rails[id];
++
++	if (mv < rail->min_mv || mv > rail->limit_mv) {
++		printf("DRAM: %s: %u mV is out of range\n", rail->name, mv);
++		return -EINVAL;
++	}
++	code = axp_rail_code(rail, mv);
++
++	ret = axp_read(rail->volt_reg, &old);
++	if (!ret)
++		ret = axp_read(rail->enable_reg, &enable);
++	if (ret) {
++		printf("DRAM: %s: PMIC read failed (%d)\n", rail->name, ret);
++		return ret;
++	}
++
++	printf("DRAM: %s %u mV: code 0x%02x, was 0x%02x, %s\n", rail->name,
++	       mv, code, old & rail->volt_mask,
++	       enable & BIT(rail->enable_bit) ? "on" : "off");
++
++	if ((old & rail->volt_mask) != code) {
++		ret = axp_write(rail->volt_reg,
++				(old & ~rail->volt_mask) | code);
++		if (ret)
++			goto fail;
++	}
++
++	if (!(enable & BIT(rail->enable_bit))) {
++		ret = axp_write(rail->enable_reg,
++				enable | BIT(rail->enable_bit));
++		if (ret)
++			goto fail;
++	}
++
++	return 0;
++
++fail:
++	printf("DRAM: %s: PMIC write failed (%d)\n", rail->name, ret);
++	return ret;
++}
++
++/*
++ * The memory fit is told by a resistor divider on GPADC channel 1. The
++ * nominal levels of the eight steps, in mV; a reading belongs to the
++ * nearest one.
++ */
++static const u16 strap_levels_mv[] = {
++	163, 382, 608, 811, 1050, 1315, 1569, 1800,
++};
++
++static void strap_adc_init(void)
++{
++	writel(BIT(31), CCU_GPADC_CLK);
++	writel(0, CCU_GPADC_GATE_RESET);
++	udelay(2);
++	setbits_le32(CCU_GPADC_GATE_RESET, BIT(16));
++	setbits_le32(CCU_GPADC_GATE_RESET, BIT(0));
++
++	clrsetbits_le32(GPADC_SR_CON, 0xffff << 16, 0x5dbf << 16);
++	clrsetbits_le32(GPADC_CTRL, BIT(18), BIT(19) | BIT(16));
++	writel(0, GPADC_DATA_INTC);
++	writel(1, GPADC_DATA_INTS);
++}
++
++/* One conversion, in mV, or -ENODATA if the GPADC delivered nothing. */
++static int strap_sample_mv(void)
++{
++	u32 pending;
++
++	setbits_le32(GPADC_CS_EN, BIT(GPADC_STRAP_CHANNEL));
++	udelay(GPADC_SAMPLE_US);
++
++	pending = readl(GPADC_DATA_INTS) & BIT(GPADC_STRAP_CHANNEL);
++	writel(pending, GPADC_DATA_INTS);
++	if (!pending)
++		return -ENODATA;
++
++	return (readl(GPADC_CH_DATA(GPADC_STRAP_CHANNEL)) & GPADC_MAX) *
++	       GPADC_FULL_SCALE_MV / GPADC_MAX;
++}
++
++/*
++ * The average of three conversions, repeated until it is within 5 mV of
++ * the first of the three, for at most 2 s.
++ */
++static int strap_read_mv(void)
++{
++	int first = 0, sum, mv, i;
++	u32 waited = 0;
++
++	strap_adc_init();
++
++	do {
++		sum = 0;
++		for (i = 0; i < GPADC_SAMPLES; i++) {
++			mv = strap_sample_mv();
++			if (mv < 0)
++				return mv;
++			if (!i)
++				first = mv;
++			sum += mv;
++		}
++		mv = sum / GPADC_SAMPLES;
++		waited += GPADC_SAMPLES * GPADC_SAMPLE_US;
++	} while (abs(mv - first) > GPADC_STABLE_MV &&
++		 waited < GPADC_TIMEOUT_US);
++
++	return mv;
++}
++
++static int strap_index(void)
++{
++	int mv, i;
++
++	if (CONFIG_SUNXI_A733_DRAM_STRAP >= 0) {
++		printf("DRAM: strap index %d (configured)\n",
++		       CONFIG_SUNXI_A733_DRAM_STRAP);
++		return CONFIG_SUNXI_A733_DRAM_STRAP;
++	}
++
++	mv = strap_read_mv();
++	if (mv < 0) {
++		printf("DRAM: no reading from the memory strap\n");
++		return mv;
++	}
++
++	for (i = 0; i < ARRAY_SIZE(strap_levels_mv) - 1; i++)
++		if (mv < (strap_levels_mv[i] + strap_levels_mv[i + 1]) / 2)
++			break;
++
++	printf("DRAM: strap at %d mV, index %d\n", mv, i);
++	return i;
++}
++
++/*
++ * The manufacturer's loader sets bit 24 of these PLL registers and programs
++ * none of them but the DDR PLL: they run as the boot ROM left them.
++ */
++static const u16 ccu_pll_regs[] = {
++	0x020, 0x0a0, 0x0c0, 0x0e0, 0x120, 0x140, 0x160,
++	0x220, 0x240, 0x260, 0x280, 0x2a0, 0x2e0,
++};
++
++static void pll_enable_bits(void)
++{
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(ccu_pll_regs); i++)
++		setbits_le32(SUNXI_CCM_BASE + (unsigned long)ccu_pll_regs[i],
++			     CCU_PLL_ENABLE_BIT);
++}
++
++static unsigned int a733_strap(void *ctx)
++{
++	return *(const unsigned int *)ctx;
++}
++
++unsigned long sunxi_dram_init(void)
++{
++	unsigned int strap;
++	struct a733_dram_ops ops = {
++		.read32 = a733_read32,
++		.write32 = a733_write32,
++		.read16 = a733_read16,
++		.write16 = a733_write16,
++		.wait = a733_wait,
++		.udelay = a733_udelay,
++		.pmic_set = a733_pmic_set,
++		.log = a733_log,
++		.strap = a733_strap,
++		.ctx = &strap,
++	};
++	struct a733_dram_para para;
++	int index;
++	u32 mib;
++
++	pll_enable_bits();
++
++	twi_init();
++	if (axp_init())
++		return 0;
++
++	/* Without the strap the wrong memory fit would be trained. */
++	index = strap_index();
++	if (index < 0)
++		return 0;
++	strap = index;
++
++	mib = a733_dram_init(&ops, a733_dram_payload,
++			     a733_dram_payload_end - a733_dram_payload, &para);
++
++	return (unsigned long)mib * SZ_1M;
++}
