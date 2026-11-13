@@ -53,10 +53,6 @@ stdenvNoCC.mkDerivation {
     done < ${optionalSeries}
     find . -name '*.orig' -delete
 
-    # The board is arm64 and nothing else: drop every other architecture from
-    # the tree. arch/arm stays because arm64 device trees include its dtsi.
-    # The Kconfig files stay: crypto/Kconfig opens those of every architecture.
-    find arch -mindepth 2 -type f ! -path 'arch/arm64/*' ! -path 'arch/arm/*' ! -name 'Kconfig*' -delete
     runHook postPatch
   '';
 
