@@ -8,7 +8,8 @@
     "hash": "sha256-fZr5Io+IU3UE2kLatWScNTo0R1xFOfb7h26iv5BmPIE=",
     "platform": "sun60i_a733",
     "patches": [
-      "0001-feat-allwinner-a733-run-BL31-from-DRAM-by-default.patch"
+      "0001-feat-allwinner-a733-run-BL31-from-DRAM-by-default.patch",
+      "0002-feat-allwinner-a733-power-off-through-the-AXP318W.patch"
     ]
   },
   "u-boot": {
