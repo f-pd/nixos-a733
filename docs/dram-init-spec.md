@@ -130,6 +130,40 @@ Pstates, and no rank scan.
 Pstate frequencies (**O**): `clock × 4 / (divider + 1)`, so `0x03, 0x07, 0x0b, 0x17` give
 2400, 1200, 800 and 400 MHz.
 
+### The four parameter blocks
+
+All 32 words, as stored in boot0 (**O**). Words not listed are 0 in all four.
+
+| Word | 4 GiB (header) | 6 GiB (block 1) | 8 GiB (block 2) | 12 GiB (block 5) |
+|---|---|---|---|---|
+| 0 | `0x960` | `0x960` | `0x7f8` | `0x7f8` |
+| 1 | `0x9` | `0x9` | `0x9` | `0x9` |
+| 2 | `0xe0e0e0e` | `0xe0e0e0e` | `0xe0e0e0e` | `0xe0e0e0e` |
+| 3 | `0xf0f0f0f` | `0xf0f0f0f` | `0xf0f0f0f` | `0xf0f0f0f` |
+| 4 | `0xec030e0f` | `0xec030e0f` | `0xec030e0f` | `0xec030e0f` |
+| 6 | `0xa0fa` | `0xa10a` | `0xa10a` | `0xa11a` |
+| 7 | `0x1001` | `0x1001` | `0x1001` | `0x1001` |
+| 11 | `0x6` | `0x6` | `0x6` | `0x6` |
+| 15 | `0x14` | `0x13` | `0x13` | `0x13` |
+| 16 | `0x44` | `0x44` | `0x44` | `0x44` |
+| 18 | `0x28` | `0x2e` | `0x2e` | `0x2e` |
+| 20 | `0x6` | `0x6` | `0x86` | `0x86` |
+| 22 | `0x4040` | `0x4040` | `0x7004040` | `0x7004040` |
+| 24 | `0x170b0703` | `0x170b0703` | `0x13090603` | `0x13090603` |
+| 25 | `0x3800` | `0x3800` | `0x3800` | `0x3800` |
+| 26 | `0x3514` | `0x3514` | `0x3514` | `0x3514` |
+| 27 | `0x325f0000` | `0x325f0000` | `0xb25f0000` | `0xb25f0000` |
+| 30 | `0x65` | `0x10065` | `0x65` | `0x10065` |
+
+### Memory test
+
+(**O**) After the size is known the driver writes `0x01234567 + i` to word *i* at the base of
+memory (`0x40000000`) and `0xFEDCBA98 + i` to word *i* at `base + min(size, 4096) / 2` MiB,
+then reads both back and compares. So the second address is at most 2 GiB above the base. The
+number of words is not set by the caller in the vendor driver (the argument is left
+uninitialised); any small count, for example 16, has the same intent. These accesses are to
+memory, not registers, and are not in the scripts.
+
 ## Sequence
 
 ### 1. Power
@@ -207,6 +241,8 @@ The shared 137 192-byte block contains, at least (**O**, offsets in boot0):
 | `0x1979c` | 51 672 bytes | LPDDR4 firmware, copied to PHY address `0x50000` (not exercised here) |
 | `0x27fee` | 64 160 bytes | LPDDR5 firmware, copied once to PHY address `0x50000`; the rest up to `0x58000` is zeroed |
 | `0x27ab8` | 1 334 bytes | LPDDR5 firmware data, copied to PHY address `0x58235` before each training run |
+| `0x39cf6` | 4 512 bytes | LPDDR5 sequence table, copied to PHY addresses `0x41388`–`0x41c57` in phase `phy_final` |
+| `0x37a8e` | 2 580 bytes | LPDDR5 sequence table, copied to PHY addresses `0x9002e`–`0x90537` in phase `phy_final` |
 | others | | tables for LPDDR4 and small fragments |
 
 The scripts refer to this block as `payload` (boot0 bytes `0x196b0`–`0x3ae98`, sha256
@@ -369,7 +405,7 @@ saturating at the field's maximum:
 | `+0x60` | bits 16–23 += D |
 | `+0x24` | bits 0–7 += E |
 | `+0x584` | bits 16–20 += A |
-| `+0x588` | bits 16–21 = `((PHY 0x1002a & 0x1f) >> 1) + ((((PHY 0x20004 & 0xf) + 1) >> 3) << 2) + 0x15` |
+| `+0x588` | bits 16–21 = `((PHY 0x1002a & 0x1f) >> 1) + ((((PHY 0x20002 & 0xf) + 1) >> 3) << 2) + 0x15` |
 
 Before this the driver sets bit 0 of `+0x10b84` and waits on `+0x10b88`; afterwards it closes
 the handshake and clears that bit. These are the PHY's reported delay differences between

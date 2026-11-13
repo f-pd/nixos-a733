@@ -61,11 +61,11 @@ while i < n:
             if not (nx and nx["t"] == "w" and nx["a"] == e["a"]):
                 ops.append(("READ", b, "%x" % off, "", "", ""))
     elif t == "w":
-        if is_mem(e["a"]):
-            # collect a run of consecutive ascending 16-bit writes
-            j = i; run = []; a0 = e["a"]
+        j = i; run = []; a0 = e["a"]
+        if PHY <= a0 < 0x0AB00000 and e["s"] == 2:
             while j < n and A[j]["t"] == "w" and A[j]["a"] == a0 + 2 * len(run):
                 run.append(A[j]["v"]); j += 1
+        if is_mem(e["a"]) or len(run) >= 16:
             data = b"".join(v.to_bytes(2, "little") for v in run)
             k = 0; pa = (a0 - PHY) >> 1
             while k < len(data):
@@ -74,10 +74,17 @@ while i < n:
                     while m < len(data) and data[m:m + 2] == b"\0\0": m += 2
                     if m - k >= 16:
                         ops.append(("ZERO16", "PHY", "%x" % (pa + k // 2), str((m - k) // 2), "", "")); k = m; continue
-                off = blob.find(data[k:k + 16], PAY0, PAY1) if k + 16 <= len(data) else -1
-                if off >= 0:
-                    m = 0
-                    while k + m < len(data) and off + m < PAY1 and data[k + m:k + m + 2] == blob[off + m:off + m + 2]: m += 2
+                best_off, best_m = -1, 0
+                if k + 16 <= len(data):
+                    off = blob.find(data[k:k + 16], PAY0, PAY1)
+                    while off >= 0:
+                        m = 0
+                        while k + m < len(data) and off + m < PAY1 and data[k + m:k + m + 2] == blob[off + m:off + m + 2]: m += 2
+                        if m > best_m: best_off, best_m = off, m
+                        off = blob.find(data[k:k + 16], off + 1, PAY1)
+                thr = 16 if is_mem(e["a"]) else 32
+                if best_m >= thr:
+                    off, m = best_off, best_m
                     ops.append(("LOAD16", "PHY", "%x" % (pa + k // 2), str(m // 2), "payload+0x%x" % (off - PAY0), "")); k += m
                 else:
                     ops.append(("W16", "PHY", "%x" % (pa + k // 2), "%x" % int.from_bytes(data[k:k + 2], "little"), "", "")); k += 2
