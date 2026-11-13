@@ -1,6 +1,6 @@
 # Boot chain for the mainline variants: options
 
-A proposal for the open firmware decision (`SPEC.md` D2): what `bootloader/` and
+A proposal for the firmware decision (`SPEC.md` D2), since taken (see "Decisions taken" at the end): what `bootloader/` and
 `modules/sd-image.nix` would need for each of the two boot chains known to work on A733 boards.
 Nothing here is implemented, and nothing was run on the board. Revisions are those of
 `docs/mainline-notes.md`, re-read on 2026-11-12; re-check them before pinning.
@@ -210,12 +210,20 @@ Board work: a Zero 3W defconfig and U-Boot device tree, as for chain 1.
 4. In both cases `boot0.nix` in its present form (cutting boot0 out of an official image) has no
    use and can go.
 
-## Decisions asked of the maintainer
+## Decisions taken (2026-11-13)
+
+Recorded in `SPEC.md` as D2 and D7. They replace the proposal above where the two differ.
+
+| Question | Decision |
+|---|---|
+| Chain 1 or chain 2 | Neither as it stands. The layout of chain 1 (U-Boot SPL, BL31, U-Boot, one file at 128 KiB), with a DRAM init written here in place of `ddr.bin`. Chain 2 is out: no Orange Pi boot0 in a mainline variant |
+| DRAM init | Written here, after studying how boot0 and Radxa's `ddr.bin` do it. Both are study material, not build inputs |
+| The recipe's 35 patches | Reference only, not imported. The Zero 3W port is our own code; once it exists the patches are dropped, and watched only for security fixes that concern the hardware |
+| Keeping firmware out of Cachix and Releases | No longer needed for the target chain: it holds no binary without a redistribution grant |
+
+Still open:
 
 | Decision | Why it is needed |
 |---|---|
-| Chain 1 or chain 2, or "decide after the FEL test" | sets the shape of `sources.json` and `sd-image.nix` |
-| For chain 1: import the recipe's patches as they are, re-author them, or write the board port on Radxa's tree alone | 34 of 35 carry an `Assisted-by` trailer |
-| For chain 1: how firmware and images are kept out of Cachix and Releases | the current filter would push them |
-| For chain 2: whether a mainline image with boot0 inside may be released | the vendor image already is; the spec says otherwise |
-| Which U-Boot tree the Zero 3W port targets | Radxa's branch (chain 1) and dlan17's branches (chain 2) are different trees |
+| Which U-Boot tree the Zero 3W port targets | Radxa's branch and dlan17's branches are different trees; upstream has no A733 support yet |
+| Whether `ddr.bin` or boot0 may be run on the bench (FEL) as a reference while our init is written | sets how the two are studied: by readback on the board, or statically only |

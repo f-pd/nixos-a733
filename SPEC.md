@@ -1,6 +1,6 @@
 # NixOS-A733: Spec
 
-> Repo: `github.com/f-pd/t-a733-los` (rename pending, D5) · Status: draft v0.3 · 2026-11-12
+> Repo: `github.com/f-pd/nixos-a733` · Status: draft v0.3 · 2026-11-12
 > Supersedes v0.2 (Debian and Talos flavors: both dropped). Evidence: `docs/research.md`, `docs/supply-chain-audit.md`.
 
 A Nix flake that builds NixOS for **Allwinner A733 (`sun60iw2`)** boards, starting with the
@@ -9,7 +9,7 @@ A Nix flake that builds NixOS for **Allwinner A733 (`sun60iw2`)** boards, starti
 - **`lts`**: the current longterm kernel of nixpkgs (`linuxPackages`, today 6.18.y) + A733 patches.
 - **`latest`**: the newest stable kernel of nixpkgs (`linuxPackages_latest`, today 7.3.y) + A733 patches.
 
-No vendor kernel. Firmware is built from source except one DRAM-init blob that has no open replacement.
+No vendor kernel. Firmware is built from source, DRAM init included: no open one exists for the A733 yet, so this project writes it (§3.3, D2).
 
 ---
 
@@ -42,7 +42,7 @@ No vendor kernel. Firmware is built from source except one DRAM-init blob that h
 | Upstream TF-A A733 | **Not present**: `plat/allwinner/` has a64, h6, h616, r329, a133 only (master `d70b52d`, 2026-11-11). Out of tree: `dlan17/trusted-firmware-a` branch `A733`; `DockSeed/a733-bootchain` (upstream master + 17 patches) |
 | Kernel stack A | `DockSeed/a7s-linux-mainline`: ~125 patches on 7.3.4, upstream-style bindings, GPL-2.0-only, no blobs, checkpatch-clean, extlinux boot. Tested on Radxa Cubie A7S only. No AIC8800 Wi-Fi |
 | Kernel stack B | `jonas5/Allwinner-A733-kernel`: one 10.9k-line patch on 6.18.y + extras (incl. AIC8800 SDIO fix), validated on Orange Pi 4 Pro, Zero 3W "awaiting hardware". Ships blobs in-repo |
-| Firmware chain (target) | `DockSeed/a733-bootchain`: `BROM -> U-Boot SPL (+ vendor ddr.bin) -> BL31 (TF-A from source) -> U-Boot (UEFI + extlinux)`. One file, `u-boot-sunxi-with-spl.bin`, at **128 KiB** (sector 256); first partition at 16 MiB or later. No boot0, no boot_package, no SCP, no packer tool |
+| Firmware chain (reference layout) | `DockSeed/a733-bootchain`: `BROM -> U-Boot SPL (+ vendor ddr.bin) -> BL31 (TF-A from source) -> U-Boot (UEFI + extlinux)`. One file, `u-boot-sunxi-with-spl.bin`, at **128 KiB** (sector 256); first partition at 16 MiB or later. No boot0, no boot_package, no SCP, no packer tool |
 | Firmware chain (vendor) | `boot0` at 8 KiB (or 128 KiB) + `boot_package.fex` at 16 400 KiB (sector 32800), U-Boot 2018.05 aarch32, no EFI |
 | Console | `ttyS0,115200` |
 | Zero 3W device tree | Exists only in the vendor 6.6 tree (vendor bindings). No mainline-style DTS anywhere yet |
@@ -87,9 +87,10 @@ All settings use `lib.mkDefault` (nixos-hardware rule).
 
 ### 3.3 Firmware
 
-- Target chain: SPL with `ddr.bin`, BL31 from TF-A source, U-Boot with EFI and extlinux. One output file, written at sector 256.
-- Needs a Zero 3W port: U-Boot defconfig + board DTS (SD on `mmc0`, UART0, USB), and proof that the DRAM init trains the Zero 3W's LPDDR5.
-- Fallback if the DRAM blob does not train this board: SPL replaced by Orange Pi's `boot0_sdcard_orangepizero3w.fex` (known good on this board) chain-loading mainline U-Boot, as in `dlan17/a733` `boot-sdcard.md`.
+- Target chain: U-Boot SPL with our own DRAM init, BL31 from TF-A source, U-Boot with EFI and extlinux. One output file, written at sector 256. No vendor binary in it: no boot0, no `ddr.bin`.
+- DRAM init is written here, after studying how the two existing ones work: Orange Pi's boot0 (known to train this board) and Radxa's `ddr.bin`. Both are study material only (§5).
+- Needs a Zero 3W port: U-Boot defconfig + board DTS (SD on `mmc0`, UART0, USB). The port is our own code: the out-of-tree TF-A and U-Boot patches are a reference, not an import (D7).
+- There is no boot0 fallback: a chain that ships Orange Pi's boot0 is not an option for the mainline variants.
 - Bring-up is done over **FEL** (USB) and from a spare SD card. The board boots from SD first, so a bad firmware cannot brick it.
 - The vendor image stays on a second card as reference and recovery.
 - Firmware is not updated automatically. `nix build .#firmware` plus an explicit flash command.
@@ -131,8 +132,8 @@ Verified against disko `1dd30c2` (2026-11-10):
 
 | Blob | Origin | Licence | Policy |
 |---|---|---|---|
-| `ddr.bin` (DRAM init, AArch32) | `radxa-pkg/u-boot-dlan17`, pinned by sha256 | none, no redistribution grant | fetched at build time, `unfree`, never published |
-| `boot0_sdcard_orangepizero3w.fex` (fallback) | `orangepi-xunlong/orangepi-build`, pinned by sha256 | none | same |
+| `ddr.bin` (DRAM init, AArch32) | `radxa-pkg/u-boot-dlan17`, pinned by sha256 | none, no redistribution grant | study material only: not in the built chain, never published |
+| `boot0_sdcard_orangepizero3w.fex` | `orangepi-xunlong/orangepi-build`, pinned by sha256 | none | same |
 | AIC8800 firmware | vendor | to check | same until checked |
 
 - The project publishes the **recipe** (flake, patches, device tree). Users build their own firmware and image locally.
@@ -190,7 +191,7 @@ From `docs/supply-chain-audit.md`:
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| Radxa's `ddr.bin` does not train the Zero 3W's LPDDR5 | No source-built SPL | Fallback to Orange Pi boot0 + mainline U-Boot; compare DRAM parameters from the vendor image first |
+| Writing LPDDR5 init and training for the A733 takes longer than planned, or cannot be completed from what the two blobs show | No mainline firmware, phase 1 stalls | Study boot0 and `ddr.bin` first; compare DRAM parameters from the vendor image; the vendor variant keeps the board usable meanwhile |
 | Stack A is tested on one board (Cubie A7S), 9 days old, AI-assisted, unreviewed by kernel developers | Bugs on our board | Vendor it; port board-specific patches to a Zero 3W device tree; keep `lts` as fallback entry |
 | No single stack covers 6.18 and 7.3 | Two device trees | D1 |
 | No Wi-Fi driver in mainline; board has no Ethernet | Box unreachable | USB Ethernet as primary link; Wi-Fi out of tree |
@@ -205,10 +206,11 @@ From `docs/supply-chain-audit.md`:
 ## 10. Open decisions
 
 - [ ] **D1 Patch stack per track.** Recommended: stack A (DockSeed) is the single base. `latest` = 7.3.y + stack A. `lts` = the same series backported to 6.18 if that is cheap (time-boxed); otherwise `lts` starts at the next longterm kernel that stack A already targets (7.4 if it is declared longterm; not confirmed), and until then the `lts` slot runs stack B (jonas5, 6.18) as an unsupported experiment. Alternative: stack B on `lts` permanently (two device trees).
-- [ ] **D2 Firmware path.** Recommended: target chain (source-built, `ddr.bin`), Orange Pi boot0 as fallback only.
+- [x] **D2 Firmware path.** Decided 2026-11-13: the whole boot chain is ours, built from source, with no vendor binary. U-Boot SPL with a DRAM init written here, after studying boot0 and Radxa's `ddr.bin`. No boot0 fallback.
 - [ ] **D3 Root location.** SD (minimal) + NVMe for `/nix` and data, or everything on NVMe with only firmware and `/boot` on SD.
 - [ ] **D4 Forge and CI.** Stay on GitHub Actions (free arm64 runners), or Codeberg/self-hosted Forgejo primary with a GitHub mirror and a homelab runner.
-- [ ] **D5 Repo name.** `t-a733-los` -> `nixos-a733`.
+- [x] **D5 Repo name.** `nixos-a733`.
+- [x] **D7 Boot chain patches.** Decided 2026-11-13: the Radxa and DockSeed TF-A and U-Boot patches are a reference for writing our own port and are not imported. Once ours exist they are dropped; they are still watched for security fixes that concern the hardware.
 - [ ] **D6 DNS filtering.** AdGuard Home, or Unbound-only (RPZ/blocklists, no UI).
 - [x] Flavors: NixOS only. Debian and Talos dropped.
 - [x] Kernel: two tracks, `lts` and `latest`, both with A733 patches. No vendor kernel.

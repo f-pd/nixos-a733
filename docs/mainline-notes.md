@@ -115,7 +115,7 @@ Consequences for `bootloader/`:
 These are the maintainer's, not the implementer's:
 
 - which patch stack feeds `patches/`, and how the LTS track gets its patches;
-- which boot chain the mainline variants use (chain 1 or chain 2);
+- ~~which boot chain the mainline variants use~~ decided 2026-11-13 (`SPEC.md` D2, D7): the layout of chain 1 with our own DRAM init, no vendor binary, third-party patches as reference only;
 - anything that changes what is published: images, cache contents, binaries in the tree.
 
 ## Upstreaming
