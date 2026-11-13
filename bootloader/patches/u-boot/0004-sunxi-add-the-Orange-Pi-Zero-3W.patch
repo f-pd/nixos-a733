@@ -11,22 +11,27 @@ The SPL initialises DRAM from source. It is kept below 164 KiB so that
 it also loads over FEL, with its early stack below 0x90000, above the
 image, and it looks for the FIT where binman puts it, 0x4a000 into the
 image.
+
+USB0 is enabled as a host with keyboard and storage support. It is the
+port the board is powered through, so it serves a hub or adapter that
+feeds power into it. The data port is on USB2, a DWC3 with PHYs this
+tree has no driver for.
 ---
- arch/arm/dts/sun60i-a733-orangepi-zero3w.dts | 73 ++++++++++++++++++++
- configs/orangepi_zero3w_defconfig            | 25 +++++++
- 2 files changed, 98 insertions(+)
+ arch/arm/dts/sun60i-a733-orangepi-zero3w.dts | 94 ++++++++++++++++++++
+ configs/orangepi_zero3w_defconfig            | 29 ++++++
+ 2 files changed, 123 insertions(+)
  create mode 100644 arch/arm/dts/sun60i-a733-orangepi-zero3w.dts
  create mode 100644 configs/orangepi_zero3w_defconfig
 
 diff --git a/arch/arm/dts/sun60i-a733-orangepi-zero3w.dts b/arch/arm/dts/sun60i-a733-orangepi-zero3w.dts
 new file mode 100644
-index 00000000..f7235f00
+index 00000000..7bf50823
 --- /dev/null
 +++ b/arch/arm/dts/sun60i-a733-orangepi-zero3w.dts
-@@ -0,0 +1,73 @@
+@@ -0,0 +1,94 @@
 +// SPDX-License-Identifier: (GPL-2.0-or-later OR MIT)
 +/*
-+ * Orange Pi Zero 3W, for U-Boot: console, microSD and the PMIC.
++ * Orange Pi Zero 3W, for U-Boot: console, microSD, the PMIC and USB0.
 + *
 + * Wiring from the manufacturer's schematic, board revision V1.2.
 + */
@@ -97,12 +102,33 @@ index 00000000..f7235f00
 +		vin3-supply = <&reg_vcc5v>;
 +	};
 +};
++
++/*
++ * USB0 is on the Type-C port the board is powered through: a sink with fixed
++ * pull-downs on CC and no VBUS switch, so VBUS is the board's 5 V input. As
++ * a host it serves a hub or adapter that feeds power into the same port.
++ *
++ * The other Type-C port is on USB2 (DWC3 and the combo PHY), which this
++ * tree has no driver for. USB1 reaches no connector.
++ */
++&usbphy {
++	usb0_vbus-supply = <&reg_vcc5v>;
++	status = "okay";
++};
++
++&ehci0 {
++	status = "okay";
++};
++
++&ohci0 {
++	status = "okay";
++};
 diff --git a/configs/orangepi_zero3w_defconfig b/configs/orangepi_zero3w_defconfig
 new file mode 100644
-index 00000000..dfcde1ad
+index 00000000..0b188c89
 --- /dev/null
 +++ b/configs/orangepi_zero3w_defconfig
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,29 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_SUNXI=y
 +CONFIG_HAS_CUSTOM_SYS_INIT_SP_ADDR=y
@@ -127,4 +153,8 @@ index 00000000..dfcde1ad
 +CONFIG_CMD_I2C=y
 +CONFIG_SYS_I2C_MVTWSI=y
 +CONFIG_REGULATOR_AXP=y
++CONFIG_USB_EHCI_HCD=y
++CONFIG_USB_OHCI_HCD=y
++CONFIG_USB_KEYBOARD=y
++CONFIG_USB_STORAGE=y
 +CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN=0x140000
