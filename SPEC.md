@@ -27,7 +27,7 @@ No vendor kernel. Firmware is built from source, DRAM init included: no open one
 - Other SoC families. Other A733 boards are welcome later (one board module each).
 - GPU, NPU, video decode, camera. Display output (HDMI/eDP status dashboards) is a later phase, not bring-up.
 - Suspend to RAM (needs closed E902 firmware; the box is always-on anyway).
-- The services themselves (Tor bridge, Unbound, DNS filtering, local models): they live in a host configuration, not in the hardware layer.
+- The services themselves (Tor bridge or relay, Unbound, AdGuard Home, Home Assistant, Frigate, local models; D6): they live in a host configuration, not in the hardware layer.
 
 ---
 
@@ -88,7 +88,7 @@ All settings use `lib.mkDefault` (nixos-hardware rule).
 ### 3.3 Firmware
 
 - Target chain: U-Boot SPL with our own DRAM init, BL31 from TF-A source, U-Boot with EFI and extlinux. One output file, written at sector 256. No vendor code runs on the ARM cores: no boot0, no `ddr.bin`. One vendor binary remains, the training firmware that runs inside the DRAM PHY (`docs/dram-init-spec.md`): the build cuts it out of boot0, and nothing that holds it is published (§5).
-- State (2026-11-13): the chain builds in CI from `bootloader/` and its image layout is checked; it has not run on a board. Bases, layout and open points: `docs/boot-chain-bases.md`. First session with the board: `docs/bring-up.md`.
+- State (2026-11-13): the chain builds in CI from `bootloader/` and its image layout is checked; run on a Zero 3W over FEL up to the kernel's root mount, not yet from a card. Bases, layout and open points: `docs/boot-chain-bases.md`. First session with the board: `docs/bring-up.md`, results in `docs/bring-up-results.md`.
 - DRAM init is written here, after studying how the two existing ones work: Orange Pi's boot0 (known to train this board) and Radxa's `ddr.bin`. Both are study material only (§5).
 - Needs a Zero 3W port: U-Boot defconfig + board DTS (SD on `mmc0`, UART0, USB). The port is our own code: the out-of-tree TF-A and U-Boot patches are a reference, not an import (D7).
 - There is no boot0 fallback: a chain that ships Orange Pi's boot0 is not an option for the mainline variants.
@@ -115,7 +115,7 @@ Verified against disko `1dd30c2` (2026-11-10):
 - **Network**: no Ethernet port, and neither kernel stack has a mainline Wi-Fi driver. Bring-up and the first production
   setup use a **USB Ethernet adapter** (mainline `r8152`/`ax88179`). AIC8800 Wi-Fi is an out-of-tree module, built per
   track, and is allowed to break on `latest` without blocking a release.
-- Storage for `/nix` and service data on NVMe; the SD card carries firmware, `/boot` and a minimal root.
+- Everything on the SD card: firmware, `/boot` and the root (D3). NVMe for `/nix` and service data is a possible later step, not planned.
 
 ---
 
@@ -156,8 +156,8 @@ From `docs/supply-chain-audit.md`:
 | nixpkgs | keep, pin, own cache for our outputs | No practical alternative; governance is unstable but the tree keeps merging |
 | Patch stacks, bootchain | **vendor into this repo**, pinned by commit | Both are days-to-months old, single maintainer, no promise of continuity |
 | disko | keep; `image.repart` as documented fallback | Active, small surface |
-| Forge / CI | forge-agnostic pipeline; D4 | GitHub is Microsoft |
-| DNS filtering | D6 | AdGuard Home is one company's product; Unbound alone can filter |
+| Forge / CI | GitHub and GitHub Actions (D4); the pipeline stays plain `nix build` | GitHub is Microsoft: accepted |
+| DNS filtering | AdGuard Home in front of Unbound (D6) | AdGuard Home is one company's product: accepted |
 | Vendor software | none at runtime | Orange Pi kernel 6.6.98 lags, blobs unlicensed |
 
 ---
@@ -210,11 +210,11 @@ From `docs/supply-chain-audit.md`:
 
 - [ ] **D1 Patch stack per track.** Recommended: stack A (DockSeed) is the single base. `latest` = 7.3.y + stack A. `lts` = the same series backported to 6.18 if that is cheap (time-boxed); otherwise `lts` starts at the next longterm kernel that stack A already targets (7.4 if it is declared longterm; not confirmed), and until then the `lts` slot runs stack B (jonas5, 6.18) as an unsupported experiment. Alternative: stack B on `lts` permanently (two device trees). Not decided; since 2026-11-13 `patches/` holds stack A and a Zero 3W device tree written for it, as an assumption to be confirmed (`docs/kernel-zero3w.md`).
 - [x] **D2 Firmware path.** Decided 2026-11-13: the whole boot chain is ours, built from source, with no vendor binary. U-Boot SPL with a DRAM init written here, after studying boot0 and Radxa's `ddr.bin`. No boot0 fallback.
-- [ ] **D3 Root location.** SD (minimal) + NVMe for `/nix` and data, or everything on NVMe with only firmware and `/boot` on SD.
-- [ ] **D4 Forge and CI.** Stay on GitHub Actions (free arm64 runners), or Codeberg/self-hosted Forgejo primary with a GitHub mirror and a homelab runner.
+- [x] **D3 Root location.** Decided 2026-11-13: root on the SD card. Root on NVMe may come later; it is not expected.
+- [x] **D4 Forge and CI.** Decided 2026-11-13: stay on GitHub and GitHub Actions. No migration.
 - [x] **D5 Repo name.** `nixos-a733`.
 - [x] **D7 Boot chain patches.** Decided 2026-11-13: the Radxa and DockSeed TF-A and U-Boot patches are a reference for writing our own port and are not imported. Once ours exist they are dropped; they are still watched for security fixes that concern the hardware.
-- [ ] **D6 DNS filtering.** AdGuard Home, or Unbound-only (RPZ/blocklists, no UI).
+- [x] **D6 Services of the host.** Decided 2026-11-13: AdGuard Home for filtering, Unbound behind it with DoT and DoH upstreams only, a Tor bridge or relay, Home Assistant, Frigate. They live in the host configuration (§1).
 - [x] Flavors: NixOS only. Debian and Talos dropped.
 - [x] Kernel: two tracks, `lts` and `latest`, both with A733 patches. No vendor kernel.
 - [x] Filesystem: btrfs.
