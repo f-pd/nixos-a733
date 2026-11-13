@@ -81,8 +81,8 @@ All settings use `lib.mkDefault` (nixos-hardware rule).
 - A NixOS **specialisation** carries the other track in the same system closure, so both kernels are boot-menu entries
   (the extlinux builder lists specialisations). Default entry: `latest`. Fallback entry: `lts`.
 - A patch that no longer applies after a bump fails the build: the bump PR is labelled `needs-human`, nothing is deployed.
-- **One patch stack, one device tree** is the target (D1). Two stacks with different bindings mean two device trees
-  for the same board and double the bug surface.
+- **One patch stack per track** (D1): stack A on `latest`, stack B on `lts`. Their bindings differ, so the board has
+  one device tree per stack; a fix to the board's wiring goes into both.
 - Config: nixpkgs' arm64 config plus a small A733 fragment (`structuredExtraConfig`), with an assertion list like stack A's.
 
 ### 3.3 Firmware
@@ -208,7 +208,7 @@ From `docs/supply-chain-audit.md`:
 
 ## 10. Open decisions
 
-- [ ] **D1 Patch stack per track.** Recommended: stack A (DockSeed) is the single base. `latest` = 7.3.y + stack A. `lts` = the same series backported to 6.18 if that is cheap (time-boxed); otherwise `lts` starts at the next longterm kernel that stack A already targets (7.4 if it is declared longterm; not confirmed), and until then the `lts` slot runs stack B (jonas5, 6.18) as an unsupported experiment. Alternative: stack B on `lts` permanently (two device trees). Not decided; since 2026-11-13 `patches/` holds stack A and a Zero 3W device tree written for it, as an assumption to be confirmed (`docs/kernel-zero3w.md`).
+- [x] **D1 Patch stack per track.** Decided 2026-11-13: `latest` = the newest stable kernel + stack A (DockSeed). `lts` = every longterm kernel that kernel.org still maintains and that has an A733 patch stack: today that is 6.18 + stack B (jonas5). Two stacks mean two device trees for the board; that cost is accepted. Older longterm kernels (6.12, 6.6 and before) have no A733 stack and are not built until one exists. State: `patches/` holds stack A and the Zero 3W device tree written for it (`docs/kernel-zero3w.md`), run on the board on 2026-11-13; stack B is not imported and has no Zero 3W device tree yet.
 - [x] **D2 Firmware path.** Decided 2026-11-13: the whole boot chain is ours, built from source, with no vendor binary. U-Boot SPL with a DRAM init written here, after studying boot0 and Radxa's `ddr.bin`. No boot0 fallback.
 - [x] **D3 Root location.** Decided 2026-11-13: root on the SD card. Root on NVMe may come later; it is not expected.
 - [x] **D4 Forge and CI.** Decided 2026-11-13: stay on GitHub and GitHub Actions. No migration.
