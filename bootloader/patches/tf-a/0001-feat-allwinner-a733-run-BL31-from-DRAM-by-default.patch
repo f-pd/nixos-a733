@@ -11,16 +11,18 @@ An SPL that initialises DRAM itself runs from that SRAM and, with the PHY
 training firmware it carries, reaches beyond 0x62000. Run BL31 from the
 start of DRAM instead, as the H616 does: the common code already supports
 it and reserves the memory in the device tree it hands to the next stage.
-SUNXI_BL31_IN_DRAM=0 gives the former layout.
+As on the H616, power management is then native only: the SCPI variant
+looks for the SCP firmware in SRAM. SUNXI_BL31_IN_DRAM=0 gives the
+former layout.
 ---
- plat/allwinner/sun60i_a733/platform.mk | 7 +++++++
- 1 file changed, 7 insertions(+)
+ plat/allwinner/sun60i_a733/platform.mk | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/plat/allwinner/sun60i_a733/platform.mk b/plat/allwinner/sun60i_a733/platform.mk
-index 65ce4f3..a0a11b1 100644
+index 65ce4f3..58d9fbf 100644
 --- a/plat/allwinner/sun60i_a733/platform.mk
 +++ b/plat/allwinner/sun60i_a733/platform.mk
-@@ -12,10 +12,17 @@ PLATFORM_MAX_CPUS_PER_CLUSTER := 8
+@@ -12,10 +12,23 @@ PLATFORM_MAX_CPUS_PER_CLUSTER := 8
  # A733 has new style of watchdog core
  STANDALONE_WATCHDOG := 1
  
@@ -28,6 +30,12 @@ index 65ce4f3..a0a11b1 100644
 +# may initialise DRAM from there and is larger than the SRAM A2 slot leaves
 +# room for. Build with SUNXI_BL31_IN_DRAM=0 for an SPL that leaves it free.
 +SUNXI_BL31_IN_DRAM ?= 1
++
++# The SCPI power management needs the SCP firmware next to BL31 in SRAM.
++ifeq (${SUNXI_BL31_IN_DRAM},1)
++SUNXI_PSCI_USE_SCPI := 0
++SUNXI_PSCI_USE_NATIVE := 1
++endif
 +
  # The differences between the platforms are covered by the include files.
  include plat/allwinner/common/allwinner-common.mk

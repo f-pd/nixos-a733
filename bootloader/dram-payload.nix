@@ -9,10 +9,11 @@
 {
   lib,
   stdenv,
+  callPackage,
   zero ? false,
 }:
 let
-  files = import ../vendor/files.nix { inherit lib; };
+  files = callPackage ../vendor/files.nix { };
 in
 stdenv.mkDerivation {
   pname = "a733-dram-payload" + (if zero then "-zero" else "-nopublish");
