@@ -46,8 +46,24 @@ struct a733_dram_ops {
 	void *ctx;
 };
 
-/* The firmware payload: the block the specification calls "payload". */
+/*
+ * The firmware payload: the block the specification calls "payload". It can
+ * be passed whole (A733_DRAM_PAYLOAD_SIZE bytes) or packed: only the ranges
+ * the library reads, one after the other in the order of
+ * a733_dram_payload_ranges[]. The length tells the two apart.
+ */
 #define A733_DRAM_PAYLOAD_SIZE	137192u
+
+struct a733_dram_payload_range {
+	uint32_t offset;	/* into the whole payload */
+	uint32_t len;		/* bytes */
+};
+
+extern const struct a733_dram_payload_range a733_dram_payload_ranges[];
+extern const unsigned int a733_dram_payload_range_count;
+
+/* Length of the packed payload. */
+size_t a733_dram_payload_packed_size(void);
 
 /* Words of the parameter block, see docs/dram-init-spec.md. */
 #define A733_DRAM_PARA_WORDS	52

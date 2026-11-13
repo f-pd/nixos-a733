@@ -27,6 +27,7 @@ success. It does not show that DRAM trains on hardware.
 | `test/harness.c` | The reference model: runs the library and prints every write, delay and PMIC call |
 | `test/compare.py` | Compares a run with a reference script |
 | `test/check_payload.py` | Checks that no file here carries bytes of the PHY firmware |
+| `tools/payload-pack.c` | Host tool: packs the payload ranges the library reads, for an SPL |
 
 The library is freestanding C11 and uses `stdint.h` and `stddef.h` only. It reaches the
 hardware through `struct a733_dram_ops`: 16- and 32-bit register read and write, wait for a
@@ -35,6 +36,11 @@ condition, microsecond delay, set a PMIC rail in mV, log, strap index. The PHY f
 not part of this tree. The library takes from it, at the offsets the reference scripts give:
 the firmware code and data, five short runs of the message block, and the two long sequence
 tables of the final PHY step (PHY `0x41388`, 2256 words, and `0x9002e`, 1290 words).
+
+The payload can also be passed packed: only the ranges the library reads, 72 678 bytes, in
+the order of `a733_dram_payload_ranges[]`. `make tools` builds `build/payload-pack`, which cuts
+them out of a boot0 file; an SPL links that file instead of the whole block. Its output is
+firmware without a redistribution grant: it is never committed or published.
 
 `a733_dram_init()` reads the strap, selects the parameter block and returns the size in MiB,
 or 0. `a733_dram_init_para()` does the same with a block the caller supplies.
