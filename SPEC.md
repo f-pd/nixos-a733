@@ -188,6 +188,19 @@ From `docs/supply-chain-audit.md`:
 | **5 Board features** | AIC8800 Wi-Fi, NVMe over PCIe, HDMI/eDP | Each feature works on at least one track; `latest` breakage of Wi-Fi does not block releases |
 | **6 Upstream** | §11 | Device tree posted to linux-sunxi; U-Boot board posted; nixpkgs/nixos-hardware PRs when mainline lands |
 
+Backlog, outside the phases:
+
+- **Boot screen.** Everything on screen during the boot looks like one thing, in Tokyo Night colours:
+  - U-Boot shows the NixOS snowflake as its logo (video is off in the defconfig today).
+  - From the initrd on, a header stays at the top of the screen while the kernel and systemd messages scroll below it: the snowflake, the summary of versions, and one of the login slogans.
+  - The same header above the login prompt.
+  - The animation after a user logs in is the one place that keeps the pride colours: it starts in them and turns smoothly into Tokyo Night.
+  - Needs HDMI output on the track in use, which has not been tried on the board and is expected to need fixing (phase 5).
+  - On the serial console the header may scroll away: serial is for diagnosis and testing only.
+- **CPU frequency scaling.** The Zero 3W device tree names no CPU rail and no operating points, so the cores stay at the rate the boot firmware sets (`sun50i-cpufreq-nvmem` fails to probe). A patch that names DCDC5 and DCDC3 and uses the SoC's tables is written and compiles, on branch `feature/cpu-power`, not merged: it changes core voltages and has not run on the board.
+- **CPU idle states (PSCI `CPU_SUSPEND` in BL31).** Our BL31 has no core power-down, so the kernel's idle state is unusable and idle cores only wait for an interrupt. Not started. Known from the DockSeed set, as a reference only (D7): the cores sit behind Arm PPUs in the block at `0x07050000`, and the boot core must be set to restart in AArch64 or its first wake runs the boot ROM under the running kernel.
+- **Suspend to RAM: reverse engineering of the E902 firmware.** System suspend needs the closed firmware of the E902 coprocessor (§1). To be studied the way boot0 and `ddr.bin` were for DRAM init. Not started.
+
 ---
 
 ## 9. Risks
