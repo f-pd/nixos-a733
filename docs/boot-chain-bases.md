@@ -102,7 +102,7 @@ firmware"). It cannot be replaced and has no redistribution grant.
 |---|---|---|
 | SPL image, as the BROM loads it | SRAM `0x47000`; code from `0x47060` | U-Boot `SPL_TEXT_BASE`, FEL tool `spl_addr` |
 | SPL size limit | `0x29000` from `0x47060`, so the image ends below `0x71000` | `SPL_MAX_SIZE` in our defconfig; the FEL tool keeps its own data from `0x71000` |
-| SPL as built on 2026-11-13 | 147 456 bytes: `0x47000` to `0x6b000`, 24 576 bytes below the limit. Code 48.7 KiB, the PHY firmware 71 KiB at `0x53b2c`, library tables and other data 19 KiB | CI run 43362093655, `u-boot-spl.map` |
+| SPL as built on 2026-11-13 | 147 456 bytes: `0x47000` to `0x6b000`, 24 576 bytes below the limit. Code 48.7 KiB, the PHY firmware 71 KiB, library tables and other data 19 KiB | CI, `u-boot-spl.map` in the artifact |
 | SPL early stack, with the pre-DRAM heap below it | down from `0x90000` | `SPL_STACK` in our defconfig; see "Not known" |
 | SPL BSS, stack and heap after DRAM init | DRAM `0x4ff80000`, `0x4fe00000` | as in the base tree |
 | FIT, as read from the card | DRAM `0x47a00000` | as in the base tree |

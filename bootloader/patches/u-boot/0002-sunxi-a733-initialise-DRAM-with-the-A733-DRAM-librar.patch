@@ -108,7 +108,7 @@ index 00000000..3a55dea5
 +a733_dram_payload_end:
 diff --git a/arch/arm/mach-sunxi/dram_sun60i_a733_source.c b/arch/arm/mach-sunxi/dram_sun60i_a733_source.c
 new file mode 100644
-index 00000000..56a5e996
+index 00000000..438adb7d
 --- /dev/null
 +++ b/arch/arm/mach-sunxi/dram_sun60i_a733_source.c
 @@ -0,0 +1,508 @@
@@ -150,16 +150,16 @@ index 00000000..56a5e996
 +#define DRAM_WAIT_STEP_US	10
 +
 +/* R_TWI0, the bus of the PMIC */
-+#define R_TWI_GATE_RESET	(SUNXI_PRCM_BASE + 0x19c)
++#define R_TWI_GATE_RESET	(SUNXI_PRCM_BASE + 0x19cUL)
 +#define R_TWI_GATE		BIT(0)
 +#define R_TWI_RESET		BIT(16)
 +#define R_TWI_PIN_FUNC		2	/* PL0 SCK, PL1 SDA */
 +
-+#define TWI_DATA		(SUNXI_R_TWI_BASE + 0x08)
-+#define TWI_CNTR		(SUNXI_R_TWI_BASE + 0x0c)
-+#define TWI_STAT		(SUNXI_R_TWI_BASE + 0x10)
-+#define TWI_CCR			(SUNXI_R_TWI_BASE + 0x14)
-+#define TWI_SRST		(SUNXI_R_TWI_BASE + 0x18)
++#define TWI_DATA		(SUNXI_R_TWI_BASE + 0x08UL)
++#define TWI_CNTR		(SUNXI_R_TWI_BASE + 0x0cUL)
++#define TWI_STAT		(SUNXI_R_TWI_BASE + 0x10UL)
++#define TWI_CCR			(SUNXI_R_TWI_BASE + 0x14UL)
++#define TWI_SRST		(SUNXI_R_TWI_BASE + 0x18UL)
 +
 +#define TWI_CNTR_ACK		BIT(2)
 +#define TWI_CNTR_FLAG		BIT(3)	/* write 1 to clear */
@@ -189,9 +189,9 @@ index 00000000..56a5e996
 +#define CCU_PLL_ENABLE_BIT	BIT(24)
 +
 +/* GPADC, where the memory strap is */
-+#define CCU_GPADC_CLK		(SUNXI_CCM_BASE + 0xfc0)
-+#define CCU_GPADC_GATE_RESET	(SUNXI_CCM_BASE + 0xfc4)
-+#define GPADC_BASE		0x02521000
++#define CCU_GPADC_CLK		(SUNXI_CCM_BASE + 0xfc0UL)
++#define CCU_GPADC_GATE_RESET	(SUNXI_CCM_BASE + 0xfc4UL)
++#define GPADC_BASE		0x02521000UL
 +#define GPADC_SR_CON		(GPADC_BASE + 0x00)
 +#define GPADC_CTRL		(GPADC_BASE + 0x04)
 +#define GPADC_CS_EN		(GPADC_BASE + 0x08)
@@ -575,7 +575,7 @@ index 00000000..56a5e996
 +	int i;
 +
 +	for (i = 0; i < ARRAY_SIZE(ccu_pll_regs); i++)
-+		setbits_le32(SUNXI_CCM_BASE + ccu_pll_regs[i],
++		setbits_le32(SUNXI_CCM_BASE + (unsigned long)ccu_pll_regs[i],
 +			     CCU_PLL_ENABLE_BIT);
 +}
 +
