@@ -567,6 +567,27 @@ parameter words and the values written to registers. The register values are wha
 for this hardware has to write; whether publishing them raises a question for this project is
 the maintainer's call and was accepted on 2026-11-13.
 
+## Check of the built SPL
+
+The SPL that CI builds from `bootloader/` (AArch64, run 43363360656, built with zeros in place
+of the PHY payload) was run on a workstation from `sunxi_dram_init` under the reference model,
+extended with a model of the R-domain TWI and of the PMIC registers and with the strap ADC
+returning a chosen value (`docs/dram-init/method/spl_emu64.py`, `spl_cmp.py`). For each of the
+four strap values:
+
+- the strap is read as index 0, 1, 2 or 5 and the matching parameter block is used;
+- the PMIC receives the first-contact writes, then `dcdc7`, `eldo1`, `dcdc6` with the codes and
+  enable bits of the table above;
+- the DRAM sequence that follows equals the reference script write for write (178 215 writes,
+  178 217 for 6 GiB), with the payload words read as zero, except one: the first write to
+  `CCU+0x20` carries bit 24, because our SPL has already set that bit as boot0 does before its
+  own DRAM routine. The script was recorded from the DRAM routine alone, with the register at 0;
+- the returned size is 4, 6, 8 or 12 GiB;
+- nothing touches the SPL's BSS, which lies in DRAM, before DRAM is up.
+
+This shows that the code as compiled for the board does what the host test shows for the
+library. It is still the model, not the hardware.
+
 ## Limits
 
 - Only the paths the Zero 3W takes were run: LPDDR5, two channels, four Pstates, no scan.
