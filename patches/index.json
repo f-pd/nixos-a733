@@ -1,3 +1,2657 @@
 {
-  "patches": []
+  "patches": [
+    {
+      "file": "0001-a733-pinctrl--pinctrl-sunxi-rename-sunxi-pinctrl-new-reg-layout.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl/pinctrl-sunxi-rename-sunxi-pinctrl-new-reg-layout.patch",
+      "description": "pinctrl: sunxi: rename SUNXI_PINCTRL_NEW_REG_LAYOUT",
+      "stack": "a733-pinctrl"
+    },
+    {
+      "file": "0002-a733-pinctrl--pinctrl-sunxi-only-use-portk-special-handling-on-a523.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl/pinctrl-sunxi-only-use-portk-special-handling-on-a523.patch",
+      "description": "pinctrl: sunxi: only use PortK special handling on A523",
+      "stack": "a733-pinctrl"
+    },
+    {
+      "file": "0003-a733-pinctrl--pinctrl-sunxi-refactor-irq-register-accessors.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl/pinctrl-sunxi-refactor-irq-register-accessors.patch",
+      "description": "pinctrl: sunxi: refactor IRQ register accessors",
+      "stack": "a733-pinctrl"
+    },
+    {
+      "file": "0004-a733-pinctrl--pinctrl-sunxi-support-a733-generation-mmio-register-layout.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl/pinctrl-sunxi-support-a733-generation-mmio-register-layout.patch",
+      "description": "pinctrl: sunxi: support A733 generation MMIO register layout",
+      "stack": "a733-pinctrl"
+    },
+    {
+      "file": "0005-a733-pinctrl--dt-bindings-pinctrl-add-compatible-for-allwinner-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl/dt-bindings-pinctrl-add-compatible-for-allwinner-a733.patch",
+      "description": "dt-bindings: pinctrl: add compatible for Allwinner A733",
+      "stack": "a733-pinctrl"
+    },
+    {
+      "file": "0006-a733-pinctrl--pinctrl-sunxi-a523-r-add-a733-r-compatible-string.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl/pinctrl-sunxi-a523-r-add-a733-r-compatible-string.patch",
+      "description": "pinctrl: sunxi: a523-r: add a733-r compatible string",
+      "stack": "a733-pinctrl"
+    },
+    {
+      "file": "0007-a733-pinctrl--pinctrl-sunxi-add-support-for-the-allwinner-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl/pinctrl-sunxi-add-support-for-the-allwinner-a733.patch",
+      "description": "pinctrl: sunxi: add support for the Allwinner A733",
+      "stack": "a733-pinctrl"
+    },
+    {
+      "file": "0008-a523-clk-single-divider--clk-sunxi-ng-div-add-feature-support-to-m-clock-macro.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a523-clk-single-divider/clk-sunxi-ng-div-add-feature-support-to-m-clock-macro.patch",
+      "description": "clk: sunxi-ng: div: Add feature support to M clock macro",
+      "stack": "a523-clk-single-divider"
+    },
+    {
+      "file": "0009-a523-clk-single-divider--clk-sunxi-ng-sun55i-a523-ccu-use-m-only-clocks-for-mbus-iommu-and-dram.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a523-clk-single-divider/clk-sunxi-ng-sun55i-a523-ccu-use-m-only-clocks-for-mbus-iommu-and-dram.patch",
+      "description": "clk: sunxi-ng: sun55i-a523-ccu: Use M-only clocks for MBUS, IOMMU and DRAM",
+      "stack": "a523-clk-single-divider"
+    },
+    {
+      "file": "0010-a523-clk-single-divider--clk-sunxi-ng-sun55i-a523-ccu-use-p-only-clocks-for-high-speed-timers.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a523-clk-single-divider/clk-sunxi-ng-sun55i-a523-ccu-use-p-only-clocks-for-high-speed-timers.patch",
+      "description": "clk: sunxi-ng: sun55i-a523-ccu: Use P-only clocks for high-speed timers",
+      "stack": "a523-clk-single-divider"
+    },
+    {
+      "file": "0011-a523-clk-single-divider--clk-sunxi-ng-sun55i-a523-r-ccu-use-p-only-clocks-for-timers.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a523-clk-single-divider/clk-sunxi-ng-sun55i-a523-r-ccu-use-p-only-clocks-for-timers.patch",
+      "description": "clk: sunxi-ng: sun55i-a523-r-ccu: Use P-only clocks for timers",
+      "stack": "a523-clk-single-divider"
+    },
+    {
+      "file": "0012-sunxi-ccu-pll-lock-atomic--clk-sunxi-ng-ccu-common-use-readl-relaxed-poll-timeout-atomic-for-pll-lock.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-ccu-pll-lock-atomic/clk-sunxi-ng-ccu-common-use-readl-relaxed-poll-timeout-atomic-for-pll-lock.patch",
+      "description": "clk: sunxi-ng: ccu_common: Use readl_relaxed_poll_timeout_atomic for PLL lock",
+      "stack": "sunxi-ccu-pll-lock-atomic"
+    },
+    {
+      "file": "0013-a733-ccu--dt-bindings-clk-sun60i-a733-ccu-add-allwinner-a733-support.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu/dt-bindings-clk-sun60i-a733-ccu-add-allwinner-a733-support.patch",
+      "description": "dt-bindings: clk: sun60i-a733-ccu: Add Allwinner A733 support",
+      "stack": "a733-ccu"
+    },
+    {
+      "file": "0014-a733-ccu--clk-sunxi-ng-sdm-add-dual-patterns-support.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu/clk-sunxi-ng-sdm-add-dual-patterns-support.patch",
+      "description": "clk: sunxi-ng: sdm: Add dual patterns support",
+      "stack": "a733-ccu"
+    },
+    {
+      "file": "0015-a733-ccu--clk-sunxi-ng-a733-add-prcm-ccu.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu/clk-sunxi-ng-a733-add-prcm-ccu.patch",
+      "description": "clk: sunxi-ng: a733: Add PRCM CCU",
+      "stack": "a733-ccu"
+    },
+    {
+      "file": "0016-a733-ccu--clk-sunxi-ng-a733-add-pll-clocks-support.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu/clk-sunxi-ng-a733-add-pll-clocks-support.patch",
+      "description": "clk: sunxi-ng: a733: Add PLL clocks support",
+      "stack": "a733-ccu"
+    },
+    {
+      "file": "0017-a733-ccu--clk-sunxi-ng-a733-add-bus-clocks-support.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu/clk-sunxi-ng-a733-add-bus-clocks-support.patch",
+      "description": "clk: sunxi-ng: a733: Add bus clocks support",
+      "stack": "a733-ccu"
+    },
+    {
+      "file": "0018-a733-ccu--clk-sunxi-ng-a733-add-mod-clocks-support.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu/clk-sunxi-ng-a733-add-mod-clocks-support.patch",
+      "description": "clk: sunxi-ng: a733: Add mod clocks support",
+      "stack": "a733-ccu"
+    },
+    {
+      "file": "0019-a733-ccu--clk-sunxi-ng-a733-add-bus-clock-gates.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu/clk-sunxi-ng-a733-add-bus-clock-gates.patch",
+      "description": "clk: sunxi-ng: a733: Add bus clock gates",
+      "stack": "a733-ccu"
+    },
+    {
+      "file": "0020-a733-ccu--clk-sunxi-ng-a733-add-reset-lines.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu/clk-sunxi-ng-a733-add-reset-lines.patch",
+      "description": "clk: sunxi-ng: a733: Add reset lines",
+      "stack": "a733-ccu"
+    },
+    {
+      "file": "0021-a733-dts--dt-bindings-arm-sunxi-add-radxa-cubie-a7s.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dts/dt-bindings-arm-sunxi-add-radxa-cubie-a7s.patch",
+      "description": "dt-bindings: arm: sunxi: add Radxa Cubie A7S",
+      "stack": "a733-dts"
+    },
+    {
+      "file": "0022-a733-dts--arm64-dts-allwinner-add-allwinner-a733-soc.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dts/arm64-dts-allwinner-add-allwinner-a733-soc.patch",
+      "description": "arm64: dts: allwinner: add Allwinner A733 SoC",
+      "stack": "a733-dts"
+    },
+    {
+      "file": "0023-a733-dts--arm64-dts-allwinner-add-radxa-cubie-a7s.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dts/arm64-dts-allwinner-add-radxa-cubie-a7s.patch",
+      "description": "arm64: dts: allwinner: add Radxa Cubie A7S",
+      "stack": "a733-dts"
+    },
+    {
+      "file": "0024-a733-i2c-binding--dt-bindings-i2c-mv64xxx-add-allwinner-a733-compatible-string.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-i2c-binding/dt-bindings-i2c-mv64xxx-add-allwinner-a733-compatible-string.patch",
+      "description": "dt-bindings: i2c: mv64xxx: Add Allwinner A733 compatible string",
+      "stack": "a733-i2c-binding"
+    },
+    {
+      "file": "0025-x-powers-axp318w--mfd-axp20x-constify-axp313-and-axp717-cells.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/x-powers-axp318w/mfd-axp20x-constify-axp313-and-axp717-cells.patch",
+      "description": "mfd: axp20x: Constify axp313 and axp717 cells",
+      "stack": "x-powers-axp318w"
+    },
+    {
+      "file": "0026-x-powers-axp318w--mfd-axp20x-i2c-fix-i2c-instantiation.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/x-powers-axp318w/mfd-axp20x-i2c-fix-i2c-instantiation.patch",
+      "description": "mfd: axp20x-i2c: Fix i2c instantiation",
+      "stack": "x-powers-axp318w"
+    },
+    {
+      "file": "0027-x-powers-axp318w--dt-bindings-mfd-x-powers-axp152-document-axp318w.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/x-powers-axp318w/dt-bindings-mfd-x-powers-axp152-document-axp318w.patch",
+      "description": "dt-bindings: mfd: x-powers,axp152: Document AXP318W",
+      "stack": "x-powers-axp318w"
+    },
+    {
+      "file": "0028-x-powers-axp318w--mfd-axp20x-add-support-for-axp318w-pmic.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/x-powers-axp318w/mfd-axp20x-add-support-for-axp318w-pmic.patch",
+      "description": "mfd: axp20x: Add support for AXP318W PMIC",
+      "stack": "x-powers-axp318w"
+    },
+    {
+      "file": "0029-x-powers-axp318w--regulator-axp20x-add-support-for-the-axp318w.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/x-powers-axp318w/regulator-axp20x-add-support-for-the-axp318w.patch",
+      "description": "regulator: axp20x: add support for the AXP318W",
+      "stack": "x-powers-axp318w"
+    },
+    {
+      "file": "0030-a733-dts-fixes--arm64-dts-allwinner-a733-name-the-bus-node-soc-0.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dts-fixes/arm64-dts-allwinner-a733-name-the-bus-node-soc-0.patch",
+      "description": "arm64: dts: allwinner: a733: Name the bus node soc@0",
+      "stack": "a733-dts-fixes"
+    },
+    {
+      "file": "0031-a733-dts-fixes--arm64-dts-allwinner-a733-add-the-timer-and-gic-maintenance-interrupts.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dts-fixes/arm64-dts-allwinner-a733-add-the-timer-and-gic-maintenance-interrupts.patch",
+      "description": "arm64: dts: allwinner: a733: Add the timer and GIC maintenance interrupts",
+      "stack": "a733-dts-fixes"
+    },
+    {
+      "file": "0032-a733-dts-fixes--arm64-dts-allwinner-a733-describe-the-oscillator-at-its-board-rate.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dts-fixes/arm64-dts-allwinner-a733-describe-the-oscillator-at-its-board-rate.patch",
+      "description": "arm64: dts: allwinner: a733: Describe the oscillator at its board rate",
+      "stack": "a733-dts-fixes"
+    },
+    {
+      "file": "0033-a733-dts-fixes--arm64-dts-allwinner-a733-add-the-prcm-clock-controller-and-the-rtc.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dts-fixes/arm64-dts-allwinner-a733-add-the-prcm-clock-controller-and-the-rtc.patch",
+      "description": "arm64: dts: allwinner: a733: Add the PRCM clock controller and the RTC",
+      "stack": "a733-dts-fixes"
+    },
+    {
+      "file": "0034-a733-dts-fixes--arm64-dts-allwinner-a733-add-the-prcm-pin-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dts-fixes/arm64-dts-allwinner-a733-add-the-prcm-pin-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the PRCM pin controller",
+      "stack": "a733-dts-fixes"
+    },
+    {
+      "file": "0035-a733-dts-fixes--arm64-dts-allwinner-a733-add-the-pin-mux-values-move-the-uart0-pins.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dts-fixes/arm64-dts-allwinner-a733-add-the-pin-mux-values-move-the-uart0-pins.patch",
+      "description": "arm64: dts: allwinner: a733: Add the pin mux values, move the UART0 pins",
+      "stack": "a733-dts-fixes"
+    },
+    {
+      "file": "0036-a733-dts-fixes--arm64-dts-allwinner-a733-cubie-a7s-run-the-rtc-from-the-32k-crystal.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dts-fixes/arm64-dts-allwinner-a733-cubie-a7s-run-the-rtc-from-the-32k-crystal.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Run the RTC from the 32k crystal",
+      "stack": "a733-dts-fixes"
+    },
+    {
+      "file": "0037-a733-dts-fixes--arm64-dts-allwinner-a733-cubie-a7s-reserve-the-scp-firmware-memory.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dts-fixes/arm64-dts-allwinner-a733-cubie-a7s-reserve-the-scp-firmware-memory.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Reserve the SCP firmware memory",
+      "stack": "a733-dts-fixes"
+    },
+    {
+      "file": "0038-a733-soc-kern--dt-bindings-watchdog-sun4i-a10-wdt-add-allwinner-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-soc-kern/dt-bindings-watchdog-sun4i-a10-wdt-add-allwinner-a733.patch",
+      "description": "dt-bindings: watchdog: sun4i-a10-wdt: Add Allwinner A733",
+      "stack": "a733-soc-kern"
+    },
+    {
+      "file": "0039-a733-soc-kern--dt-bindings-timer-sun4i-a10-timer-add-allwinner-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-soc-kern/dt-bindings-timer-sun4i-a10-timer-add-allwinner-a733.patch",
+      "description": "dt-bindings: timer: sun4i-a10-timer: Add Allwinner A733",
+      "stack": "a733-soc-kern"
+    },
+    {
+      "file": "0040-a733-soc-kern--arm64-dts-allwinner-a733-add-the-cpu-topology-and-caches.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-soc-kern/arm64-dts-allwinner-a733-add-the-cpu-topology-and-caches.patch",
+      "description": "arm64: dts: allwinner: a733: Add the CPU topology and caches",
+      "stack": "a733-soc-kern"
+    },
+    {
+      "file": "0041-a733-soc-kern--arm64-dts-allwinner-a733-use-the-measured-cpu-capacity.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-soc-kern/arm64-dts-allwinner-a733-use-the-measured-cpu-capacity.patch",
+      "description": "arm64: dts: allwinner: a733: Use the measured CPU capacity",
+      "stack": "a733-soc-kern"
+    },
+    {
+      "file": "0042-a733-soc-kern--arm64-dts-allwinner-a733-add-timer1.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-soc-kern/arm64-dts-allwinner-a733-add-timer1.patch",
+      "description": "arm64: dts: allwinner: a733: Add Timer1",
+      "stack": "a733-soc-kern"
+    },
+    {
+      "file": "0043-a733-soc-kern--arm64-dts-allwinner-a733-add-the-watchdogs.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-soc-kern/arm64-dts-allwinner-a733-add-the-watchdogs.patch",
+      "description": "arm64: dts: allwinner: a733: Add the watchdogs",
+      "stack": "a733-soc-kern"
+    },
+    {
+      "file": "0044-a733-pinctrl-fixes--pinctrl-sunxi-a733-count-port-k-among-the-interrupt-banks.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl-fixes/pinctrl-sunxi-a733-count-port-k-among-the-interrupt-banks.patch",
+      "description": "pinctrl: sunxi: a733: Count port K among the interrupt banks",
+      "stack": "a733-pinctrl-fixes"
+    },
+    {
+      "file": "0045-a733-pinctrl-fixes--pinctrl-sunxi-a733-do-not-remux-an-interrupt-pin-to-read-it.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl-fixes/pinctrl-sunxi-a733-do-not-remux-an-interrupt-pin-to-read-it.patch",
+      "description": "pinctrl: sunxi: a733: Do not remux an interrupt pin to read it",
+      "stack": "a733-pinctrl-fixes"
+    },
+    {
+      "file": "0046-a733-board--arm64-dts-allwinner-a733-add-the-uart2-and-uart4-controllers.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-board/arm64-dts-allwinner-a733-add-the-uart2-and-uart4-controllers.patch",
+      "description": "arm64: dts: allwinner: a733: Add the UART2 and UART4 controllers",
+      "stack": "a733-board"
+    },
+    {
+      "file": "0047-a733-board--arm64-dts-allwinner-a733-cubie-a7s-add-the-leds.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-board/arm64-dts-allwinner-a733-cubie-a7s-add-the-leds.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Add the LEDs",
+      "stack": "a733-board"
+    },
+    {
+      "file": "0048-a733-mmc--arm64-dts-allwinner-a733-set-the-sd-pin-drive-strength-per-pin.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-mmc/arm64-dts-allwinner-a733-set-the-sd-pin-drive-strength-per-pin.patch",
+      "description": "arm64: dts: allwinner: a733: Set the SD pin drive strength per pin",
+      "stack": "a733-mmc"
+    },
+    {
+      "file": "0049-a733-mmc--arm64-dts-allwinner-a733-add-the-emmc-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-mmc/arm64-dts-allwinner-a733-add-the-emmc-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the eMMC controller",
+      "stack": "a733-mmc"
+    },
+    {
+      "file": "0050-a733-mmc--arm64-dts-allwinner-a733-cubie-a7s-enable-the-emmc.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-mmc/arm64-dts-allwinner-a733-cubie-a7s-enable-the-emmc.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Enable the eMMC",
+      "stack": "a733-mmc"
+    },
+    {
+      "file": "0051-a733-mmc--arm64-dts-allwinner-a733-cubie-a7s-add-the-sd-card-detect-gpio.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-mmc/arm64-dts-allwinner-a733-cubie-a7s-add-the-sd-card-detect-gpio.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Add the SD card detect GPIO",
+      "stack": "a733-mmc"
+    },
+    {
+      "file": "0052-a733-power-a7s--arm64-dts-allwinner-a733-add-the-prcm-i2c-controllers.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-power-a7s/arm64-dts-allwinner-a733-add-the-prcm-i2c-controllers.patch",
+      "description": "arm64: dts: allwinner: a733: Add the PRCM I2C controllers",
+      "stack": "a733-power-a7s"
+    },
+    {
+      "file": "0053-a733-power-a7s--arm64-dts-allwinner-a733-cubie-a7s-enable-the-prcm-i2c-buses.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-power-a7s/arm64-dts-allwinner-a733-cubie-a7s-enable-the-prcm-i2c-buses.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Enable the PRCM I2C buses",
+      "stack": "a733-power-a7s"
+    },
+    {
+      "file": "0054-a733-power-a7s--arm64-dts-allwinner-a733-cubie-a7s-add-the-axp318w-pmic.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-power-a7s/arm64-dts-allwinner-a733-cubie-a7s-add-the-axp318w-pmic.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Add the AXP318W PMIC",
+      "stack": "a733-power-a7s"
+    },
+    {
+      "file": "0055-sunxi-mmc-probe-fixes--mmc-sunxi-unwind-the-probe-error-paths.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-probe-fixes/mmc-sunxi-unwind-the-probe-error-paths.patch",
+      "description": "mmc: sunxi: Unwind the probe error paths",
+      "stack": "sunxi-mmc-probe-fixes"
+    },
+    {
+      "file": "0056-sunxi-mmc-probe-fixes--mmc-sunxi-fail-the-runtime-resume-if-the-controller-does-not-reset.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-probe-fixes/mmc-sunxi-fail-the-runtime-resume-if-the-controller-does-not-reset.patch",
+      "description": "mmc: sunxi: Fail the runtime resume if the controller does not reset",
+      "stack": "sunxi-mmc-probe-fixes"
+    },
+    {
+      "file": "0057-sunxi-mmc-a733--mmc-sunxi-set-the-dma-mask-from-the-descriptor-address-shift.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-a733/mmc-sunxi-set-the-dma-mask-from-the-descriptor-address-shift.patch",
+      "description": "mmc: sunxi: Set the DMA mask from the descriptor address shift",
+      "stack": "sunxi-mmc-a733"
+    },
+    {
+      "file": "0058-sunxi-mmc-a733--mmc-sunxi-send-no-stop-command-after-a-failed-single-block-transfer.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-a733/mmc-sunxi-send-no-stop-command-after-a-failed-single-block-transfer.patch",
+      "description": "mmc: sunxi: Send no stop command after a failed single-block transfer",
+      "stack": "sunxi-mmc-a733"
+    },
+    {
+      "file": "0059-sunxi-mmc-a733--mmc-sunxi-add-support-for-the-allwinner-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-a733/mmc-sunxi-add-support-for-the-allwinner-a733.patch",
+      "description": "mmc: sunxi: Add support for the Allwinner A733",
+      "stack": "sunxi-mmc-a733"
+    },
+    {
+      "file": "0060-sunxi-mmc-a733--mmc-sunxi-use-the-a733-controller-s-automatic-cmd23.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-a733/mmc-sunxi-use-the-a733-controller-s-automatic-cmd23.patch",
+      "description": "mmc: sunxi: Use the A733 controller's automatic CMD23",
+      "stack": "sunxi-mmc-a733"
+    },
+    {
+      "file": "0061-sunxi-mmc-a733--mmc-sunxi-program-the-a733-card-threshold.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-a733/mmc-sunxi-program-the-a733-card-threshold.patch",
+      "description": "mmc: sunxi: Program the A733 card threshold",
+      "stack": "sunxi-mmc-a733"
+    },
+    {
+      "file": "0062-sunxi-mmc-a733-hs400--mmc-sunxi-add-hs400-support-for-the-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-a733-hs400/mmc-sunxi-add-hs400-support-for-the-a733.patch",
+      "description": "mmc: sunxi: Add HS400 support for the A733",
+      "stack": "sunxi-mmc-a733-hs400"
+    },
+    {
+      "file": "0063-sunxi-mmc-a733-hs400--mmc-sunxi-tune-the-hs400-data-strobe-delay.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-a733-hs400/mmc-sunxi-tune-the-hs400-data-strobe-delay.patch",
+      "description": "mmc: sunxi: Tune the HS400 data strobe delay",
+      "stack": "sunxi-mmc-a733-hs400"
+    },
+    {
+      "file": "0064-sunxi-mmc-a733-hs400--mmc-sunxi-support-hs400-enhanced-strobe-on-the-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-a733-hs400/mmc-sunxi-support-hs400-enhanced-strobe-on-the-a733.patch",
+      "description": "mmc: sunxi: Support HS400 enhanced strobe on the A733",
+      "stack": "sunxi-mmc-a733-hs400"
+    },
+    {
+      "file": "0065-sunxi-mmc-a733-hs400--arm64-dts-allwinner-a733-cubie-a7s-enable-hs400-on-the-emmc.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-a733-hs400/arm64-dts-allwinner-a733-cubie-a7s-enable-hs400-on-the-emmc.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Enable HS400 on the eMMC",
+      "stack": "sunxi-mmc-a733-hs400"
+    },
+    {
+      "file": "0066-sunxi-mmc-idmac-errors--mmc-sunxi-fail-a-request-on-an-idmac-bus-error.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-idmac-errors/mmc-sunxi-fail-a-request-on-an-idmac-bus-error.patch",
+      "description": "mmc: sunxi: Fail a request on an IDMAC bus error",
+      "stack": "sunxi-mmc-idmac-errors"
+    },
+    {
+      "file": "0067-a733-sid--dt-bindings-nvmem-sid-add-binding-for-a733-sid-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-sid/dt-bindings-nvmem-sid-add-binding-for-a733-sid-controller.patch",
+      "description": "dt-bindings: nvmem: SID: Add binding for A733 SID controller",
+      "stack": "a733-sid"
+    },
+    {
+      "file": "0068-a733-sid--arm64-dts-allwinner-a733-add-the-sid.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-sid/arm64-dts-allwinner-a733-add-the-sid.patch",
+      "description": "arm64: dts: allwinner: a733: Add the SID",
+      "stack": "a733-sid"
+    },
+    {
+      "file": "0069-a733-ths--dt-bindings-thermal-sun8i-add-a733-ths-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ths/dt-bindings-thermal-sun8i-add-a733-ths-controller.patch",
+      "description": "dt-bindings: thermal: sun8i: Add A733 THS controller",
+      "stack": "a733-ths"
+    },
+    {
+      "file": "0070-a733-ths--thermal-drivers-sun8i-add-support-for-the-a733-ths.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ths/thermal-drivers-sun8i-add-support-for-the-a733-ths.patch",
+      "description": "thermal/drivers/sun8i: Add support for the A733 THS",
+      "stack": "a733-ths"
+    },
+    {
+      "file": "0071-a733-ths--arm64-dts-allwinner-a733-add-the-thermal-sensor-and-zones.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ths/arm64-dts-allwinner-a733-add-the-thermal-sensor-and-zones.patch",
+      "description": "arm64: dts: allwinner: a733: Add the thermal sensor and zones",
+      "stack": "a733-ths"
+    },
+    {
+      "file": "0072-arm64-clear-user--arm64-lib-clear_user-branch-to-the-loop-body-not-to-its-padding.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/arm64-clear-user/arm64-lib-clear_user-branch-to-the-loop-body-not-to-its-padding.patch",
+      "description": "arm64: lib: clear_user: Branch to the loop body, not to its padding",
+      "stack": "arm64-clear-user"
+    },
+    {
+      "file": "0073-a733-pck600-fix--pmdomain-sunxi-sun55i-pck600-set-the-controller-of-each-domain.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pck600-fix/pmdomain-sunxi-sun55i-pck600-set-the-controller-of-each-domain.patch",
+      "description": "pmdomain: sunxi: sun55i-pck600: Set the controller of each domain",
+      "stack": "a733-pck600-fix"
+    },
+    {
+      "file": "0074-a733-pck600-fix--pmdomain-sunxi-sun55i-pck600-read-the-domain-state-at-probe.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pck600-fix/pmdomain-sunxi-sun55i-pck600-read-the-domain-state-at-probe.patch",
+      "description": "pmdomain: sunxi: sun55i-pck600: Read the domain state at probe",
+      "stack": "a733-pck600-fix"
+    },
+    {
+      "file": "0075-a733-pck600--arm64-dts-allwinner-a733-add-the-pck-600-power-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pck600/arm64-dts-allwinner-a733-add-the-pck-600-power-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the PCK-600 power controller",
+      "stack": "a733-pck600"
+    },
+    {
+      "file": "0076-cpuidle-psci-no-suspend--cpuidle-psci-mark-the-idle-states-unusable-without-cpu-suspend.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/cpuidle-psci-no-suspend/cpuidle-psci-mark-the-idle-states-unusable-without-cpu-suspend.patch",
+      "description": "cpuidle: psci: Mark the idle states unusable without CPU_SUSPEND",
+      "stack": "cpuidle-psci-no-suspend"
+    },
+    {
+      "file": "0077-a733-cpu-idle--arm64-dts-allwinner-a733-add-the-cpu-core-idle-states.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpu-idle/arm64-dts-allwinner-a733-add-the-cpu-core-idle-states.patch",
+      "description": "arm64: dts: allwinner: a733: Add the CPU core idle states",
+      "stack": "a733-cpu-idle"
+    },
+    {
+      "file": "0078-sunxi-mmc-error-recovery--mmc-sunxi-initialise-the-auto-cmd12-argument-on-the-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-error-recovery/mmc-sunxi-initialise-the-auto-cmd12-argument-on-the-a733.patch",
+      "description": "mmc: sunxi: Initialise the auto-CMD12 argument on the A733",
+      "stack": "sunxi-mmc-error-recovery"
+    },
+    {
+      "file": "0079-sunxi-mmc-error-recovery--mmc-sunxi-reset-the-controller-when-the-stop-command-fails.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-error-recovery/mmc-sunxi-reset-the-controller-when-the-stop-command-fails.patch",
+      "description": "mmc: sunxi: Reset the controller when the stop command fails",
+      "stack": "sunxi-mmc-error-recovery"
+    },
+    {
+      "file": "0080-sunxi-mmc-error-recovery--mmc-sunxi-time-out-a-data-request-that-never-completes.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-error-recovery/mmc-sunxi-time-out-a-data-request-that-never-completes.patch",
+      "description": "mmc: sunxi: Time out a data request that never completes",
+      "stack": "sunxi-mmc-error-recovery"
+    },
+    {
+      "file": "0081-a733-pmu--arm64-dts-allwinner-a733-use-four-interrupt-cells-for-the-gic.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pmu/arm64-dts-allwinner-a733-use-four-interrupt-cells-for-the-gic.patch",
+      "description": "arm64: dts: allwinner: a733: Use four interrupt cells for the GIC",
+      "stack": "a733-pmu"
+    },
+    {
+      "file": "0082-a733-pmu--arm64-dts-allwinner-a733-add-the-cpu-pmus.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pmu/arm64-dts-allwinner-a733-add-the-cpu-pmus.patch",
+      "description": "arm64: dts: allwinner: a733: Add the CPU PMUs",
+      "stack": "a733-pmu"
+    },
+    {
+      "file": "0083-a733-pmu--arm64-dts-allwinner-a733-add-the-dsu-pmu.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pmu/arm64-dts-allwinner-a733-add-the-dsu-pmu.patch",
+      "description": "arm64: dts: allwinner: a733: Add the DSU PMU",
+      "stack": "a733-pmu"
+    },
+    {
+      "file": "0084-sunxi-mmc-busy-hsq--mmc-sunxi-wait-for-the-cards-busy-in-the-host-on-the-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-busy-hsq/mmc-sunxi-wait-for-the-cards-busy-in-the-host-on-the-a733.patch",
+      "description": "mmc: sunxi: Wait for the card's busy in the host on the A733",
+      "stack": "sunxi-mmc-busy-hsq"
+    },
+    {
+      "file": "0085-sunxi-mmc-busy-hsq--mmc-sunxi-let-the-controller-time-the-r1b-busy-on-the-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-busy-hsq/mmc-sunxi-let-the-controller-time-the-r1b-busy-on-the-a733.patch",
+      "description": "mmc: sunxi: Let the controller time the R1b busy on the A733",
+      "stack": "sunxi-mmc-busy-hsq"
+    },
+    {
+      "file": "0086-sunxi-mmc-busy-hsq--mmc-sunxi-use-the-host-software-queue-on-the-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-busy-hsq/mmc-sunxi-use-the-host-software-queue-on-the-a733.patch",
+      "description": "mmc: sunxi: Use the host software queue on the A733",
+      "stack": "sunxi-mmc-busy-hsq"
+    },
+    {
+      "file": "0087-a733-ccu-msi-lite0--clk-sunxi-ng-a733-keep-the-msi-lite0-bus-matrix-gates-running.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-msi-lite0/clk-sunxi-ng-a733-keep-the-msi-lite0-bus-matrix-gates-running.patch",
+      "description": "clk: sunxi-ng: a733: Keep the MSI_LITE0 bus matrix gates running",
+      "stack": "a733-ccu-msi-lite0"
+    },
+    {
+      "file": "0088-a733-gmac210--dt-bindings-net-sun8i-emac-add-a733-gmac210-compatible.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gmac210/dt-bindings-net-sun8i-emac-add-a733-gmac210-compatible.patch",
+      "description": "dt-bindings: net: sun8i-emac: Add A733 GMAC210 compatible",
+      "stack": "a733-gmac210"
+    },
+    {
+      "file": "0089-a733-gmac210--net-stmmac-sun55i-add-per-compatible-match-data.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gmac210/net-stmmac-sun55i-add-per-compatible-match-data.patch",
+      "description": "net: stmmac: sun55i: Add per-compatible match data",
+      "stack": "a733-gmac210"
+    },
+    {
+      "file": "0090-a733-gmac210--net-stmmac-sun55i-make-the-delay-step-configurable.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gmac210/net-stmmac-sun55i-make-the-delay-step-configurable.patch",
+      "description": "net: stmmac: sun55i: Make the delay step configurable",
+      "stack": "a733-gmac210"
+    },
+    {
+      "file": "0091-a733-gmac210--net-stmmac-sun55i-support-tx-delay-extension-bits.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gmac210/net-stmmac-sun55i-support-tx-delay-extension-bits.patch",
+      "description": "net: stmmac: sun55i: Support TX delay extension bits",
+      "stack": "a733-gmac210"
+    },
+    {
+      "file": "0092-a733-gmac210--net-stmmac-sun55i-add-support-for-allwinner-a733-gmac210.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gmac210/net-stmmac-sun55i-add-support-for-allwinner-a733-gmac210.patch",
+      "description": "net: stmmac: sun55i: Add support for Allwinner A733 GMAC210",
+      "stack": "a733-gmac210"
+    },
+    {
+      "file": "0093-a733-gmac-a7s--arm64-dts-allwinner-a733-add-the-gmac0-ethernet-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gmac-a7s/arm64-dts-allwinner-a733-add-the-gmac0-ethernet-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the GMAC0 Ethernet controller",
+      "stack": "a733-gmac-a7s"
+    },
+    {
+      "file": "0094-a733-gmac-a7s--arm64-dts-allwinner-a733-cubie-a7s-enable-ethernet.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gmac-a7s/arm64-dts-allwinner-a733-cubie-a7s-enable-ethernet.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Enable Ethernet",
+      "stack": "a733-gmac-a7s"
+    },
+    {
+      "file": "0095-a733-dma--dmaengine-sun6i-dma-refactor-to-support-a733-interrupt-and-register-handling.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dma/dmaengine-sun6i-dma-refactor-to-support-a733-interrupt-and-register-handling.patch",
+      "description": "dmaengine: sun6i-dma: Refactor to support A733 interrupt and register handling",
+      "stack": "a733-dma"
+    },
+    {
+      "file": "0096-a733-dma--dmaengine-sun6i-dma-support-variable-address-widths-using-masks.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dma/dmaengine-sun6i-dma-support-variable-address-widths-using-masks.patch",
+      "description": "dmaengine: sun6i-dma: Support variable address widths using masks",
+      "stack": "a733-dma"
+    },
+    {
+      "file": "0097-a733-dma--dmaengine-sun6i-dma-add-num_channels_per_reg-for-flexible-interrupt-mapping.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dma/dmaengine-sun6i-dma-add-num_channels_per_reg-for-flexible-interrupt-mapping.patch",
+      "description": "dmaengine: sun6i-dma: Add num_channels_per_reg for flexible interrupt mapping",
+      "stack": "a733-dma"
+    },
+    {
+      "file": "0098-a733-dma--dt-bindings-dmaengine-sun50i-a64-dma-add-allwinner-sun60i-a733-dma-compatible-string.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dma/dt-bindings-dmaengine-sun50i-a64-dma-add-allwinner-sun60i-a733-dma-compatible-string.patch",
+      "description": "dt-bindings: dmaengine: sun50i-a64-dma: Add allwinner,sun60i-a733-dma compatible string",
+      "stack": "a733-dma"
+    },
+    {
+      "file": "0099-a733-dma--dmaengine-sun6i-dma-implement-support-for-allwinner-a733-dma-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dma/dmaengine-sun6i-dma-implement-support-for-allwinner-a733-dma-controller.patch",
+      "description": "dmaengine: sun6i-dma: Implement support for Allwinner A733 DMA controller",
+      "stack": "a733-dma"
+    },
+    {
+      "file": "0100-a733-dma-a7s--dmaengine-sun6i-dma-complete-the-channel-that-raised-the-interrupt.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dma-a7s/dmaengine-sun6i-dma-complete-the-channel-that-raised-the-interrupt.patch",
+      "description": "dmaengine: sun6i-dma: Complete the channel that raised the interrupt",
+      "stack": "a733-dma-a7s"
+    },
+    {
+      "file": "0101-a733-dma-a7s--dmaengine-sun6i-dma-use-bit-0-to-pause-an-a733-channel.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dma-a7s/dmaengine-sun6i-dma-use-bit-0-to-pause-an-a733-channel.patch",
+      "description": "dmaengine: sun6i-dma: Use bit 0 to pause an A733 channel",
+      "stack": "a733-dma-a7s"
+    },
+    {
+      "file": "0102-a733-dma-a7s--arm64-dts-allwinner-a733-add-the-dma-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dma-a7s/arm64-dts-allwinner-a733-add-the-dma-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the DMA controller",
+      "stack": "a733-dma-a7s"
+    },
+    {
+      "file": "0103-a733-a7s-pmic-rails--arm64-dts-allwinner-a733-cubie-a7s-supply-the-emmc-from-the-pmic.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-a7s-pmic-rails/arm64-dts-allwinner-a733-cubie-a7s-supply-the-emmc-from-the-pmic.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Supply the eMMC from the PMIC",
+      "stack": "a733-a7s-pmic-rails"
+    },
+    {
+      "file": "0104-a733-a7s-pmic-rails--arm64-dts-allwinner-a733-cubie-a7s-supply-the-sd-card-from-the-pmic.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-a7s-pmic-rails/arm64-dts-allwinner-a733-cubie-a7s-supply-the-sd-card-from-the-pmic.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Supply the SD card from the PMIC",
+      "stack": "a733-a7s-pmic-rails"
+    },
+    {
+      "file": "0105-a733-iommu--dt-bindings-iommu-add-allwinner-a733-iommu.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-iommu/dt-bindings-iommu-add-allwinner-a733-iommu.patch",
+      "description": "dt-bindings: iommu: Add Allwinner A733 IOMMU",
+      "stack": "a733-iommu"
+    },
+    {
+      "file": "0106-a733-iommu--iommu-add-allwinner-a733-iommu-driver.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-iommu/iommu-add-allwinner-a733-iommu-driver.patch",
+      "description": "iommu: Add Allwinner A733 IOMMU driver",
+      "stack": "a733-iommu"
+    },
+    {
+      "file": "0107-a733-iommu--arm64-dts-allwinner-a733-add-the-iommus.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-iommu/arm64-dts-allwinner-a733-add-the-iommus.patch",
+      "description": "arm64: dts: allwinner: a733: Add the IOMMUs",
+      "stack": "a733-iommu"
+    },
+    {
+      "file": "0108-a733-iommu--arm64-defconfig-enable-the-allwinner-a733-iommu.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-iommu/arm64-defconfig-enable-the-allwinner-a733-iommu.patch",
+      "description": "arm64: defconfig: Enable the Allwinner A733 IOMMU",
+      "stack": "a733-iommu"
+    },
+    {
+      "file": "0109-a733-ccu-usb-ref--clk-sunxi-ng-a733-add-the-gates-of-the-usb-phy-reference-clocks.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-usb-ref/clk-sunxi-ng-a733-add-the-gates-of-the-usb-phy-reference-clocks.patch",
+      "description": "clk: sunxi-ng: a733: Add the gates of the USB PHY reference clocks",
+      "stack": "a733-ccu-usb-ref"
+    },
+    {
+      "file": "0110-a733-ccu-msi-lite2--clk-sunxi-ng-a733-keep-the-msi-lite2-bus-matrix-gate-running.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-msi-lite2/clk-sunxi-ng-a733-keep-the-msi-lite2-bus-matrix-gate-running.patch",
+      "description": "clk: sunxi-ng: a733: Keep the MSI_LITE2 bus matrix gate running",
+      "stack": "a733-ccu-msi-lite2"
+    },
+    {
+      "file": "0111-a733-usb2--dt-bindings-phy-sun50i-a64-usb-phy-add-the-a733-usb-phy.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb2/dt-bindings-phy-sun50i-a64-usb-phy-add-the-a733-usb-phy.patch",
+      "description": "dt-bindings: phy: sun50i-a64-usb-phy: Add the A733 USB PHY",
+      "stack": "a733-usb2"
+    },
+    {
+      "file": "0112-a733-usb2--dt-bindings-usb-add-the-allwinner-a733-ehci-and-ohci-controllers.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb2/dt-bindings-usb-add-the-allwinner-a733-ehci-and-ohci-controllers.patch",
+      "description": "dt-bindings: usb: Add the Allwinner A733 EHCI and OHCI controllers",
+      "stack": "a733-usb2"
+    },
+    {
+      "file": "0113-a733-usb2--arm64-dts-allwinner-a733-add-the-usb-2-0-host-controllers.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb2/arm64-dts-allwinner-a733-add-the-usb-2-0-host-controllers.patch",
+      "description": "arm64: dts: allwinner: a733: Add the USB 2.0 host controllers",
+      "stack": "a733-usb2"
+    },
+    {
+      "file": "0114-a733-usb2--arm64-dts-allwinner-a733-cubie-a7s-enable-the-usb-a-port.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb2/arm64-dts-allwinner-a733-cubie-a7s-enable-the-usb-a-port.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Enable the USB-A port",
+      "stack": "a733-usb2"
+    },
+    {
+      "file": "0115-a733-serdes-ccu--dt-bindings-clock-sun60i-a733-ccu-add-the-serdes-ccu.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-serdes-ccu/dt-bindings-clock-sun60i-a733-ccu-add-the-serdes-ccu.patch",
+      "description": "dt-bindings: clock: sun60i-a733-ccu: Add the SERDES CCU",
+      "stack": "a733-serdes-ccu"
+    },
+    {
+      "file": "0116-a733-serdes-ccu--clk-sunxi-ng-add-the-a733-serdes-ccu.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-serdes-ccu/clk-sunxi-ng-add-the-a733-serdes-ccu.patch",
+      "description": "clk: sunxi-ng: Add the A733 SERDES CCU",
+      "stack": "a733-serdes-ccu"
+    },
+    {
+      "file": "0117-a733-serdes-ccu--arm64-dts-allwinner-a733-add-the-serdes-ccu.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-serdes-ccu/arm64-dts-allwinner-a733-add-the-serdes-ccu.patch",
+      "description": "arm64: dts: allwinner: a733: Add the SERDES CCU",
+      "stack": "a733-serdes-ccu"
+    },
+    {
+      "file": "0118-sunxi-sram-a733--dt-bindings-sram-allwinner-sun4i-a10-system-control-add-the-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-sram-a733/dt-bindings-sram-allwinner-sun4i-a10-system-control-add-the-a733.patch",
+      "description": "dt-bindings: sram: allwinner,sun4i-a10-system-control: Add the A733",
+      "stack": "sunxi-sram-a733"
+    },
+    {
+      "file": "0119-sunxi-sram-a733--soc-sunxi-sram-add-the-a733-system-control.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-sram-a733/soc-sunxi-sram-add-the-a733-system-control.patch",
+      "description": "soc: sunxi: sram: Add the A733 system control",
+      "stack": "sunxi-sram-a733"
+    },
+    {
+      "file": "0120-sunxi-sram-a733--arm64-dts-allwinner-a733-add-the-system-control-block.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-sram-a733/arm64-dts-allwinner-a733-add-the-system-control-block.patch",
+      "description": "arm64: dts: allwinner: a733: Add the system control block",
+      "stack": "sunxi-sram-a733"
+    },
+    {
+      "file": "0121-a733-usb3-u2phy--dt-bindings-phy-add-the-allwinner-a733-usb2-phy-of-the-usb3-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-u2phy/dt-bindings-phy-add-the-allwinner-a733-usb2-phy-of-the-usb3-controller.patch",
+      "description": "dt-bindings: phy: Add the Allwinner A733 USB2 PHY of the USB3 controller",
+      "stack": "a733-usb3-u2phy"
+    },
+    {
+      "file": "0122-a733-usb3-u2phy--phy-allwinner-add-a-driver-for-the-a733-usb2-phy-of-the-usb3-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-u2phy/phy-allwinner-add-a-driver-for-the-a733-usb2-phy-of-the-usb3-controller.patch",
+      "description": "phy: allwinner: Add a driver for the A733 USB2 PHY of the USB3 controller",
+      "stack": "a733-usb3-u2phy"
+    },
+    {
+      "file": "0123-a733-usb3-u2phy--arm64-dts-allwinner-a733-add-the-usb2-phy-of-the-usb3-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-u2phy/arm64-dts-allwinner-a733-add-the-usb2-phy-of-the-usb3-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the USB2 PHY of the USB3 controller",
+      "stack": "a733-usb3-u2phy"
+    },
+    {
+      "file": "0124-a733-usb3-u2phy--arm64-defconfig-enable-the-allwinner-a733-usb2-phy-of-the-usb3-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-u2phy/arm64-defconfig-enable-the-allwinner-a733-usb2-phy-of-the-usb3-controller.patch",
+      "description": "arm64: defconfig: Enable the Allwinner A733 USB2 PHY of the USB3 controller",
+      "stack": "a733-usb3-u2phy"
+    },
+    {
+      "file": "0125-a733-usb3-combophy--dt-bindings-mfd-syscon-add-the-allwinner-a733-serdes-top-registers.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-combophy/dt-bindings-mfd-syscon-add-the-allwinner-a733-serdes-top-registers.patch",
+      "description": "dt-bindings: mfd: syscon: Add the Allwinner A733 SERDES top registers",
+      "stack": "a733-usb3-combophy"
+    },
+    {
+      "file": "0126-a733-usb3-combophy--dt-bindings-phy-add-the-allwinner-a733-usb3-combo-phy.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-combophy/dt-bindings-phy-add-the-allwinner-a733-usb3-combo-phy.patch",
+      "description": "dt-bindings: phy: Add the Allwinner A733 USB3 combo PHY",
+      "stack": "a733-usb3-combophy"
+    },
+    {
+      "file": "0127-a733-usb3-combophy--phy-allwinner-add-a-driver-for-the-a733-usb3-combo-phy.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-combophy/phy-allwinner-add-a-driver-for-the-a733-usb3-combo-phy.patch",
+      "description": "phy: allwinner: Add a driver for the A733 USB3 combo PHY",
+      "stack": "a733-usb3-combophy"
+    },
+    {
+      "file": "0128-a733-usb3-combophy--arm64-dts-allwinner-a733-add-the-usb3-combo-phy.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-combophy/arm64-dts-allwinner-a733-add-the-usb3-combo-phy.patch",
+      "description": "arm64: dts: allwinner: a733: Add the USB3 combo PHY",
+      "stack": "a733-usb3-combophy"
+    },
+    {
+      "file": "0129-a733-usb3-combophy--arm64-defconfig-enable-the-allwinner-a733-usb3-combo-phy.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-combophy/arm64-defconfig-enable-the-allwinner-a733-usb3-combo-phy.patch",
+      "description": "arm64: defconfig: Enable the Allwinner A733 USB3 combo PHY",
+      "stack": "a733-usb3-combophy"
+    },
+    {
+      "file": "0130-a733-dwc3--dt-bindings-usb-add-the-allwinner-a733-dwc3-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dwc3/dt-bindings-usb-add-the-allwinner-a733-dwc3-controller.patch",
+      "description": "dt-bindings: usb: Add the Allwinner A733 DWC3 controller",
+      "stack": "a733-dwc3"
+    },
+    {
+      "file": "0131-a733-dwc3--usb-dwc3-generic-plat-add-the-allwinner-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dwc3/usb-dwc3-generic-plat-add-the-allwinner-a733.patch",
+      "description": "usb: dwc3: generic-plat: Add the Allwinner A733",
+      "stack": "a733-dwc3"
+    },
+    {
+      "file": "0132-a733-dwc3--arm64-dts-allwinner-a733-add-the-usb3-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dwc3/arm64-dts-allwinner-a733-add-the-usb3-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the USB3 controller",
+      "stack": "a733-dwc3"
+    },
+    {
+      "file": "0133-a733-a7s-usbc--arm64-dts-allwinner-a733-cubie-a7s-enable-the-usb-c-port.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-a7s-usbc/arm64-dts-allwinner-a733-cubie-a7s-enable-the-usb-c-port.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Enable the USB-C port",
+      "stack": "a733-a7s-usbc"
+    },
+    {
+      "file": "0134-sunxi-pinctrl-power-source--dt-bindings-pinctrl-sun55i-a523-allow-power-source-in-pin-groups.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-pinctrl-power-source/dt-bindings-pinctrl-sun55i-a523-allow-power-source-in-pin-groups.patch",
+      "description": "dt-bindings: pinctrl: sun55i-a523: Allow power-source in pin groups",
+      "stack": "sunxi-pinctrl-power-source"
+    },
+    {
+      "file": "0135-sunxi-pinctrl-power-source--pinctrl-sunxi-parse-the-power-source-property.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-pinctrl-power-source/pinctrl-sunxi-parse-the-power-source-property.patch",
+      "description": "pinctrl: sunxi: Parse the power-source property",
+      "stack": "sunxi-pinctrl-power-source"
+    },
+    {
+      "file": "0136-sunxi-pinctrl-power-source--pinctrl-sunxi-a733-switch-the-i-o-voltage-of-bank-pf.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-pinctrl-power-source/pinctrl-sunxi-a733-switch-the-i-o-voltage-of-bank-pf.patch",
+      "description": "pinctrl: sunxi: a733: Switch the I/O voltage of bank PF",
+      "stack": "sunxi-pinctrl-power-source"
+    },
+    {
+      "file": "0137-sunxi-mmc-pad-voltage--mmc-sunxi-switch-the-pad-i-o-voltage-through-pinctrl-states.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-pad-voltage/mmc-sunxi-switch-the-pad-i-o-voltage-through-pinctrl-states.patch",
+      "description": "mmc: sunxi: Switch the pad I/O voltage through pinctrl states",
+      "stack": "sunxi-mmc-pad-voltage"
+    },
+    {
+      "file": "0138-a733-a7s-sd-uhs--arm64-dts-allwinner-a733-add-the-sd-card-pins-at-1.8-v-and-3.3-v.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-a7s-sd-uhs/arm64-dts-allwinner-a733-add-the-sd-card-pins-at-1.8-v-and-3.3-v.patch",
+      "description": "arm64: dts: allwinner: a733: Add the SD card pins at 1.8 V and 3.3 V",
+      "stack": "a733-a7s-sd-uhs"
+    },
+    {
+      "file": "0139-a733-a7s-sd-uhs--arm64-dts-allwinner-a733-cubie-a7s-enable-uhs-on-the-sd-card.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-a7s-sd-uhs/arm64-dts-allwinner-a733-cubie-a7s-enable-uhs-on-the-sd-card.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Enable UHS on the SD card",
+      "stack": "a733-a7s-sd-uhs"
+    },
+    {
+      "file": "0140-a733-pinctrl-withstand--pinctrl-sunxi-a733-leave-the-i-o-withstand-voltage-to-the-hardware.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl-withstand/pinctrl-sunxi-a733-leave-the-i-o-withstand-voltage-to-the-hardware.patch",
+      "description": "pinctrl: sunxi: a733: Leave the I/O withstand voltage to the hardware",
+      "stack": "a733-pinctrl-withstand"
+    },
+    {
+      "file": "0141-a733-pinctrl-withstand--pinctrl-sunxi-a733-r-leave-the-i-o-withstand-voltage-to-the-hardware.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl-withstand/pinctrl-sunxi-a733-r-leave-the-i-o-withstand-voltage-to-the-hardware.patch",
+      "description": "pinctrl: sunxi: a733-r: Leave the I/O withstand voltage to the hardware",
+      "stack": "a733-pinctrl-withstand"
+    },
+    {
+      "file": "0142-a733-pinctrl-pf-withstand--pinctrl-sunxi-a733-set-the-withstand-mode-of-bank-pf-with-its-supply.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl-pf-withstand/pinctrl-sunxi-a733-set-the-withstand-mode-of-bank-pf-with-its-supply.patch",
+      "description": "pinctrl: sunxi: a733: Set the withstand mode of bank PF with its supply",
+      "stack": "a733-pinctrl-pf-withstand"
+    },
+    {
+      "file": "0143-a733-a7s-bank-supplies--arm64-dts-allwinner-a733-cubie-a7s-add-the-pin-bank-supplies.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-a7s-bank-supplies/arm64-dts-allwinner-a733-cubie-a7s-add-the-pin-bank-supplies.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Add the pin bank supplies",
+      "stack": "a733-a7s-bank-supplies"
+    },
+    {
+      "file": "0144-a733-usb3-gen2--dt-bindings-usb-snps-dwc3-common-add-snps-inv-sync-hdr-quirk.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-gen2/dt-bindings-usb-snps-dwc3-common-add-snps-inv-sync-hdr-quirk.patch",
+      "description": "dt-bindings: usb: snps,dwc3-common: Add snps,inv-sync-hdr-quirk",
+      "stack": "a733-usb3-gen2"
+    },
+    {
+      "file": "0145-a733-usb3-gen2--usb-dwc3-add-snps-inv-sync-hdr-quirk.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-gen2/usb-dwc3-add-snps-inv-sync-hdr-quirk.patch",
+      "description": "usb: dwc3: Add snps,inv-sync-hdr-quirk",
+      "stack": "a733-usb3-gen2"
+    },
+    {
+      "file": "0146-a733-usb3-gen2--dt-bindings-usb-snps-dwc3-common-add-snps-lcsr-tx-deemph.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-gen2/dt-bindings-usb-snps-dwc3-common-add-snps-lcsr-tx-deemph.patch",
+      "description": "dt-bindings: usb: snps,dwc3-common: Add snps,lcsr-tx-deemph",
+      "stack": "a733-usb3-gen2"
+    },
+    {
+      "file": "0147-a733-usb3-gen2--usb-dwc3-program-lcsr-tx-deemph-from-snps-lcsr-tx-deemph.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-gen2/usb-dwc3-program-lcsr-tx-deemph-from-snps-lcsr-tx-deemph.patch",
+      "description": "usb: dwc3: Program LCSR_TX_DEEMPH from snps,lcsr-tx-deemph",
+      "stack": "a733-usb3-gen2"
+    },
+    {
+      "file": "0148-a733-usb3-gen2--arm64-dts-allwinner-a733-cubie-a7s-set-up-gen2-on-the-usb-c-port.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb3-gen2/arm64-dts-allwinner-a733-cubie-a7s-set-up-gen2-on-the-usb-c-port.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Set up Gen2 on the USB-C port",
+      "stack": "a733-usb3-gen2"
+    },
+    {
+      "file": "0149-a733-cpu-supply-a7s--arm64-dts-allwinner-a733-cubie-a7s-add-the-cpu-cluster-supplies.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpu-supply-a7s/arm64-dts-allwinner-a733-cubie-a7s-add-the-cpu-cluster-supplies.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Add the CPU cluster supplies",
+      "stack": "a733-cpu-supply-a7s"
+    },
+    {
+      "file": "0150-a733-ccu-audio--clk-sunxi-ng-a733-use-the-manual-s-pll_audio0-point-for-22.5792-mhz.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-audio/clk-sunxi-ng-a733-use-the-manual-s-pll_audio0-point-for-22.5792-mhz.patch",
+      "description": "clk: sunxi-ng: a733: Use the manual's PLL_AUDIO0 point for 22.5792 MHz",
+      "stack": "a733-ccu-audio"
+    },
+    {
+      "file": "0151-a733-ccu-audio--clk-sunxi-ng-a733-limit-the-owa-rx-clock-to-its-documented-parent.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-audio/clk-sunxi-ng-a733-limit-the-owa-rx-clock-to-its-documented-parent.patch",
+      "description": "clk: sunxi-ng: a733: Limit the OWA RX clock to its documented parent",
+      "stack": "a733-ccu-audio"
+    },
+    {
+      "file": "0152-a733-ccu-audio--clk-sunxi-ng-a733-keep-pll_audio1-at-its-reset-rate.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-audio/clk-sunxi-ng-a733-keep-pll_audio1-at-its-reset-rate.patch",
+      "description": "clk: sunxi-ng: a733: Keep PLL_AUDIO1 at its reset rate",
+      "stack": "a733-ccu-audio"
+    },
+    {
+      "file": "0153-a733-ccu-audio--clk-sunxi-ng-a733-let-the-audio-module-clocks-set-pll_audio0.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-audio/clk-sunxi-ng-a733-let-the-audio-module-clocks-set-pll_audio0.patch",
+      "description": "clk: sunxi-ng: a733: Let the audio module clocks set PLL_AUDIO0",
+      "stack": "a733-ccu-audio"
+    },
+    {
+      "file": "0154-a733-ccu-audio--clk-sunxi-ng-a733-keep-the-audio-pll-n-factor-within-the-manual-s-range.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-audio/clk-sunxi-ng-a733-keep-the-audio-pll-n-factor-within-the-manual-s-range.patch",
+      "description": "clk: sunxi-ng: a733: Keep the audio PLL N factor within the manual's range",
+      "stack": "a733-ccu-audio"
+    },
+    {
+      "file": "0155-a733-audio--asoc-dt-bindings-sun4i-i2s-add-the-allwinner-a733.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-audio/asoc-dt-bindings-sun4i-i2s-add-the-allwinner-a733.patch",
+      "description": "ASoC: dt-bindings: sun4i-i2s: Add the Allwinner A733",
+      "stack": "a733-audio"
+    },
+    {
+      "file": "0156-a733-audio--asoc-dt-bindings-sun4i-spdif-add-the-allwinner-a733.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-audio/asoc-dt-bindings-sun4i-spdif-add-the-allwinner-a733.patch",
+      "description": "ASoC: dt-bindings: sun4i-spdif: Add the Allwinner A733",
+      "stack": "a733-audio"
+    },
+    {
+      "file": "0157-a733-audio--asoc-dt-bindings-sun50i-dmic-add-the-allwinner-a733.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-audio/asoc-dt-bindings-sun50i-dmic-add-the-allwinner-a733.patch",
+      "description": "ASoC: dt-bindings: sun50i-dmic: Add the Allwinner A733",
+      "stack": "a733-audio"
+    },
+    {
+      "file": "0158-a733-audio--arm64-dts-allwinner-a733-add-the-audio-controllers.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-audio/arm64-dts-allwinner-a733-add-the-audio-controllers.patch",
+      "description": "arm64: dts: allwinner: a733: Add the audio controllers",
+      "stack": "a733-audio"
+    },
+    {
+      "file": "0159-a733-audio--arm64-defconfig-enable-the-allwinner-dmic-driver.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-audio/arm64-defconfig-enable-the-allwinner-dmic-driver.patch",
+      "description": "arm64: defconfig: Enable the Allwinner DMIC driver",
+      "stack": "a733-audio"
+    },
+    {
+      "file": "0160-a733-ccu-gpu--clk-sunxi-ng-a733-keep-the-pll_gpu0-vco-within-its-range.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-gpu/clk-sunxi-ng-a733-keep-the-pll_gpu0-vco-within-its-range.patch",
+      "description": "clk: sunxi-ng: a733: Keep the PLL_GPU0 VCO within its range",
+      "stack": "a733-ccu-gpu"
+    },
+    {
+      "file": "0161-a733-ccu-gpu--clk-sunxi-ng-a733-keep-the-bus-matrix-master-gates-enabled.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-gpu/clk-sunxi-ng-a733-keep-the-bus-matrix-master-gates-enabled.patch",
+      "description": "clk: sunxi-ng: a733: Keep the bus-matrix master gates enabled",
+      "stack": "a733-ccu-gpu"
+    },
+    {
+      "file": "0162-pvr-recovery--drm-imagination-unplug-a-lost-device-from-a-worker.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/pvr-recovery/drm-imagination-unplug-a-lost-device-from-a-worker.patch",
+      "description": "drm/imagination: Unplug a lost device from a worker",
+      "stack": "pvr-recovery"
+    },
+    {
+      "file": "0163-pvr-recovery--drm-imagination-force-the-firmware-stop-on-a-hard-reset.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/pvr-recovery/drm-imagination-force-the-firmware-stop-on-a-hard-reset.patch",
+      "description": "drm/imagination: Force the firmware stop on a hard reset",
+      "stack": "pvr-recovery"
+    },
+    {
+      "file": "0164-pvr-recovery--drm-imagination-ask-for-idle-again-when-nobody-holds-the-gpu.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/pvr-recovery/drm-imagination-ask-for-idle-again-when-nobody-holds-the-gpu.patch",
+      "description": "drm/imagination: Ask for idle again when nobody holds the GPU",
+      "stack": "pvr-recovery"
+    },
+    {
+      "file": "0165-pvr-recovery--drm-imagination-check-the-job-s-done-fence-on-a-timeout.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/pvr-recovery/drm-imagination-check-the-job-s-done-fence-on-a-timeout.patch",
+      "description": "drm/imagination: Check the job's done fence on a timeout",
+      "stack": "pvr-recovery"
+    },
+    {
+      "file": "0166-a733-gpu--dt-bindings-gpu-img-powervr-rogue-add-the-allwinner-a733-gpu.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gpu/dt-bindings-gpu-img-powervr-rogue-add-the-allwinner-a733-gpu.patch",
+      "description": "dt-bindings: gpu: img,powervr-rogue: Add the Allwinner A733 GPU",
+      "stack": "a733-gpu"
+    },
+    {
+      "file": "0167-a733-gpu--drm-imagination-add-the-bxm-4-64-mc1-of-the-allwinner-a733.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gpu/drm-imagination-add-the-bxm-4-64-mc1-of-the-allwinner-a733.patch",
+      "description": "drm/imagination: Add the BXM-4-64 MC1 of the Allwinner A733",
+      "stack": "a733-gpu"
+    },
+    {
+      "file": "0168-a733-gpu--arm64-dts-allwinner-a733-add-the-gpu.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gpu/arm64-dts-allwinner-a733-add-the-gpu.patch",
+      "description": "arm64: dts: allwinner: a733: Add the GPU",
+      "stack": "a733-gpu"
+    },
+    {
+      "file": "0169-a733-gpu--arm64-dts-allwinner-a733-cubie-a7s-enable-the-gpu.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gpu/arm64-dts-allwinner-a733-cubie-a7s-enable-the-gpu.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Enable the GPU",
+      "stack": "a733-gpu"
+    },
+    {
+      "file": "0170-a733-cpu-ccu--dt-bindings-clock-sun60i-a733-ccu-add-the-a733-cpu-ccu.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpu-ccu/dt-bindings-clock-sun60i-a733-ccu-add-the-a733-cpu-ccu.patch",
+      "description": "dt-bindings: clock: sun60i-a733-ccu: Add the A733 CPU CCU",
+      "stack": "a733-cpu-ccu"
+    },
+    {
+      "file": "0171-a733-cpu-ccu--clk-sunxi-ng-add-support-for-the-a733-cpu-ccu.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpu-ccu/clk-sunxi-ng-add-support-for-the-a733-cpu-ccu.patch",
+      "description": "clk: sunxi-ng: Add support for the A733 CPU CCU",
+      "stack": "a733-cpu-ccu"
+    },
+    {
+      "file": "0172-a733-cpu-ccu--clk-sunxi-ng-a733-cpu-park-the-core-clusters-on-the-backup-pll.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpu-ccu/clk-sunxi-ng-a733-cpu-park-the-core-clusters-on-the-backup-pll.patch",
+      "description": "clk: sunxi-ng: a733-cpu: Park the core clusters on the backup PLL",
+      "stack": "a733-cpu-ccu"
+    },
+    {
+      "file": "0173-a733-cpu-ccu--clk-sunxi-ng-a733-cpu-park-the-dsu-on-the-600-mhz-peripheral-clock.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpu-ccu/clk-sunxi-ng-a733-cpu-park-the-dsu-on-the-600-mhz-peripheral-clock.patch",
+      "description": "clk: sunxi-ng: a733-cpu: Park the DSU on the 600 MHz peripheral clock",
+      "stack": "a733-cpu-ccu"
+    },
+    {
+      "file": "0174-a733-cpu-ccu--clk-sunxi-ng-a733-cpu-add-the-dsus-axi-clock.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpu-ccu/clk-sunxi-ng-a733-cpu-add-the-dsus-axi-clock.patch",
+      "description": "clk: sunxi-ng: a733-cpu: Add the DSU's AXI clock",
+      "stack": "a733-cpu-ccu"
+    },
+    {
+      "file": "0175-a733-cpu-ccu--arm64-dts-allwinner-a733-add-the-cpu-ccu-and-the-cpu-clocks.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpu-ccu/arm64-dts-allwinner-a733-add-the-cpu-ccu-and-the-cpu-clocks.patch",
+      "description": "arm64: dts: allwinner: a733: Add the CPU CCU and the CPU clocks",
+      "stack": "a733-cpu-ccu"
+    },
+    {
+      "file": "0176-a733-cpufreq--dt-bindings-opp-allwinner-sun50i-h6-operating-points-add-the-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpufreq/dt-bindings-opp-allwinner-sun50i-h6-operating-points-add-the-a733.patch",
+      "description": "dt-bindings: opp: allwinner,sun50i-h6-operating-points: Add the A733",
+      "stack": "a733-cpufreq"
+    },
+    {
+      "file": "0177-a733-cpufreq--cpufreq-sun50i-add-the-allwinner-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpufreq/cpufreq-sun50i-add-the-allwinner-a733.patch",
+      "description": "cpufreq: sun50i: Add the Allwinner A733",
+      "stack": "a733-cpufreq"
+    },
+    {
+      "file": "0178-a733-cpufreq--arm64-dts-allwinner-a733-add-the-cpu-speed-bin-cell-to-the-sid.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpufreq/arm64-dts-allwinner-a733-add-the-cpu-speed-bin-cell-to-the-sid.patch",
+      "description": "arm64: dts: allwinner: a733: Add the CPU speed bin cell to the SID",
+      "stack": "a733-cpufreq"
+    },
+    {
+      "file": "0179-a733-cpufreq--arm64-dts-allwinner-a733-add-the-cpu-operating-points.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpufreq/arm64-dts-allwinner-a733-add-the-cpu-operating-points.patch",
+      "description": "arm64: dts: allwinner: a733: Add the CPU operating points",
+      "stack": "a733-cpufreq"
+    },
+    {
+      "file": "0180-a733-cpufreq--arm64-dts-allwinner-a733-cubie-a7s-use-the-cpu-operating-points.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpufreq/arm64-dts-allwinner-a733-cubie-a7s-use-the-cpu-operating-points.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Use the CPU operating points",
+      "stack": "a733-cpufreq"
+    },
+    {
+      "file": "0181-a733-cpufreq--arm64-dts-allwinner-a733-add-cpu-cooling-to-the-thermal-zones.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpufreq/arm64-dts-allwinner-a733-add-cpu-cooling-to-the-thermal-zones.patch",
+      "description": "arm64: dts: allwinner: a733: Add CPU cooling to the thermal zones",
+      "stack": "a733-cpufreq"
+    },
+    {
+      "file": "0182-a733-cpufreq--arm64-dts-allwinner-a733-add-the-cpu-dynamic-power-coefficients.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-cpufreq/arm64-dts-allwinner-a733-add-the-cpu-dynamic-power-coefficients.patch",
+      "description": "arm64: dts: allwinner: a733: Add the CPU dynamic power coefficients",
+      "stack": "a733-cpufreq"
+    },
+    {
+      "file": "0183-a733-dsu-devfreq--dt-bindings-interconnect-add-the-allwinner-a733-dsu.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dsu-devfreq/dt-bindings-interconnect-add-the-allwinner-a733-dsu.patch",
+      "description": "dt-bindings: interconnect: Add the Allwinner A733 DSU",
+      "stack": "a733-dsu-devfreq"
+    },
+    {
+      "file": "0184-a733-dsu-devfreq--pm-devfreq-add-the-allwinner-a733-dsu-driver.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dsu-devfreq/pm-devfreq-add-the-allwinner-a733-dsu-driver.patch",
+      "description": "PM / devfreq: Add the Allwinner A733 DSU driver",
+      "stack": "a733-dsu-devfreq"
+    },
+    {
+      "file": "0185-a733-dsu-devfreq--arm64-dts-allwinner-a733-add-the-dsu-operating-points.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dsu-devfreq/arm64-dts-allwinner-a733-add-the-dsu-operating-points.patch",
+      "description": "arm64: dts: allwinner: a733: Add the DSU operating points",
+      "stack": "a733-dsu-devfreq"
+    },
+    {
+      "file": "0186-a733-dsu-devfreq--arm64-dts-allwinner-a733-cubie-a7s-use-the-dsu-operating-points.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dsu-devfreq/arm64-dts-allwinner-a733-cubie-a7s-use-the-dsu-operating-points.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Use the DSU operating points",
+      "stack": "a733-dsu-devfreq"
+    },
+    {
+      "file": "0187-a733-dsu-devfreq--arm64-defconfig-enable-the-allwinner-a733-dsu-devfreq-driver.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dsu-devfreq/arm64-defconfig-enable-the-allwinner-a733-dsu-devfreq-driver.patch",
+      "description": "arm64: defconfig: Enable the Allwinner A733 DSU devfreq driver",
+      "stack": "a733-dsu-devfreq"
+    },
+    {
+      "file": "0188-a733-dsu-pmu-a7s--arm64-dts-allwinner-a733-cubie-a7s-enable-the-dsu-pmu.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dsu-pmu-a7s/arm64-dts-allwinner-a733-cubie-a7s-enable-the-dsu-pmu.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Enable the DSU PMU",
+      "stack": "a733-dsu-pmu-a7s"
+    },
+    {
+      "file": "0189-a733-ccu-um--clk-sunxi-ng-a733-take-the-mbus-clock-from-pll_peri0.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-um/clk-sunxi-ng-a733-take-the-mbus-clock-from-pll_peri0.patch",
+      "description": "clk: sunxi-ng: a733: Take the MBUS clock from PLL_PERI0",
+      "stack": "a733-ccu-um"
+    },
+    {
+      "file": "0190-a733-ccu-um--clk-sunxi-ng-a733-take-the-ir-tx-clock-from-the-24-mhz-system-clock.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-um/clk-sunxi-ng-a733-take-the-ir-tx-clock-from-the-24-mhz-system-clock.patch",
+      "description": "clk: sunxi-ng: a733: Take the IR TX clock from the 24 MHz system clock",
+      "stack": "a733-ccu-um"
+    },
+    {
+      "file": "0191-a733-ccu-um--clk-sunxi-ng-a733-keep-the-pll-n-factor-within-the-manual-s-range.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-um/clk-sunxi-ng-a733-keep-the-pll-n-factor-within-the-manual-s-range.patch",
+      "description": "clk: sunxi-ng: a733: Keep the PLL N factor within the manual's range",
+      "stack": "a733-ccu-um"
+    },
+    {
+      "file": "0192-a733-ccu-um--clk-sunxi-ng-a733-keep-the-video-pll-vco-within-its-range.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-um/clk-sunxi-ng-a733-keep-the-video-pll-vco-within-its-range.patch",
+      "description": "clk: sunxi-ng: a733: Keep the video PLL VCO within its range",
+      "stack": "a733-ccu-um"
+    },
+    {
+      "file": "0193-a733-ccu-um--clk-sunxi-ng-a733-take-the-g2d-clock-source-order-from-the-manual.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-um/clk-sunxi-ng-a733-take-the-g2d-clock-source-order-from-the-manual.patch",
+      "description": "clk: sunxi-ng: a733: Take the G2D clock source order from the manual",
+      "stack": "a733-ccu-um"
+    },
+    {
+      "file": "0194-a733-thermal-stages--thermal-drivers-sun8i-filter-the-a733-trend-for-step_wise.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-thermal-stages/thermal-drivers-sun8i-filter-the-a733-trend-for-step_wise.patch",
+      "description": "thermal/drivers/sun8i: Filter the A733 trend for step_wise",
+      "stack": "a733-thermal-stages"
+    },
+    {
+      "file": "0195-a733-thermal-stages--arm64-dts-allwinner-a733-add-idle-injection-cooling.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-thermal-stages/arm64-dts-allwinner-a733-add-idle-injection-cooling.patch",
+      "description": "arm64: dts: allwinner: a733: Add idle injection cooling",
+      "stack": "a733-thermal-stages"
+    },
+    {
+      "file": "0196-a733-thermal-stages--arm64-defconfig-enable-cpu-idle-injection-cooling.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-thermal-stages/arm64-defconfig-enable-cpu-idle-injection-cooling.patch",
+      "description": "arm64: defconfig: Enable CPU idle injection cooling",
+      "stack": "a733-thermal-stages"
+    },
+    {
+      "file": "0197-a733-pcie--dt-bindings-clock-sun60i-a733-ccu-add-the-pcie-clocks-of-the-serdes-ccu.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pcie/dt-bindings-clock-sun60i-a733-ccu-add-the-pcie-clocks-of-the-serdes-ccu.patch",
+      "description": "dt-bindings: clock: sun60i-a733-ccu: Add the PCIe clocks of the SERDES CCU",
+      "stack": "a733-pcie"
+    },
+    {
+      "file": "0198-a733-pcie--clk-sunxi-ng-a733-serdes-add-the-pcie-bus-gates-and-the-comb1-reference.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pcie/clk-sunxi-ng-a733-serdes-add-the-pcie-bus-gates-and-the-comb1-reference.patch",
+      "description": "clk: sunxi-ng: a733-serdes: Add the PCIe bus gates and the COMB1 reference",
+      "stack": "a733-pcie"
+    },
+    {
+      "file": "0199-a733-pcie--dt-bindings-phy-add-the-allwinner-a733-pcie-combo-phy.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pcie/dt-bindings-phy-add-the-allwinner-a733-pcie-combo-phy.patch",
+      "description": "dt-bindings: phy: Add the Allwinner A733 PCIe combo PHY",
+      "stack": "a733-pcie"
+    },
+    {
+      "file": "0200-a733-pcie--phy-allwinner-add-a-driver-for-the-a733-pcie-combo-phy.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pcie/phy-allwinner-add-a-driver-for-the-a733-pcie-combo-phy.patch",
+      "description": "phy: allwinner: Add a driver for the A733 PCIe combo PHY",
+      "stack": "a733-pcie"
+    },
+    {
+      "file": "0201-a733-pcie--dt-bindings-pci-add-the-allwinner-a733-pcie-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pcie/dt-bindings-pci-add-the-allwinner-a733-pcie-controller.patch",
+      "description": "dt-bindings: PCI: Add the Allwinner A733 PCIe controller",
+      "stack": "a733-pcie"
+    },
+    {
+      "file": "0202-a733-pcie--pci-sun60i-a733-add-the-allwinner-a733-pcie-host-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pcie/pci-sun60i-a733-add-the-allwinner-a733-pcie-host-controller.patch",
+      "description": "PCI: sun60i-a733: Add the Allwinner A733 PCIe host controller",
+      "stack": "a733-pcie"
+    },
+    {
+      "file": "0203-a733-pcie--pci-sun60i-a733-deliver-the-root-port-s-aer-pme-and-bandwidth-events.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pcie/pci-sun60i-a733-deliver-the-root-port-s-aer-pme-and-bandwidth-events.patch",
+      "description": "PCI: sun60i-a733: Deliver the Root Port's AER, PME and bandwidth events",
+      "stack": "a733-pcie"
+    },
+    {
+      "file": "0204-a733-pcie--pci-sun60i-a733-remove-the-root-port-s-vpd-capability.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pcie/pci-sun60i-a733-remove-the-root-port-s-vpd-capability.patch",
+      "description": "PCI: sun60i-a733: Remove the Root Port's VPD capability",
+      "stack": "a733-pcie"
+    },
+    {
+      "file": "0205-a733-pcie--pci-sun60i-a733-recover-the-root-port-after-a-link-down-reset.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pcie/pci-sun60i-a733-recover-the-root-port-after-a-link-down-reset.patch",
+      "description": "PCI: sun60i-a733: Recover the Root Port after a link-down reset",
+      "stack": "a733-pcie"
+    },
+    {
+      "file": "0206-a733-pcie--arm64-dts-allwinner-a733-add-the-pcie-controller-and-its-combo-phy.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pcie/arm64-dts-allwinner-a733-add-the-pcie-controller-and-its-combo-phy.patch",
+      "description": "arm64: dts: allwinner: a733: Add the PCIe controller and its combo PHY",
+      "stack": "a733-pcie"
+    },
+    {
+      "file": "0207-a733-pcie--arm64-dts-allwinner-a733-cubie-a7s-enable-pcie-on-the-fpc-connector.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pcie/arm64-dts-allwinner-a733-cubie-a7s-enable-pcie-on-the-fpc-connector.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Enable PCIe on the FPC connector",
+      "stack": "a733-pcie"
+    },
+    {
+      "file": "0208-a733-pcie--arm64-defconfig-enable-the-allwinner-a733-pcie-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pcie/arm64-defconfig-enable-the-allwinner-a733-pcie-controller.patch",
+      "description": "arm64: defconfig: Enable the Allwinner A733 PCIe controller",
+      "stack": "a733-pcie"
+    },
+    {
+      "file": "0209-a733-emmc-compatible--dt-bindings-mmc-sunxi-add-the-allwinner-a733-emmc-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-emmc-compatible/dt-bindings-mmc-sunxi-add-the-allwinner-a733-emmc-controller.patch",
+      "description": "dt-bindings: mmc: sunxi: Add the Allwinner A733 eMMC controller",
+      "stack": "a733-emmc-compatible"
+    },
+    {
+      "file": "0210-a733-emmc-compatible--mmc-sunxi-add-the-a733-emmc-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-emmc-compatible/mmc-sunxi-add-the-a733-emmc-controller.patch",
+      "description": "mmc: sunxi: Add the A733 eMMC controller",
+      "stack": "a733-emmc-compatible"
+    },
+    {
+      "file": "0211-a733-emmc-compatible--arm64-dts-allwinner-a733-use-the-emmc-compatible-for-mmc2.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-emmc-compatible/arm64-dts-allwinner-a733-use-the-emmc-compatible-for-mmc2.patch",
+      "description": "arm64: dts: allwinner: a733: Use the eMMC compatible for mmc2",
+      "stack": "a733-emmc-compatible"
+    },
+    {
+      "file": "0212-a733-emmc-compatible--mmc-sunxi-keep-the-a733-sd-controller-off-the-emmc-features.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-emmc-compatible/mmc-sunxi-keep-the-a733-sd-controller-off-the-emmc-features.patch",
+      "description": "mmc: sunxi: Keep the A733 SD controller off the eMMC features",
+      "stack": "a733-emmc-compatible"
+    },
+    {
+      "file": "0213-sunxi-mmc-tuning--mmc-sunxi-tune-the-sample-delay-instead-of-running-it-at-zero.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-mmc-tuning/mmc-sunxi-tune-the-sample-delay-instead-of-running-it-at-zero.patch",
+      "description": "mmc: sunxi: Tune the sample delay instead of running it at zero",
+      "stack": "sunxi-mmc-tuning"
+    },
+    {
+      "file": "0214-sunxi-cpufreq-builtin--arm64-defconfig-build-in-the-allwinner-sun50i-cpufreq-driver.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-cpufreq-builtin/arm64-defconfig-build-in-the-allwinner-sun50i-cpufreq-driver.patch",
+      "description": "arm64: defconfig: Build in the Allwinner sun50i cpufreq driver",
+      "stack": "sunxi-cpufreq-builtin"
+    },
+    {
+      "file": "0215-sun4i-i2s-pause--asoc-sun4i-i2s-keep-the-fifo-across-a-pause.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-i2s-pause/asoc-sun4i-i2s-keep-the-fifo-across-a-pause.patch",
+      "description": "ASoC: sun4i-i2s: Keep the FIFO across a pause",
+      "stack": "sun4i-i2s-pause"
+    },
+    {
+      "file": "0216-a733-ccu-gpu-pll--clk-sunxi-ng-a733-relock-pll_gpu0-after-a-rate-change.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-gpu-pll/clk-sunxi-ng-a733-relock-pll_gpu0-after-a-rate-change.patch",
+      "description": "clk: sunxi-ng: a733: Relock PLL_GPU0 after a rate change",
+      "stack": "a733-ccu-gpu-pll"
+    },
+    {
+      "file": "0217-a733-ccu-gpu-pll--clk-sunxi-ng-let-the-pll-notifier-wait-for-the-pll-to-settle.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-gpu-pll/clk-sunxi-ng-let-the-pll-notifier-wait-for-the-pll-to-settle.patch",
+      "description": "clk: sunxi-ng: Let the PLL notifier wait for the PLL to settle",
+      "stack": "a733-ccu-gpu-pll"
+    },
+    {
+      "file": "0218-a733-ccu-gpu-pll--clk-sunxi-ng-a733-let-pll_gpu0-settle-after-it-relocks.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-gpu-pll/clk-sunxi-ng-a733-let-pll_gpu0-settle-after-it-relocks.patch",
+      "description": "clk: sunxi-ng: a733: Let PLL_GPU0 settle after it relocks",
+      "stack": "a733-ccu-gpu-pll"
+    },
+    {
+      "file": "0219-a733-gpu-opp--clk-sunxi-ng-a733-let-the-gpu0-clock-set-the-rate-of-pll_gpu0.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gpu-opp/clk-sunxi-ng-a733-let-the-gpu0-clock-set-the-rate-of-pll_gpu0.patch",
+      "description": "clk: sunxi-ng: a733: Let the GPU0 clock set the rate of PLL_GPU0",
+      "stack": "a733-gpu-opp"
+    },
+    {
+      "file": "0220-a733-gpu-opp--dt-bindings-gpu-img-powervr-rogue-add-an-opp-table-and-a-supply.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gpu-opp/dt-bindings-gpu-img-powervr-rogue-add-an-opp-table-and-a-supply.patch",
+      "description": "dt-bindings: gpu: img,powervr-rogue: Add an OPP table and a supply",
+      "stack": "a733-gpu-opp"
+    },
+    {
+      "file": "0221-a733-gpu-opp--drm-imagination-set-the-core-clock-and-its-supply-from-an-opp-table.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gpu-opp/drm-imagination-set-the-core-clock-and-its-supply-from-an-opp-table.patch",
+      "description": "drm/imagination: Set the core clock and its supply from an OPP table",
+      "stack": "a733-gpu-opp"
+    },
+    {
+      "file": "0222-a733-gpu-opp--arm64-dts-allwinner-a733-take-the-gpu-rate-and-voltage-from-an-opp-table.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-gpu-opp/arm64-dts-allwinner-a733-take-the-gpu-rate-and-voltage-from-an-opp-table.patch",
+      "description": "arm64: dts: allwinner: a733: Take the GPU rate and voltage from an OPP table",
+      "stack": "a733-gpu-opp"
+    },
+    {
+      "file": "0223-a733-display--dt-bindings-display-allwinner-add-the-a733-display-engine-top-block.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display/dt-bindings-display-allwinner-add-the-a733-display-engine-top-block.patch",
+      "description": "dt-bindings: display: allwinner: Add the A733 display engine top block",
+      "stack": "a733-display"
+    },
+    {
+      "file": "0224-a733-display--dt-bindings-display-sun8i-a83t-de2-mixer-add-the-a733-mixer.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display/dt-bindings-display-sun8i-a83t-de2-mixer-add-the-a733-mixer.patch",
+      "description": "dt-bindings: display: sun8i-a83t-de2-mixer: Add the A733 mixer",
+      "stack": "a733-display"
+    },
+    {
+      "file": "0225-a733-display--dt-bindings-display-sun4i-a10-tcon-add-the-a733-tcon-tv.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display/dt-bindings-display-sun4i-a10-tcon-add-the-a733-tcon-tv.patch",
+      "description": "dt-bindings: display: sun4i-a10-tcon: Add the A733 TCON TV",
+      "stack": "a733-display"
+    },
+    {
+      "file": "0226-a733-display--dt-bindings-display-sun4i-a10-display-engine-add-the-a733.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display/dt-bindings-display-sun4i-a10-display-engine-add-the-a733.patch",
+      "description": "dt-bindings: display: sun4i-a10-display-engine: Add the A733",
+      "stack": "a733-display"
+    },
+    {
+      "file": "0227-a733-display--drm-sun4i-add-a-driver-for-the-a733-display-engine-top-block.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display/drm-sun4i-add-a-driver-for-the-a733-display-engine-top-block.patch",
+      "description": "drm/sun4i: Add a driver for the A733 display engine top block",
+      "stack": "a733-display"
+    },
+    {
+      "file": "0228-a733-display--drm-sun4i-mixer-allow-mixers-that-keep-the-channel-csc-off.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display/drm-sun4i-mixer-allow-mixers-that-keep-the-channel-csc-off.patch",
+      "description": "drm/sun4i: mixer: Allow mixers that keep the channel CSC off",
+      "stack": "a733-display"
+    },
+    {
+      "file": "0229-a733-display--drm-sun4i-mixer-add-the-a733-mixer.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display/drm-sun4i-mixer-add-the-a733-mixer.patch",
+      "description": "drm/sun4i: mixer: Add the A733 mixer",
+      "stack": "a733-display"
+    },
+    {
+      "file": "0230-a733-display--drm-sun4i-tcon-add-the-a733-tcon-tv.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display/drm-sun4i-tcon-add-the-a733-tcon-tv.patch",
+      "description": "drm/sun4i: tcon: Add the A733 TCON TV",
+      "stack": "a733-display"
+    },
+    {
+      "file": "0231-a733-display--drm-sun4i-add-the-a733-display-engine.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display/drm-sun4i-add-the-a733-display-engine.patch",
+      "description": "drm/sun4i: Add the A733 display engine",
+      "stack": "a733-display"
+    },
+    {
+      "file": "0232-a733-display--arm64-dts-allwinner-a733-add-the-display-engine.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display/arm64-dts-allwinner-a733-add-the-display-engine.patch",
+      "description": "arm64: dts: allwinner: a733: Add the display engine",
+      "stack": "a733-display"
+    },
+    {
+      "file": "0233-a733-dp--dt-bindings-phy-allwinner-sun60i-a733-usb3-combophy-add-displayport.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/dt-bindings-phy-allwinner-sun60i-a733-usb3-combophy-add-displayport.patch",
+      "description": "dt-bindings: phy: allwinner,sun60i-a733-usb3-combophy: Add DisplayPort",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0234-a733-dp--dt-bindings-phy-add-the-allwinner-a733-displayport-aux-phy.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/dt-bindings-phy-add-the-allwinner-a733-displayport-aux-phy.patch",
+      "description": "dt-bindings: phy: Add the Allwinner A733 DisplayPort AUX PHY",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0235-a733-dp--dt-bindings-clock-add-the-allwinner-a733-video-output-1-clock-unit.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/dt-bindings-clock-add-the-allwinner-a733-video-output-1-clock-unit.patch",
+      "description": "dt-bindings: clock: Add the Allwinner A733 video output 1 clock unit",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0236-a733-dp--dt-bindings-display-allwinner-add-the-a733-displayport-transmitter.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/dt-bindings-display-allwinner-add-the-a733-displayport-transmitter.patch",
+      "description": "dt-bindings: display: allwinner: Add the A733 DisplayPort transmitter",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0237-a733-dp--phy-allwinner-a733-combophy-select-the-function-by-phy-type.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/phy-allwinner-a733-combophy-select-the-function-by-phy-type.patch",
+      "description": "phy: allwinner: a733-combophy: Select the function by PHY type",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0238-a733-dp--phy-allwinner-a733-combophy-add-displayport.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/phy-allwinner-a733-combophy-add-displayport.patch",
+      "description": "phy: allwinner: a733-combophy: Add DisplayPort",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0239-a733-dp--phy-allwinner-a733-combophy-add-displayport-at-1-62-and-5-4-gb-s.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/phy-allwinner-a733-combophy-add-displayport-at-1-62-and-5-4-gb-s.patch",
+      "description": "phy: allwinner: a733-combophy: Add DisplayPort at 1.62 and 5.4 Gb/s",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0240-a733-dp--phy-allwinner-add-a-driver-for-the-a733-displayport-aux-phy.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/phy-allwinner-add-a-driver-for-the-a733-displayport-aux-phy.patch",
+      "description": "phy: allwinner: Add a driver for the A733 DisplayPort AUX PHY",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0241-a733-dp--usb-typec-tcpm-restart-discovery-after-a-response-timeout.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/usb-typec-tcpm-restart-discovery-after-a-response-timeout.patch",
+      "description": "usb: typec: tcpm: Restart discovery after a response timeout",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0242-a733-dp--usb-typec-tcpci-rt1711h-register-a-displayport-hpd-bridge.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/usb-typec-tcpci-rt1711h-register-a-displayport-hpd-bridge.patch",
+      "description": "usb: typec: tcpci_rt1711h: Register a DisplayPort HPD bridge",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0243-a733-dp--clk-sunxi-ng-add-the-a733-video-output-1-clock-unit.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/clk-sunxi-ng-add-the-a733-video-output-1-clock-unit.patch",
+      "description": "clk: sunxi-ng: Add the A733 video output 1 clock unit",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0244-a733-dp--drm-sun4i-crtc-refuse-modes-the-tcon-cannot-make-a-pixel-clock-for.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/drm-sun4i-crtc-refuse-modes-the-tcon-cannot-make-a-pixel-clock-for.patch",
+      "description": "drm/sun4i: crtc: Refuse modes the TCON cannot make a pixel clock for",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0245-a733-dp--drm-sun4i-tcon-refuse-modes-the-a733-tcon-tv-cannot-time.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/drm-sun4i-tcon-refuse-modes-the-a733-tcon-tv-cannot-time.patch",
+      "description": "drm/sun4i: tcon: Refuse modes the A733 TCON TV cannot time",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0246-a733-dp--drm-sun4i-add-the-a733-displayport-transmitter.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/drm-sun4i-add-the-a733-displayport-transmitter.patch",
+      "description": "drm/sun4i: Add the A733 DisplayPort transmitter",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0247-a733-dp--drm-sun4i-sun60i-dp-add-link-training-and-the-video-stream.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/drm-sun4i-sun60i-dp-add-link-training-and-the-video-stream.patch",
+      "description": "drm/sun4i: sun60i_dp: Add link training and the video stream",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0248-a733-dp--drm-sun4i-drv-stop-the-pipeline-walk-at-usb-type-c-connectors.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/drm-sun4i-drv-stop-the-pipeline-walk-at-usb-type-c-connectors.patch",
+      "description": "drm/sun4i: drv: Stop the pipeline walk at USB Type-C connectors",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0249-a733-dp--drm-sun4i-crtc-capture-the-frame-crcs-of-a-displayport-sink.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/drm-sun4i-crtc-capture-the-frame-crcs-of-a-displayport-sink.patch",
+      "description": "drm/sun4i: crtc: Capture the frame CRCs of a DisplayPort sink",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0250-a733-dp--arm64-dts-allwinner-a733-add-the-displayport-transmitter.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/arm64-dts-allwinner-a733-add-the-displayport-transmitter.patch",
+      "description": "arm64: dts: allwinner: a733: Add the DisplayPort transmitter",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0251-a733-dp--arm64-dts-allwinner-a733-cubie-a7s-enable-displayport-alternate-mode.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/arm64-dts-allwinner-a733-cubie-a7s-enable-displayport-alternate-mode.patch",
+      "description": "arm64: dts: allwinner: a733-cubie-a7s: Enable DisplayPort alternate mode",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0252-a733-dp--arm64-defconfig-enable-the-allwinner-a733-displayport-transmitter.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp/arm64-defconfig-enable-the-allwinner-a733-displayport-transmitter.patch",
+      "description": "arm64: defconfig: Enable the Allwinner A733 DisplayPort transmitter",
+      "stack": "a733-dp"
+    },
+    {
+      "file": "0253-sun4i-i2s-h6-cache--asoc-sun4i-i2s-sync-only-known-registers-of-the-h6-register-map.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-i2s-h6-cache/asoc-sun4i-i2s-sync-only-known-registers-of-the-h6-register-map.patch",
+      "description": "ASoC: sun4i-i2s: sync only known registers of the H6 register map",
+      "stack": "sun4i-i2s-h6-cache"
+    },
+    {
+      "file": "0254-a733-pck600-gpu-core--pmdomain-sunxi-sun55i-pck600-register-the-a733-gpu_core-domain-by-its-state.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pck600-gpu-core/pmdomain-sunxi-sun55i-pck600-register-the-a733-gpu_core-domain-by-its-state.patch",
+      "description": "pmdomain: sunxi: sun55i-pck600: Register the A733 GPU_CORE domain by its state",
+      "stack": "a733-pck600-gpu-core"
+    },
+    {
+      "file": "0255-a733-audio-pll-boot--arm64-dts-allwinner-a733-set-pll_audio0-to-its-22.5792-mhz-x-4-point.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-audio-pll-boot/arm64-dts-allwinner-a733-set-pll_audio0-to-its-22.5792-mhz-x-4-point.patch",
+      "description": "arm64: dts: allwinner: a733: Set PLL_AUDIO0 to its 22.5792 MHz x 4 point",
+      "stack": "a733-audio-pll-boot"
+    },
+    {
+      "file": "0256-stmmac-rx-refill--net-stmmac-retry-a-failed-rx-refill-from-a-timer.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/stmmac-rx-refill/net-stmmac-retry-a-failed-rx-refill-from-a-timer.patch",
+      "description": "net: stmmac: retry a failed RX refill from a timer",
+      "stack": "stmmac-rx-refill"
+    },
+    {
+      "file": "0257-a7s-usb-hub--dt-bindings-net-wireless-add-aicsemi-aic8800d80-usb.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a7s-usb-hub/dt-bindings-net-wireless-add-aicsemi-aic8800d80-usb.patch",
+      "description": "dt-bindings: net: wireless: Add AICSemi AIC8800D80 USB",
+      "stack": "a7s-usb-hub"
+    },
+    {
+      "file": "0258-a7s-usb-hub--dt-bindings-usb-wch-ch334-allow-hard-wired-devices-on-the-ports.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a7s-usb-hub/dt-bindings-usb-wch-ch334-allow-hard-wired-devices-on-the-ports.patch",
+      "description": "dt-bindings: usb: wch,ch334: Allow hard wired devices on the ports",
+      "stack": "a7s-usb-hub"
+    },
+    {
+      "file": "0259-a7s-usb-hub--usb-misc-onboard_usb_dev-add-the-aicsemi-aic8800d80.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a7s-usb-hub/usb-misc-onboard_usb_dev-add-the-aicsemi-aic8800d80.patch",
+      "description": "usb: misc: onboard_usb_dev: Add the AICSemi AIC8800D80",
+      "stack": "a7s-usb-hub"
+    },
+    {
+      "file": "0260-a7s-usb-hub--arm64-dts-allwinner-a733-cubie-a7s-describe-the-usb-hub-and-the-wifi-module.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a7s-usb-hub/arm64-dts-allwinner-a733-cubie-a7s-describe-the-usb-hub-and-the-wifi-module.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Describe the USB hub and the WiFi module",
+      "stack": "a7s-usb-hub"
+    },
+    {
+      "file": "0261-a733-nmi--arm64-dts-allwinner-a733-add-the-nmi-interrupt-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-nmi/arm64-dts-allwinner-a733-add-the-nmi-interrupt-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the NMI interrupt controller",
+      "stack": "a733-nmi"
+    },
+    {
+      "file": "0262-a733-nmi--arm64-dts-allwinner-a733-cubie-a7s-wire-up-the-pmic-interrupt.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-nmi/arm64-dts-allwinner-a733-cubie-a7s-wire-up-the-pmic-interrupt.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Wire up the PMIC interrupt",
+      "stack": "a733-nmi"
+    },
+    {
+      "file": "0263-a733-npu--dt-bindings-gpu-vivante-gc-allow-up-to-four-resets.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-npu/dt-bindings-gpu-vivante-gc-allow-up-to-four-resets.patch",
+      "description": "dt-bindings: gpu: vivante,gc: Allow up to four resets",
+      "stack": "a733-npu"
+    },
+    {
+      "file": "0264-a733-npu--drm-etnaviv-take-all-resets-of-the-core.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-npu/drm-etnaviv-take-all-resets-of-the-core.patch",
+      "description": "drm/etnaviv: Take all resets of the core",
+      "stack": "a733-npu"
+    },
+    {
+      "file": "0265-a733-npu--drm-etnaviv-add-the-hwdb-entry-for-the-allwinner-a733-npu.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-npu/drm-etnaviv-add-the-hwdb-entry-for-the-allwinner-a733-npu.patch",
+      "description": "drm/etnaviv: Add the hwdb entry for the Allwinner A733 NPU",
+      "stack": "a733-npu"
+    },
+    {
+      "file": "0266-a733-npu--clk-sunxi-ng-a733-make-bus-npu-a-child-of-ahb-npu.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-npu/clk-sunxi-ng-a733-make-bus-npu-a-child-of-ahb-npu.patch",
+      "description": "clk: sunxi-ng: a733: Make bus-npu a child of ahb-npu",
+      "stack": "a733-npu"
+    },
+    {
+      "file": "0267-a733-npu--arm64-dts-allwinner-a733-add-the-npu.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-npu/arm64-dts-allwinner-a733-add-the-npu.patch",
+      "description": "arm64: dts: allwinner: a733: Add the NPU",
+      "stack": "a733-npu"
+    },
+    {
+      "file": "0268-a733-ccu-edp-tv--clk-sunxi-ng-a733-let-edp-tv-set-the-rate-of-its-parent.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-edp-tv/clk-sunxi-ng-a733-let-edp-tv-set-the-rate-of-its-parent.patch",
+      "description": "clk: sunxi-ng: a733: Let edp-tv set the rate of its parent",
+      "stack": "a733-ccu-edp-tv"
+    },
+    {
+      "file": "0269-axp318-pek--input-axp20x-pek-add-the-axp318w-power-key-without-the-timing-attributes.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/axp318-pek/input-axp20x-pek-add-the-axp318w-power-key-without-the-timing-attributes.patch",
+      "description": "Input: axp20x-pek - Add the AXP318W power key without the timing attributes",
+      "stack": "axp318-pek"
+    },
+    {
+      "file": "0270-axp318-pek--mfd-axp20x-add-the-power-key-cell-to-the-axp318w.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/axp318-pek/mfd-axp20x-add-the-power-key-cell-to-the-axp318w.patch",
+      "description": "mfd: axp20x: Add the power key cell to the AXP318W",
+      "stack": "axp318-pek"
+    },
+    {
+      "file": "0271-axp318-pek--arm64-defconfig-enable-the-x-powers-pmic-power-key-driver.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/axp318-pek/arm64-defconfig-enable-the-x-powers-pmic-power-key-driver.patch",
+      "description": "arm64: defconfig: Enable the X-Powers PMIC power key driver",
+      "stack": "axp318-pek"
+    },
+    {
+      "file": "0272-a7s-5v-sys--arm64-dts-allwinner-a733-cubie-a7s-describe-the-pmic-input-supplies.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a7s-5v-sys/arm64-dts-allwinner-a733-cubie-a7s-describe-the-pmic-input-supplies.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Describe the PMIC input supplies",
+      "stack": "a7s-5v-sys"
+    },
+    {
+      "file": "0273-stmmac-rbue--net-stmmac-dwmac4-disable-rbue-in-the-default-channel-interrupt-mask.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/stmmac-rbue/net-stmmac-dwmac4-disable-rbue-in-the-default-channel-interrupt-mask.patch",
+      "description": "net: stmmac: dwmac4: disable RBUE in the default channel interrupt mask",
+      "stack": "stmmac-rbue"
+    },
+    {
+      "file": "0274-a733-usb0-gadget--phy-sun4i-usb-write-the-a733-phy0-control-bits-while-the-phy-is-in-reset.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb0-gadget/phy-sun4i-usb-write-the-a733-phy0-control-bits-while-the-phy-is-in-reset.patch",
+      "description": "phy: sun4i-usb: Write the A733 PHY0 control bits while the PHY is in reset",
+      "stack": "a733-usb0-gadget"
+    },
+    {
+      "file": "0275-a733-usb0-gadget--dt-bindings-usb-allwinner-sun4i-a10-musb-add-the-a733-compatible.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb0-gadget/dt-bindings-usb-allwinner-sun4i-a10-musb-add-the-a733-compatible.patch",
+      "description": "dt-bindings: usb: allwinner,sun4i-a10-musb: Add the A733 compatible",
+      "stack": "a733-usb0-gadget"
+    },
+    {
+      "file": "0276-a733-usb0-gadget--arm64-dts-allwinner-a733-add-the-usb0-otg-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb0-gadget/arm64-dts-allwinner-a733-add-the-usb0-otg-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the USB0 OTG controller",
+      "stack": "a733-usb0-gadget"
+    },
+    {
+      "file": "0277-a733-usb0-gadget--arm64-dts-allwinner-a733-cubie-a7s-enable-usb0-as-a-usb-gadget.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-usb0-gadget/arm64-dts-allwinner-a733-cubie-a7s-enable-usb0-as-a-usb-gadget.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Enable USB0 as a USB gadget",
+      "stack": "a733-usb0-gadget"
+    },
+    {
+      "file": "0278-etnaviv-unbind-flop--drm-etnaviv-free-the-ppu-flop-reset-buffer-only-when-it-was-allocated.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/etnaviv-unbind-flop/drm-etnaviv-free-the-ppu-flop-reset-buffer-only-when-it-was-allocated.patch",
+      "description": "drm/etnaviv: free the PPU flop reset buffer only when it was allocated",
+      "stack": "etnaviv-unbind-flop"
+    },
+    {
+      "file": "0279-etnaviv-remove-rpm--drm-etnaviv-suspend-the-core-before-disabling-runtime-pm-on-remove.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/etnaviv-remove-rpm/drm-etnaviv-suspend-the-core-before-disabling-runtime-pm-on-remove.patch",
+      "description": "drm/etnaviv: suspend the core before disabling runtime PM on remove",
+      "stack": "etnaviv-remove-rpm"
+    },
+    {
+      "file": "0280-a733-ve-base--dt-bindings-media-add-allwinner-a733-video-engine.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ve-base/dt-bindings-media-add-allwinner-a733-video-engine.patch",
+      "description": "dt-bindings: media: Add Allwinner A733 video engine",
+      "stack": "a733-ve-base"
+    },
+    {
+      "file": "0281-a733-ve-base--arm64-dts-allwinner-a733-give-the-iommus-the-video-engine-port-gates.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ve-base/arm64-dts-allwinner-a733-give-the-iommus-the-video-engine-port-gates.patch",
+      "description": "arm64: dts: allwinner: a733: Give the IOMMUs the video engine port gates",
+      "stack": "a733-ve-base"
+    },
+    {
+      "file": "0282-a733-ve-base--arm64-dts-allwinner-a733-add-the-video-engine.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ve-base/arm64-dts-allwinner-a733-add-the-video-engine.patch",
+      "description": "arm64: dts: allwinner: a733: Add the video engine",
+      "stack": "a733-ve-base"
+    },
+    {
+      "file": "0283-a733-crypto-engine--dt-bindings-crypto-allwinner-sun8i-ce-add-the-a733-compatible.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-crypto-engine/dt-bindings-crypto-allwinner-sun8i-ce-add-the-a733-compatible.patch",
+      "description": "dt-bindings: crypto: allwinner,sun8i-ce: Add the A733 compatible",
+      "stack": "a733-crypto-engine"
+    },
+    {
+      "file": "0284-a733-crypto-engine--crypto-sun8i-ce-take-the-resets-as-an-array.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-crypto-engine/crypto-sun8i-ce-take-the-resets-as-an-array.patch",
+      "description": "crypto: sun8i-ce - Take the resets as an array",
+      "stack": "a733-crypto-engine"
+    },
+    {
+      "file": "0285-a733-crypto-engine--crypto-sun8i-ce-lock-per-flow-instead-of-the-rng-lock.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-crypto-engine/crypto-sun8i-ce-lock-per-flow-instead-of-the-rng-lock.patch",
+      "description": "crypto: sun8i-ce - Lock per flow instead of the RNG lock",
+      "stack": "a733-crypto-engine"
+    },
+    {
+      "file": "0286-a733-crypto-engine--crypto-sun8i-ce-add-support-for-the-a733.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-crypto-engine/crypto-sun8i-ce-add-support-for-the-a733.patch",
+      "description": "crypto: sun8i-ce - Add support for the A733",
+      "stack": "a733-crypto-engine"
+    },
+    {
+      "file": "0287-a733-crypto-engine--arm64-dts-allwinner-a733-add-the-crypto-engine.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-crypto-engine/arm64-dts-allwinner-a733-add-the-crypto-engine.patch",
+      "description": "arm64: dts: allwinner: a733: Add the crypto engine",
+      "stack": "a733-crypto-engine"
+    },
+    {
+      "file": "0288-a733-crypto-engine--arm64-defconfig-enable-the-allwinner-crypto-engine-hash-and-trng.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-crypto-engine/arm64-defconfig-enable-the-allwinner-crypto-engine-hash-and-trng.patch",
+      "description": "arm64: defconfig: Enable the Allwinner crypto engine hash and TRNG",
+      "stack": "a733-crypto-engine"
+    },
+    {
+      "file": "0289-sunxi-wdt-heartbeat--watchdog-sunxi_wdt-let-the-watchdog-core-serve-timeouts-above-16-s.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sunxi-wdt-heartbeat/watchdog-sunxi_wdt-let-the-watchdog-core-serve-timeouts-above-16-s.patch",
+      "description": "watchdog: sunxi_wdt: let the watchdog core serve timeouts above 16 s",
+      "stack": "sunxi-wdt-heartbeat"
+    },
+    {
+      "file": "0290-a733-eeprom-a7s--arm64-dts-allwinner-a733-add-the-twi0-controller.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-eeprom-a7s/arm64-dts-allwinner-a733-add-the-twi0-controller.patch",
+      "description": "arm64: dts: allwinner: a733: add the TWI0 controller",
+      "stack": "a733-eeprom-a7s"
+    },
+    {
+      "file": "0291-a733-eeprom-a7s--arm64-dts-allwinner-a733-cubie-a7s-describe-aldo1-as.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-eeprom-a7s/arm64-dts-allwinner-a733-cubie-a7s-describe-aldo1-as.patch",
+      "description": "arm64: dts: allwinner: a733-cubie-a7s: describe ALDO1 as VCC-PL",
+      "stack": "a733-eeprom-a7s"
+    },
+    {
+      "file": "0292-a733-eeprom-a7s--arm64-dts-allwinner-a733-cubie-a7s-read-the-mac-address.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-eeprom-a7s/arm64-dts-allwinner-a733-cubie-a7s-read-the-mac-address.patch",
+      "description": "arm64: dts: allwinner: a733-cubie-a7s: read the MAC address from the EEPROM",
+      "stack": "a733-eeprom-a7s"
+    },
+    {
+      "file": "0293-usb-uas--arm64-defconfig-enable-usb-attached-scsi.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/usb-uas/arm64-defconfig-enable-usb-attached-scsi.patch",
+      "description": "arm64: defconfig: Enable USB Attached SCSI",
+      "stack": "usb-uas"
+    },
+    {
+      "file": "0294-a733-adc--dt-bindings-iio-adc-allwinner-sun20i-d1-gpadc-add-the-a733-compatible.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-adc/dt-bindings-iio-adc-allwinner-sun20i-d1-gpadc-add-the-a733-compatible.patch",
+      "description": "dt-bindings: iio: adc: allwinner,sun20i-d1-gpadc: Add the A733 compatible",
+      "stack": "a733-adc"
+    },
+    {
+      "file": "0295-a733-adc--dt-bindings-input-allwinner-sun4i-a10-lradc-keys-add-the-a733-compatible.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-adc/dt-bindings-input-allwinner-sun4i-a10-lradc-keys-add-the-a733-compatible.patch",
+      "description": "dt-bindings: input: allwinner,sun4i-a10-lradc-keys: Add the A733 compatible",
+      "stack": "a733-adc"
+    },
+    {
+      "file": "0296-a733-adc--arm64-dts-allwinner-a733-add-the-gpadc-and-the-lradc.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-adc/arm64-dts-allwinner-a733-add-the-gpadc-and-the-lradc.patch",
+      "description": "arm64: dts: allwinner: a733: Add the GPADC and the LRADC",
+      "stack": "a733-adc"
+    },
+    {
+      "file": "0297-a733-adc--arm64-dts-allwinner-a733-cubie-a7s-enable-the-gpadc.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-adc/arm64-dts-allwinner-a733-cubie-a7s-enable-the-gpadc.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Enable the GPADC",
+      "stack": "a733-adc"
+    },
+    {
+      "file": "0298-a733-adc--arm64-defconfig-enable-the-allwinner-gpadc-driver.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-adc/arm64-defconfig-enable-the-allwinner-gpadc-driver.patch",
+      "description": "arm64: defconfig: Enable the Allwinner GPADC driver",
+      "stack": "a733-adc"
+    },
+    {
+      "file": "0299-a733-header--arm64-dts-allwinner-a733-add-the-twi2-and-twi7-controllers.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-header/arm64-dts-allwinner-a733-add-the-twi2-and-twi7-controllers.patch",
+      "description": "arm64: dts: allwinner: a733: Add the TWI2 and TWI7 controllers",
+      "stack": "a733-header"
+    },
+    {
+      "file": "0300-a733-header--arm64-dts-allwinner-a733-add-the-spi1-controller.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-header/arm64-dts-allwinner-a733-add-the-spi1-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the SPI1 controller",
+      "stack": "a733-header"
+    },
+    {
+      "file": "0301-a733-header--arm64-dts-allwinner-a733-add-the-uart3-uart5-and-uart6-controllers.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-header/arm64-dts-allwinner-a733-add-the-uart3-uart5-and-uart6-controllers.patch",
+      "description": "arm64: dts: allwinner: a733: Add the UART3, UART5 and UART6 controllers",
+      "stack": "a733-header"
+    },
+    {
+      "file": "0302-a733-header--arm64-dts-allwinner-a733-add-the-smhc1-controller.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-header/arm64-dts-allwinner-a733-add-the-smhc1-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the SMHC1 controller",
+      "stack": "a733-header"
+    },
+    {
+      "file": "0303-a733-de-iommu--arm64-dts-allwinner-a733-give-iommu1-the-display-engine-port-gate.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-de-iommu/arm64-dts-allwinner-a733-give-iommu1-the-display-engine-port-gate.patch",
+      "description": "arm64: dts: allwinner: a733: Give IOMMU1 the display engine port gate",
+      "stack": "a733-de-iommu"
+    },
+    {
+      "file": "0304-a733-de-iommu--arm64-dts-allwinner-a733-put-the-display-engine-behind-iommu1.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-de-iommu/arm64-dts-allwinner-a733-put-the-display-engine-behind-iommu1.patch",
+      "description": "arm64: dts: allwinner: a733: Put the display engine behind IOMMU1",
+      "stack": "a733-de-iommu"
+    },
+    {
+      "file": "0305-a733-pwm--dt-bindings-pwm-add-binding-for-allwinner-d1-t113-s3.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pwm/dt-bindings-pwm-add-binding-for-allwinner-d1-t113-s3.patch",
+      "description": "dt-bindings: pwm: Add binding for Allwinner D1/T113-S3/R329 PWM controller",
+      "stack": "a733-pwm"
+    },
+    {
+      "file": "0306-a733-pwm--pwm-add-allwinner-s-d1-t113-s3-r329-socs-pwm-support.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pwm/pwm-add-allwinner-s-d1-t113-s3-r329-socs-pwm-support.patch",
+      "description": "pwm: Add Allwinner's D1/T113-S3/R329 SoCs PWM support",
+      "stack": "a733-pwm"
+    },
+    {
+      "file": "0307-a733-pwm--pwm-sun8i-count-the-extra-cycle-when-reading-the-per.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pwm/pwm-sun8i-count-the-extra-cycle-when-reading-the-per.patch",
+      "description": "pwm: sun8i: Count the extra cycle when reading the period back",
+      "stack": "a733-pwm"
+    },
+    {
+      "file": "0308-a733-pwm--dt-bindings-pwm-allwinner-sun20i-d1-pwm-add-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pwm/dt-bindings-pwm-allwinner-sun20i-d1-pwm-add-a733.patch",
+      "description": "dt-bindings: pwm: allwinner,sun20i-d1-pwm: Add A733",
+      "stack": "a733-pwm"
+    },
+    {
+      "file": "0309-a733-pwm--pwm-sun8i-add-a733-support.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pwm/pwm-sun8i-add-a733-support.patch",
+      "description": "pwm: sun8i: Add A733 support",
+      "stack": "a733-pwm"
+    },
+    {
+      "file": "0310-a733-pwm--arm64-dts-allwinner-a733-add-the-pwm-controllers.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pwm/arm64-dts-allwinner-a733-add-the-pwm-controllers.patch",
+      "description": "arm64: dts: allwinner: a733: Add the PWM controllers",
+      "stack": "a733-pwm"
+    },
+    {
+      "file": "0311-a733-pwm--arm64-defconfig-enable-the-allwinner-sun8i-pwm-drive.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pwm/arm64-defconfig-enable-the-allwinner-sun8i-pwm-drive.patch",
+      "description": "arm64: defconfig: Enable the Allwinner sun8i PWM driver",
+      "stack": "a733-pwm"
+    },
+    {
+      "file": "0312-btusb-reset-gpio--bluetooth-btusb-request-the-reset-gpio-only-where-a-handler-uses-it.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/btusb-reset-gpio/bluetooth-btusb-request-the-reset-gpio-only-where-a-handler-uses-it.patch",
+      "description": "Bluetooth: btusb: Request the reset GPIO only where a handler uses it",
+      "stack": "btusb-reset-gpio"
+    },
+    {
+      "file": "0313-hwspinlock-sun6i-d1--hwspinlock-sun6i-get-the-clock-and-the-reset-without-names.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/hwspinlock-sun6i-d1/hwspinlock-sun6i-get-the-clock-and-the-reset-without-names.patch",
+      "description": "hwspinlock: sun6i: Get the clock and the reset without names",
+      "stack": "hwspinlock-sun6i-d1"
+    },
+    {
+      "file": "0314-hwspinlock-sun6i-d1--dt-bindings-hwlock-sun6i-add-compatible-for-allwinner-d1.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/hwspinlock-sun6i-d1/dt-bindings-hwlock-sun6i-add-compatible-for-allwinner-d1.patch",
+      "description": "dt-bindings: hwlock: sun6i: Add compatible for Allwinner D1",
+      "stack": "hwspinlock-sun6i-d1"
+    },
+    {
+      "file": "0315-a733-hwspinlock--dt-bindings-hwlock-sun6i-add-compatible-for-allwinner-a733.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-hwspinlock/dt-bindings-hwlock-sun6i-add-compatible-for-allwinner-a733.patch",
+      "description": "dt-bindings: hwlock: sun6i: Add compatible for Allwinner A733",
+      "stack": "a733-hwspinlock"
+    },
+    {
+      "file": "0316-a733-hwspinlock--arm64-dts-allwinner-a733-add-the-hardware-spinlock.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-hwspinlock/arm64-dts-allwinner-a733-add-the-hardware-spinlock.patch",
+      "description": "arm64: dts: allwinner: a733: Add the hardware spinlock",
+      "stack": "a733-hwspinlock"
+    },
+    {
+      "file": "0317-a733-hwspinlock--arm64-defconfig-enable-the-allwinner-hardware-spinlock-driver.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-hwspinlock/arm64-defconfig-enable-the-allwinner-hardware-spinlock-driver.patch",
+      "description": "arm64: defconfig: Enable the Allwinner hardware spinlock driver",
+      "stack": "a733-hwspinlock"
+    },
+    {
+      "file": "0318-a733-ramoops-a7s--arm64-dts-allwinner-a733-cubie-a7s-add-a-ramoops-region.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ramoops-a7s/arm64-dts-allwinner-a733-cubie-a7s-add-a-ramoops-region.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Add a ramoops region",
+      "stack": "a733-ramoops-a7s"
+    },
+    {
+      "file": "0319-a733-ir--dt-bindings-media-allwinner-sun4i-a10-ir-add-the-a733-compatible.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ir/dt-bindings-media-allwinner-sun4i-a10-ir-add-the-a733-compatible.patch",
+      "description": "dt-bindings: media: allwinner,sun4i-a10-ir: Add the A733 compatible",
+      "stack": "a733-ir"
+    },
+    {
+      "file": "0320-a733-ir--arm64-dts-allwinner-a733-add-the-s_ir_rx-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ir/arm64-dts-allwinner-a733-add-the-s_ir_rx-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the S_IR_RX controller",
+      "stack": "a733-ir"
+    },
+    {
+      "file": "0321-gpiolib-hog--gpiolib-take-a-hog-s-line-from-the-controller-s-of_xlate.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/gpiolib-hog/gpiolib-take-a-hog-s-line-from-the-controller-s-of_xlate.patch",
+      "description": "gpiolib: take a hog's line from the controller's of_xlate()",
+      "stack": "gpiolib-hog"
+    },
+    {
+      "file": "0322-a733-a7s-bank-supplies-2--arm64-dts-allwinner-a733-cubie-a7s-add-the-remaining-pin-bank-supplies.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-a7s-bank-supplies-2/arm64-dts-allwinner-a733-cubie-a7s-add-the-remaining-pin-bank-supplies.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Add the remaining pin bank supplies",
+      "stack": "a733-a7s-bank-supplies-2"
+    },
+    {
+      "file": "0323-a733-g2d-base--dt-bindings-media-add-allwinner-a733-2d-graphics-accelerator.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-g2d-base/dt-bindings-media-add-allwinner-a733-2d-graphics-accelerator.patch",
+      "description": "dt-bindings: media: Add Allwinner A733 2D graphics accelerator",
+      "stack": "a733-g2d-base"
+    },
+    {
+      "file": "0324-a733-g2d-base--arm64-dts-allwinner-a733-give-iommu1-the-2d-accelerator-port-gate.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-g2d-base/arm64-dts-allwinner-a733-give-iommu1-the-2d-accelerator-port-gate.patch",
+      "description": "arm64: dts: allwinner: a733: Give IOMMU1 the 2D accelerator port gate",
+      "stack": "a733-g2d-base"
+    },
+    {
+      "file": "0325-a733-g2d-base--arm64-dts-allwinner-a733-add-the-2d-graphics-accelerator.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-g2d-base/arm64-dts-allwinner-a733-add-the-2d-graphics-accelerator.patch",
+      "description": "arm64: dts: allwinner: a733: Add the 2D graphics accelerator",
+      "stack": "a733-g2d-base"
+    },
+    {
+      "file": "0326-musb-gadget-rx-restart--usb-musb-gadget-do-not-flush-a-waiting-rx-packet-on-restart.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/musb-gadget-rx-restart/usb-musb-gadget-do-not-flush-a-waiting-rx-packet-on-restart.patch",
+      "description": "usb: musb: gadget: Do not flush a waiting RX packet on restart",
+      "stack": "musb-gadget-rx-restart"
+    },
+    {
+      "file": "0327-a733-pinctrl-pow-mod-sel-2bit--pinctrl-sunxi-add-a-two-bit-pow-mod-sel-withstand-voltage-variant.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl-pow-mod-sel-2bit/pinctrl-sunxi-add-a-two-bit-pow-mod-sel-withstand-voltage-variant.patch",
+      "description": "pinctrl: sunxi: Add a two-bit POW_MOD_SEL withstand voltage variant",
+      "stack": "a733-pinctrl-pow-mod-sel-2bit"
+    },
+    {
+      "file": "0328-a733-pinctrl-pow-mod-sel-2bit--pinctrl-sunxi-a733-set-the-withstand-voltage-of-the-banks-with-a-supply.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-pinctrl-pow-mod-sel-2bit/pinctrl-sunxi-a733-set-the-withstand-voltage-of-the-banks-with-a-supply.patch",
+      "description": "pinctrl: sunxi: a733: Set the withstand voltage of the banks with a supply",
+      "stack": "a733-pinctrl-pow-mod-sel-2bit"
+    },
+    {
+      "file": "0329-a733-di-base--dt-bindings-media-add-allwinner-a733-deinterlace-unit.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-di-base/dt-bindings-media-add-allwinner-a733-deinterlace-unit.patch",
+      "description": "dt-bindings: media: Add Allwinner A733 deinterlace unit",
+      "stack": "a733-di-base"
+    },
+    {
+      "file": "0330-a733-di-base--arm64-dts-allwinner-a733-give-iommu1-the-deinterlace-unit-port-gate.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-di-base/arm64-dts-allwinner-a733-give-iommu1-the-deinterlace-unit-port-gate.patch",
+      "description": "arm64: dts: allwinner: a733: Give IOMMU1 the deinterlace unit port gate",
+      "stack": "a733-di-base"
+    },
+    {
+      "file": "0331-a733-di-base--arm64-dts-allwinner-a733-add-the-deinterlace-unit.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-di-base/arm64-dts-allwinner-a733-add-the-deinterlace-unit.patch",
+      "description": "arm64: dts: allwinner: a733: Add the deinterlace unit",
+      "stack": "a733-di-base"
+    },
+    {
+      "file": "0332-a733-s-pwm--arm64-dts-allwinner-a733-add-the-s_pwm-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-s-pwm/arm64-dts-allwinner-a733-add-the-s_pwm-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the S_PWM controller",
+      "stack": "a733-s-pwm"
+    },
+    {
+      "file": "0333-a733-csi-isp-base--dt-bindings-media-add-allwinner-a733-camera-sensor-interface-controller.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-csi-isp-base/dt-bindings-media-add-allwinner-a733-camera-sensor-interface-controller.patch",
+      "description": "dt-bindings: media: Add Allwinner A733 camera sensor interface controller",
+      "stack": "a733-csi-isp-base"
+    },
+    {
+      "file": "0334-a733-csi-isp-base--dt-bindings-media-add-allwinner-a733-image-signal-processor.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-csi-isp-base/dt-bindings-media-add-allwinner-a733-image-signal-processor.patch",
+      "description": "dt-bindings: media: Add Allwinner A733 image signal processor",
+      "stack": "a733-csi-isp-base"
+    },
+    {
+      "file": "0335-a733-csi-isp-base--arm64-dts-allwinner-a733-give-iommu0-the-csi-and-isp-port-gates.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-csi-isp-base/arm64-dts-allwinner-a733-give-iommu0-the-csi-and-isp-port-gates.patch",
+      "description": "arm64: dts: allwinner: a733: Give IOMMU0 the CSI and ISP port gates",
+      "stack": "a733-csi-isp-base"
+    },
+    {
+      "file": "0336-a733-csi-isp-base--arm64-dts-allwinner-a733-add-the-camera-sensor-interface-and-isp.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-csi-isp-base/arm64-dts-allwinner-a733-add-the-camera-sensor-interface-and-isp.patch",
+      "description": "arm64: dts: allwinner: a733: Add the camera sensor interface and ISP",
+      "stack": "a733-csi-isp-base"
+    },
+    {
+      "file": "0337-a733-r-header--arm64-dts-allwinner-a733-add-the-s_uart0-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-r-header/arm64-dts-allwinner-a733-add-the-s_uart0-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the S_UART0 controller",
+      "stack": "a733-r-header"
+    },
+    {
+      "file": "0338-a733-r-header--arm64-dts-allwinner-a733-add-the-s_spi0-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-r-header/arm64-dts-allwinner-a733-add-the-s_spi0-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the S_SPI0 controller",
+      "stack": "a733-r-header"
+    },
+    {
+      "file": "0339-a733-r-header--arm64-dts-allwinner-a733-build-the-cubie-a7s-device-tree-with-symbols.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-r-header/arm64-dts-allwinner-a733-build-the-cubie-a7s-device-tree-with-symbols.patch",
+      "description": "arm64: dts: allwinner: a733: Build the Cubie A7S device tree with symbols",
+      "stack": "a733-r-header"
+    },
+    {
+      "file": "0340-a733-r-spi0-dma--arm64-dts-allwinner-a733-add-the-dma-requests-of-s_spi0.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-r-spi0-dma/arm64-dts-allwinner-a733-add-the-dma-requests-of-s_spi0.patch",
+      "description": "arm64: dts: allwinner: a733: Add the DMA requests of S_SPI0",
+      "stack": "a733-r-spi0-dma"
+    },
+    {
+      "file": "0341-a733-ccu-pll-ref--clk-sunxi-ng-a733-select-pll_ref-as-the-input-of-the-plls.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-pll-ref/clk-sunxi-ng-a733-select-pll_ref-as-the-input-of-the-plls.patch",
+      "description": "clk: sunxi-ng: a733: Select PLL_REF as the input of the PLLs",
+      "stack": "a733-ccu-pll-ref"
+    },
+    {
+      "file": "0342-a733-j6-cpus--arm64-dts-allwinner-a733-add-the-s_uart0-pin-group-on-pm3-pm4.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-j6-cpus/arm64-dts-allwinner-a733-add-the-s_uart0-pin-group-on-pm3-pm4.patch",
+      "description": "arm64: dts: allwinner: a733: Add the S_UART0 pin group on PM3/PM4",
+      "stack": "a733-j6-cpus"
+    },
+    {
+      "file": "0343-a733-j6-cpus--arm64-dts-allwinner-a733-add-the-s_uart1-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-j6-cpus/arm64-dts-allwinner-a733-add-the-s_uart1-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the S_UART1 controller",
+      "stack": "a733-j6-cpus"
+    },
+    {
+      "file": "0344-a733-j6-cpus--arm64-dts-allwinner-a733-add-the-s_twi2-controller.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-j6-cpus/arm64-dts-allwinner-a733-add-the-s_twi2-controller.patch",
+      "description": "arm64: dts: allwinner: a733: Add the S_TWI2 controller",
+      "stack": "a733-j6-cpus"
+    },
+    {
+      "file": "0345-a733-mixer-blend--drm-sun4i-vi_layer-blend-alpha-formats-pre-multiplied.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-mixer-blend/drm-sun4i-vi_layer-blend-alpha-formats-pre-multiplied.patch",
+      "description": "drm/sun4i: vi_layer: Blend alpha formats pre-multiplied",
+      "stack": "a733-mixer-blend"
+    },
+    {
+      "file": "0346-a733-emmc-card--arm64-dts-allwinner-a733-mark-the-emmc-bus-of-the-cubie-a7s-as-mmc-only.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-emmc-card/arm64-dts-allwinner-a733-mark-the-emmc-bus-of-the-cubie-a7s-as-mmc-only.patch",
+      "description": "arm64: dts: allwinner: a733: Mark the eMMC bus of the Cubie A7S as MMC only",
+      "stack": "a733-emmc-card"
+    },
+    {
+      "file": "0347-sun4i-drm-teardown--drm-sun4i-sun8i_dw_hdmi-set-up-the-bridge-in-probe.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-drm-teardown/drm-sun4i-sun8i_dw_hdmi-set-up-the-bridge-in-probe.patch",
+      "description": "drm/sun4i: sun8i_dw_hdmi: Set up the bridge in probe",
+      "stack": "sun4i-drm-teardown"
+    },
+    {
+      "file": "0348-sun4i-drm-teardown--drm-sun4i-drv-do-not-call-drm_mode_config_cleanup.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-drm-teardown/drm-sun4i-drv-do-not-call-drm_mode_config_cleanup.patch",
+      "description": "drm/sun4i: drv: Do not call drm_mode_config_cleanup()",
+      "stack": "sun4i-drm-teardown"
+    },
+    {
+      "file": "0349-sun4i-drm-teardown--drm-sun4i-hdmi-let-drm-manage-the-encoder-and-its-me.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-drm-teardown/drm-sun4i-hdmi-let-drm-manage-the-encoder-and-its-me.patch",
+      "description": "drm/sun4i: hdmi: Let DRM manage the encoder and its memory",
+      "stack": "sun4i-drm-teardown"
+    },
+    {
+      "file": "0350-sun4i-drm-teardown--drm-sun4i-crtc-let-drm-manage-the-crtc.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-drm-teardown/drm-sun4i-crtc-let-drm-manage-the-crtc.patch",
+      "description": "drm/sun4i: crtc: Let DRM manage the CRTC",
+      "stack": "sun4i-drm-teardown"
+    },
+    {
+      "file": "0351-sun4i-drm-teardown--drm-sun4i-layer-let-drm-manage-the-planes.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-drm-teardown/drm-sun4i-layer-let-drm-manage-the-planes.patch",
+      "description": "drm/sun4i: layer: Let DRM manage the planes",
+      "stack": "sun4i-drm-teardown"
+    },
+    {
+      "file": "0352-sun4i-drm-teardown--drm-sun4i-ui_layer-vi_layer-let-drm-manage-the-planes.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-drm-teardown/drm-sun4i-ui_layer-vi_layer-let-drm-manage-the-planes.patch",
+      "description": "drm/sun4i: ui_layer, vi_layer: Let DRM manage the planes",
+      "stack": "sun4i-drm-teardown"
+    },
+    {
+      "file": "0353-sun4i-drm-teardown--drm-sun4i-rgb-let-drm-manage-the-encoder-and-connect.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-drm-teardown/drm-sun4i-rgb-let-drm-manage-the-encoder-and-connect.patch",
+      "description": "drm/sun4i: rgb: Let DRM manage the encoder and connector",
+      "stack": "sun4i-drm-teardown"
+    },
+    {
+      "file": "0354-sun4i-drm-teardown--drm-sun4i-lvds-let-drm-manage-the-encoder-and-connec.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-drm-teardown/drm-sun4i-lvds-let-drm-manage-the-encoder-and-connec.patch",
+      "description": "drm/sun4i: lvds: Let DRM manage the encoder and connector",
+      "stack": "sun4i-drm-teardown"
+    },
+    {
+      "file": "0355-sun4i-drm-teardown--drm-sun4i-sun8i_dw_hdmi-let-drm-manage-the-encoder.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-drm-teardown/drm-sun4i-sun8i_dw_hdmi-let-drm-manage-the-encoder.patch",
+      "description": "drm/sun4i: sun8i_dw_hdmi: Let DRM manage the encoder",
+      "stack": "sun4i-drm-teardown"
+    },
+    {
+      "file": "0356-sun4i-drm-teardown--drm-sun4i-sun6i_mipi_dsi-clean-up-the-encoder-and-co.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-drm-teardown/drm-sun4i-sun6i_mipi_dsi-clean-up-the-encoder-and-co.patch",
+      "description": "drm/sun4i: sun6i_mipi_dsi: Clean up the encoder and connector on unbind",
+      "stack": "sun4i-drm-teardown"
+    },
+    {
+      "file": "0357-a733-dp-attach--drm-sun4i-sun60i-dp-unwind-the-bridge-attach-on-failure.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp-attach/drm-sun4i-sun60i-dp-unwind-the-bridge-attach-on-failure.patch",
+      "description": "drm/sun4i: sun60i_dp: Unwind the bridge attach on failure",
+      "stack": "a733-dp-attach"
+    },
+    {
+      "file": "0358-a733-de-vi1--drm-sun4i-sun60i-de-top-map-blender-port-1-to-vi-channel-1.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-de-vi1/drm-sun4i-sun60i-de-top-map-blender-port-1-to-vi-channel-1.patch",
+      "description": "drm/sun4i: sun60i_de_top: Map blender port 1 to VI channel 1",
+      "stack": "a733-de-vi1"
+    },
+    {
+      "file": "0359-a733-de-vi1--drm-sun4i-mixer-add-vi-channel-1-of-the-a733-as-an-overlay-plane.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-de-vi1/drm-sun4i-mixer-add-vi-channel-1-of-the-a733-as-an-overlay-plane.patch",
+      "description": "drm/sun4i: mixer: Add VI channel 1 of the A733 as an overlay plane",
+      "stack": "a733-de-vi1"
+    },
+    {
+      "file": "0360-a733-dp-usb--drm-sun4i-sun60i-dp-limit-the-lanes-to-what-the-phy-offers.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp-usb/drm-sun4i-sun60i-dp-limit-the-lanes-to-what-the-phy-offers.patch",
+      "description": "drm/sun4i: sun60i-dp: Limit the lanes to what the PHY offers",
+      "stack": "a733-dp-usb"
+    },
+    {
+      "file": "0361-a733-dp-usb--phy-allwinner-a733-combophy-add-displayport-next-to-usb3.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp-usb/phy-allwinner-a733-combophy-add-displayport-next-to-usb3.patch",
+      "description": "phy: allwinner: a733-combophy: Add DisplayPort next to USB3",
+      "stack": "a733-dp-usb"
+    },
+    {
+      "file": "0362-a733-dp-usb--arm64-dts-allwinner-a733-cubie-a7s-offer-displayport-pin-assignment-d.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp-usb/arm64-dts-allwinner-a733-cubie-a7s-offer-displayport-pin-assignment-d.patch",
+      "description": "arm64: dts: allwinner: a733-cubie-a7s: Offer DisplayPort pin assignment D",
+      "stack": "a733-dp-usb"
+    },
+    {
+      "file": "0363-a733-dp-audio--dt-bindings-display-allwinner-a733-dp-allow-sound-dai-cells.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp-audio/dt-bindings-display-allwinner-a733-dp-allow-sound-dai-cells.patch",
+      "description": "dt-bindings: display: allwinner: a733-dp: Allow #sound-dai-cells",
+      "stack": "a733-dp-audio"
+    },
+    {
+      "file": "0364-a733-dp-audio--drm-sun4i-sun60i-dp-add-stereo-audio.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp-audio/drm-sun4i-sun60i-dp-add-stereo-audio.patch",
+      "description": "drm/sun4i: sun60i_dp: Add stereo audio",
+      "stack": "a733-dp-audio"
+    },
+    {
+      "file": "0365-a733-dp-audio--arm64-dts-allwinner-a733-cubie-a7s-add-displayport-audio.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-dp-audio/arm64-dts-allwinner-a733-cubie-a7s-add-displayport-audio.patch",
+      "description": "arm64: dts: allwinner: a733-cubie-a7s: Add DisplayPort audio",
+      "stack": "a733-dp-audio"
+    },
+    {
+      "file": "0366-a733-display-s2idle--drm-sun4i-sun60i-de-top-restore-the-registers-after-system-suspend.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display-s2idle/drm-sun4i-sun60i-de-top-restore-the-registers-after-system-suspend.patch",
+      "description": "drm/sun4i: sun60i_de_top: Restore the registers after system suspend",
+      "stack": "a733-display-s2idle"
+    },
+    {
+      "file": "0367-a733-display-s2idle--drm-sun4i-mixer-set-the-mixer-up-again-at-mode-set.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display-s2idle/drm-sun4i-mixer-set-the-mixer-up-again-at-mode-set.patch",
+      "description": "drm/sun4i: mixer: Set the mixer up again at mode set",
+      "stack": "a733-display-s2idle"
+    },
+    {
+      "file": "0368-a733-display-s2idle--clk-sunxi-ng-a733-vo1-restore-the-registers-after-system-suspend.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-display-s2idle/clk-sunxi-ng-a733-vo1-restore-the-registers-after-system-suspend.patch",
+      "description": "clk: sunxi-ng: a733-vo1: Restore the registers after system suspend",
+      "stack": "a733-display-s2idle"
+    },
+    {
+      "file": "0369-sun4i-tv-defer--drm-sun4i-tv-clean-up-the-encoder-when-bind-defers.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-tv-defer/drm-sun4i-tv-clean-up-the-encoder-when-bind-defers.patch",
+      "description": "drm/sun4i: tv: Clean up the encoder when bind defers",
+      "stack": "sun4i-tv-defer"
+    },
+    {
+      "file": "0370-drm-dp-crc-stop--drm-dp-flush-the-crc-worker-before-stopping-the-sink-crc.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/drm-dp-crc-stop/drm-dp-flush-the-crc-worker-before-stopping-the-sink-crc.patch",
+      "description": "drm/dp: Flush the CRC worker before stopping the sink CRC",
+      "stack": "drm-dp-crc-stop"
+    },
+    {
+      "file": "0371-drm-dp-crc-stop--drm-dp-end-the-crc-capture-when-the-crtc-is-off.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/drm-dp-crc-stop/drm-dp-end-the-crc-capture-when-the-crtc-is-off.patch",
+      "description": "drm/dp: End the CRC capture when the CRTC is off",
+      "stack": "drm-dp-crc-stop"
+    },
+    {
+      "file": "0372-a733-no-system-sleep--arm64-defconfig-switch-system-suspend-off.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-no-system-sleep/arm64-defconfig-switch-system-suspend-off.patch",
+      "description": "arm64: defconfig: Switch system suspend off",
+      "stack": "a733-no-system-sleep"
+    },
+    {
+      "file": "0373-sun4i-crtc-disable-planes--drm-sun4i-crtc-let-the-engine-stop-its-planes-when-the-crtc-is-disabled.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-crtc-disable-planes/drm-sun4i-crtc-let-the-engine-stop-its-planes-when-the-crtc-is-disabled.patch",
+      "description": "drm/sun4i: crtc: Let the engine stop its planes when the CRTC is disabled",
+      "stack": "sun4i-crtc-disable-planes"
+    },
+    {
+      "file": "0374-sun4i-crtc-disable-planes--drm-sun4i-mixer-turn-the-layers-off-when-the-crtc-is-disabled.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-crtc-disable-planes/drm-sun4i-mixer-turn-the-layers-off-when-the-crtc-is-disabled.patch",
+      "description": "drm/sun4i: mixer: Turn the layers off when the CRTC is disabled",
+      "stack": "sun4i-crtc-disable-planes"
+    },
+    {
+      "file": "0375-a733-sd-slot-emmc--mmc-sunxi-do-not-offer-emmc-ddr52-on-the-a733-sd-controllers.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-sd-slot-emmc/mmc-sunxi-do-not-offer-emmc-ddr52-on-the-a733-sd-controllers.patch",
+      "description": "mmc: sunxi: Do not offer eMMC DDR52 on the A733 SD controllers",
+      "stack": "a733-sd-slot-emmc"
+    },
+    {
+      "file": "0376-a733-sd-slot-emmc--arm64-dts-allwinner-a733-cubie-a7s-allow-emmc-modules-in-the-sd-slot.patch",
+      "layer": "base",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-sd-slot-emmc/arm64-dts-allwinner-a733-cubie-a7s-allow-emmc-modules-in-the-sd-slot.patch",
+      "description": "arm64: dts: allwinner: a733: cubie-a7s: Allow eMMC modules in the SD slot",
+      "stack": "a733-sd-slot-emmc"
+    },
+    {
+      "file": "0377-a733-ccu-audio-rates--clk-sunxi-ng-a733-add-a-pll_audio0-point-for-32-khz-and-192-khz.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/a733-ccu-audio-rates/clk-sunxi-ng-a733-add-a-pll_audio0-point-for-32-khz-and-192-khz.patch",
+      "description": "clk: sunxi-ng: a733: Add a PLL_AUDIO0 point for 32 kHz and 192 kHz",
+      "stack": "a733-ccu-audio-rates"
+    },
+    {
+      "file": "0378-sun4i-i2s-clk-rate--asoc-sun4i-i2s-pick-a-module-clock-rate-the-dividers-can-reach.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-i2s-clk-rate/asoc-sun4i-i2s-pick-a-module-clock-rate-the-dividers-can-reach.patch",
+      "description": "ASoC: sun4i-i2s: Pick a module clock rate the dividers can reach",
+      "stack": "sun4i-i2s-clk-rate"
+    },
+    {
+      "file": "0379-sun4i-i2s-clk-rate--asoc-sun4i-i2s-set-the-module-clock-rate-with-the-module-clock-off.patch",
+      "layer": "optional",
+      "origin": "https://github.com/DockSeed/a7s-linux-mainline/blob/da00673e098b2b7198f089f84d0890df9753e821/patches/sun4i-i2s-clk-rate/asoc-sun4i-i2s-set-the-module-clock-rate-with-the-module-clock-off.patch",
+      "description": "ASoC: sun4i-i2s: Set the module clock rate with the module clock off",
+      "stack": "sun4i-i2s-clk-rate"
+    }
+  ]
 }
