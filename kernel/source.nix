@@ -20,9 +20,7 @@ let
   # environment.
   series =
     layer: list:
-    writeText "linux-a733-patches-${layer}" (
-      lib.concatMapStrings (p: "${p.path} ${p.file}\n") list
-    );
+    writeText "linux-a733-patches-${layer}" (lib.concatMapStrings (p: "${p.path} ${p.file}\n") list);
   baseSeries = series "base" patches.base;
   optionalSeries = series "optional" patches.optional;
 in
