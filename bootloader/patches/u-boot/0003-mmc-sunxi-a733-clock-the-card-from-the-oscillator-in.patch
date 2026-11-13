@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alessio Corsi <alessio.corsi@gmail.com>
+Date: Fri, 13 Nov 2026 05:02:30 +0100
+Subject: [PATCH] mmc: sunxi: a733: clock the card from the oscillator in a
+ blob-less SPL
+
+The MMC driver takes clocks above 24 MHz from PLL_PERIPH0 as it finds
+it. On the A733 nothing in U-Boot sets that PLL up, and an SPL built with
+SUNXI_A733_DRAM_SOURCE runs no blob that might have.
+
+Use the 24 MHz oscillator for every card clock in such an SPL, as the
+manufacturer's loader does. The card then runs at 24 MHz at most while
+the SPL loads U-Boot.
+---
+ drivers/mmc/sunxi_mmc.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/sunxi_mmc.c b/drivers/mmc/sunxi_mmc.c
+index a65747e7..a994801d 100644
+--- a/drivers/mmc/sunxi_mmc.c
++++ b/drivers/mmc/sunxi_mmc.c
+@@ -56,6 +56,18 @@ static bool sunxi_mmc_a733_spl(void)
+ 	       IS_ENABLED(CONFIG_MACH_SUN60I_A733);
+ }
+ 
++/*
++ * An A733 SPL that initialises DRAM itself runs without the libdram blob
++ * and on the clocks the boot ROM left: nothing has set up PLL_PERIPH0.
++ * Clock the card from the 24 MHz oscillator, as the manufacturer's loader
++ * does; that caps it at 24 MHz, which is enough to load U-Boot.
++ */
++static bool sunxi_mmc_osc_only(void)
++{
++	return sunxi_mmc_a733_spl() &&
++	       IS_ENABLED(CONFIG_SUNXI_A733_DRAM_SOURCE);
++}
++
+ /*
+  * Keep A733 SPL controller programming stages apart. Without these gaps,
+  * back-to-back operations become unreliable; serial diagnostics previously
+@@ -91,7 +103,7 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
+ 	if (IS_ENABLED(CONFIG_MACH_SUN8I_A83T) && priv->mmc_no != 2)
+ 		new_mode = false;
+ 
+-	if (hz <= 24000000) {
++	if (hz <= 24000000 || sunxi_mmc_osc_only()) {
+ 		pll = CCM_MMC_CTRL_OSCM24;
+ 		pll_hz = 24000000;
+ 	} else {

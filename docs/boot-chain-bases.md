@@ -53,13 +53,33 @@ In `bootloader/patches/`, applied by the derivations in the order of `bootloader
 | Patch | What it does |
 |---|---|
 | U-Boot 0001 | `SUNXI_A733_DRAM_SOURCE`: the boot hook no longer copies and runs a blob, it only switches to AArch64. BL31 moves to DRAM (`0x40000000`) and the SCP image goes, for an SPL built that way |
-| U-Boot 0002 | builds the DRAM library into the SPL and implements its platform interface: register access, polling with a 5 s timeout, delays, the DRAM rails on the AXP318W through a small polling driver for R_TWI0, the memory strap on GPADC channel 1. Links the PHY firmware from the file named by `A733_DRAM_PAYLOAD` |
-| U-Boot 0003 | the board: `orangepi_zero3w_defconfig` and `sun60i-a733-orangepi-zero3w.dts` (UART0 on PB9/PB10, microSD on mmc0, PMIC on R_TWI0, from `docs/zero3w-wiring.md`) |
+| U-Boot 0002 | builds the DRAM library into the SPL and implements its platform interface: register access, polling with a 5 s timeout, delays, the DRAM rails on the AXP318W through a small polling driver for R_TWI0, the memory strap on GPADC channel 1. Links the PHY firmware from the file named by `A733_DRAM_PAYLOAD`. Does what boot0 does before DRAM init and nothing else in the SPL does (see below) |
+| U-Boot 0003 | the SPL clocks the card from the 24 MHz oscillator, not from PLL_PERI0 |
+| U-Boot 0004 | the board: `orangepi_zero3w_defconfig` and `sun60i-a733-orangepi-zero3w.dts` (UART0 on PB9/PB10, microSD on mmc0, PMIC on R_TWI0, from `docs/zero3w-wiring.md`) |
 | TF-A 0001 | BL31 runs from DRAM by default on the A733, as on the H616 |
 
 The DRAM library itself is not a patch: `bootloader/u-boot.nix` copies `bootloader/dram/include`
 and `src` into `arch/arm/mach-sunxi/a733_dram/` of the U-Boot tree, so there is one copy of it,
 the one `make -C bootloader/dram check` tests.
+
+## What boot0 does before DRAM init, and what our SPL does about it
+
+From `docs/dram-init-spec.md`, "boot0 before and after the DRAM routine, in registers". In the
+base tree the blob did these things; without it they are ours.
+
+| boot0 | Our SPL |
+|---|---|
+| UART0 gate, reset, pins, divisor 13 for 115200 at 24 MHz | U-Boot's own console setup, same divisor |
+| PMIC first contact: ID register `0x0e` must read 3; DCDC4 on; bit 7 of `0x13`–`0x1a` | the same, in the glue; a wrong ID stops DRAM init |
+| CPU supply to 800 mV and the three CPU PLLs to 1008, 1008 and 744 MHz | not done: the cores stay on the clock the boot ROM left. Slower, not wrong; to be added with the TF-A power work |
+| bit 24 of thirteen PLL registers | the same, in the glue |
+| bus clock switch at `CCU+0x518`, `+0x580`, `0x07010010` | not done: U-Boot's drivers were written against a chain that had it, so this is the first thing to add if U-Boot proper misbehaves |
+| GPADC clock, gate and reset, then setup | the same, in the glue |
+| strap: three samples averaged, repeated until stable within 5 mV, 2 s at most | the same; unlike boot0, no data from the GPADC stops DRAM init instead of selecting block 0 |
+| a write of `0xc` to `0x07090000` after the GPADC setup | not done: purpose not known |
+| DRAM rails by its regulator table | the same table: ELDO1 at "1080 mV" is code 23, 1075 mV, as in boot0 |
+| MMC0 from the 24 MHz oscillator, card capped at 25 MHz | U-Boot 0003: the SPL uses the oscillator for every card clock |
+| after DRAM: no register write | nothing to do |
 
 ## The PHY training firmware
 
@@ -136,34 +156,23 @@ None of this shows that the board boots.
 
 ## Not known
 
-Facts the chain depends on and that neither the public trees nor our documents settle. They
-are asked of the analysis side where it can know them; the rest waits for the board.
+What the chain depends on and neither the public trees nor our documents settle. The analysis
+side settled the rest on 2026-11-13 (clocks before DRAM init, PMIC encodings, the strap, the
+SRAM range, what boot0 leaves behind); those are in the table above.
 
-1. **Clocks before DRAM init.** U-Boot skips its clock setup on the A733 ("skip clock init for
-   A733 for now"): in the base tree the blob runs first and, being a cut-down boot0, very
-   likely sets up the PLLs. Our SPL runs no blob. Its MMC driver takes the card clock from
-   PLL_PERI0 as it finds it (`CCU + 0xa0`); if the BROM leaves that PLL off, the SPL trains
-   DRAM and then fails to read the FIT. FEL does not need the card, so DRAM init can be tried
-   before this is settled.
-2. **AXP318W encodings.** The rail tables are those of the base tree. For ELDO1 they say
-   500 mV plus 25 mV steps, in which the 1080 mV the vendor driver asks for does not exist
-   (the schematic says 1.078 V); the glue rounds down to 1075 mV. It logs the value each
-   rail had before, writes only if that differs, and refuses anything above 700 mV on DCDC6
-   and 1250 mV on the others.
-3. **Memory strap.** The glue reads GPADC channel 1 as the base tree's GPADC code does and
-   takes the reading as millivolts of 1800 mV full scale. Whether the GPADC needs a clock gate
-   or reset first, and the unit of the thresholds, are not confirmed. No reading stops the
-   init; a wrong reading selects the wrong memory fit. `CONFIG_SUNXI_A733_DRAM_STRAP` sets the
-   index by hand (the 12 GiB board is index 5).
-4. **SRAM extent.** The early stack sits below `0x90000`. The base tree's SPL image may reach
-   that far and its blob runs from `0x90000`, so the BROM loads there and the memory exists.
-   Whether the BROM keeps anything of its own there in FEL mode is not known.
-5. **Crystal.** The schematic says 26 MHz. U-Boot assumes 24 MHz for the UART divisor, the
-   timer and the delays. If the SoC does not normalise the clock, the console runs at 124 800
-   baud instead of 115 200 and every delay is 8 % short.
-6. **R_TWI0 clock.** The polling driver sets its divider for 100 kHz from a 24 MHz bus clock;
+1. **Crystal.** The schematic says 26 MHz. boot0 treats the reference as 24 MHz everywhere
+   and reads no strap for it; so does U-Boot. If the vendor log is readable at 115200 baud,
+   the SoC sees 24 MHz and the question is closed. If not, the console runs at 124 800 baud
+   and every delay is 8 % short.
+2. **PLL_PERI0 for U-Boot proper.** The SPL no longer needs it. U-Boot proper still takes
+   faster card clocks from it, as it does on the chain with the blob, where it works on what
+   the boot ROM left plus bit 24.
+3. **The bus clock switch and the CPU PLLs** that boot0 does and our SPL does not (table
+   above). Not needed to reach U-Boot as far as the code shows; unverified.
+4. **R_TWI0 clock.** The polling driver sets its divider for 100 kHz from a 24 MHz bus clock;
    the actual bus clock is not known. Any plausible value gives a rate the PMIC accepts.
-7. **What else the vendor loader sets up.** boot0 and `ddr.bin` do more than DRAM (secure
-   memory setup, pad voltage settings). Whether BL31 or U-Boot rely on any of it is not known.
-8. **TF-A on this board.** The branch was tested by its author for power on and off on a
+5. **SRAM in FEL mode.** `0x47000`–`0xc9500` is RAM and boot0 itself puts its stack at
+   `0x8d000`, so the early stack below `0x90000` is sound for a boot from the card. Whether
+   the boot ROM keeps anything of its own there in FEL mode is not known.
+6. **TF-A on this board.** The branch was tested by its author for power on and off on a
    Radxa board; BL31 in DRAM on the A733 has not run anywhere.

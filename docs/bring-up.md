@@ -33,7 +33,7 @@ log. It is the reference for everything after:
 
 Serial settings: 115200 baud, 8 data bits, no parity, one stop bit, no flow control. If the
 vendor log is readable at 115200 but the mainline SPL prints garbage, try 124800 baud: the
-board's crystal is 26 MHz and U-Boot assumes 24 MHz ("Not known", item 5).
+board's crystal is 26 MHz and U-Boot assumes 24 MHz ("Not known", item 1).
 
 ## Step 1: build
 
@@ -70,8 +70,8 @@ Expected on the serial console, in this order:
 |---|---|
 | `U-Boot SPL 2026.07...` | the BROM loaded the SPL and the switch to AArch64 worked |
 | `DRAM:` | the SPL reached DRAM init |
-| `DRAM: strap at <n> mV, index <i>` | the memory strap; compare `<i>` with the block the vendor log names |
-| `DRAM: dcdc7 <mV> mV: code 0x.., was 0x.., on` and the same for `eldo1`, `dcdc6` | each rail: what is asked for, what the PMIC had |
+| `DRAM: strap at <n> mV, index <i>` | the PMIC answered and the memory strap was read; compare `<i>` with the block the vendor log names |
+| `DRAM: dcdc7 <mV> mV: code 0x.., was 0x.., on` and the same for `eldo1`, `dcdc6` | each rail: what is asked for, what the PMIC had. `eldo1 1080 mV` has code `0x17`, which is 1075 mV, as in the vendor loader |
 | `DRAM_VCC set to (mV) 560`, `DRAM CLK (MHz) = 2040` or `2400` | the parameter block in use |
 | `Training result is = 7`, `DRAM Pstate trained, frequency (MHz) ...`, four times | the PHY firmware trained each Pstate; 7 is success |
 | `DRAM SIZE (MiB) = ...`, `DRAM simple test OK` | size and memory test |
@@ -87,7 +87,8 @@ Where it can stop, and what that says:
 |---|---|---|
 | nothing at all | serial wiring or baud rate; or the SPL was not started: too large for the tool, the early stack at `0x90000` is not usable, or the AArch64 switch failed | the full `sunxi-fel -v` output; retry at 124800 baud |
 | garbage | baud rate: try 124800 | which rate gives text |
-| `DRAM: no reading from the memory strap` | the GPADC gave no data: probably its clock or reset ("Not known", item 3) | build with the strap index fixed and go on |
+| `DRAM: no answer from the PMIC` or `unexpected PMIC, ID 0x..` | R_TWI0 (pins, clock gate, the polling driver), or not an AXP318W | the line; the vendor log's PMIC lines |
+| `DRAM: no reading from the memory strap` | the GPADC gave no data | build with the strap index fixed and go on |
 | `DRAM: <rail>: PMIC read failed` | R_TWI0: pins, clock gate, or the polling driver | the error code in the line; the vendor log's PMIC lines |
 | the `was 0x..` values differ from the codes asked for | not a failure: it shows what the PMIC had. Compare with the vendor's voltages before trusting the new ones | all three lines |
 | `DRAM: timeout waiting on register 0x...` | the address says where: `0x2002020` the DDR PLL lock, `0xa1.....` or `0xa5.....` a controller, `0xa9.....` the PHY | the address, and everything printed before it |
@@ -136,7 +137,8 @@ reserved 256 KiB at `0x40000000`).
 | Stops after | Likely cause |
 |---|---|
 | nothing on serial, though step 2 worked | the BROM did not accept the image: offset on the card, or the eGON header. `ci/check-firmware.py` checks the header; check the card with `dd ... skip=128 count=1 \| xxd \| head` for `eGON.BT0` at byte 4 |
-| the SPL's DRAM output, then `Trying to boot from MMC1` and an error or a hang | the card clock: PLL_PERI0 is not set up by anyone on this chain ("Not known", item 1). This is the most likely stop of the whole session |
+| the SPL's DRAM output, then `Trying to boot from MMC1` and an error or a hang | the card: the SPL clocks it from the 24 MHz oscillator as boot0 does; pins, gate and reset are U-Boot's |
+| U-Boot starts but `mmc info` fails or is slow | U-Boot proper takes faster card clocks from PLL_PERI0, which nobody on this chain programs ("Not known", item 2) |
 | `mmc_load_image_raw_sector: mmc block read error` or a bad FIT | the SPL looks for the FIT at sector `0x250` + 240 from the start of the card's image offset; compare with `ci/check-firmware.py` |
 
 ## What to send back
