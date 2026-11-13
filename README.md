@@ -9,10 +9,11 @@ modules below from its own flake and builds its own image.
 
 > Status: the vendor variant (the manufacturer's kernel, boot chain, firmware
 > and drivers) builds and is published under Releases. The mainline variants
-> are not in yet: the A733 kernel patches and the device tree are still to
-> come. The open boot chain (U-Boot SPL with our own DRAM init, TF-A, U-Boot)
-> builds in CI and has not run on a board yet: see
-> [docs/boot-chain-bases.md](docs/boot-chain-bases.md) and
+> build in CI and have not run on a board yet: the open boot chain (U-Boot
+> SPL with our own DRAM init, TF-A, U-Boot), and Linux 7.3.4 with a vendored
+> A733 patch stack and a device tree for the board written from its
+> schematic. See [docs/boot-chain-bases.md](docs/boot-chain-bases.md),
+> [docs/kernel-zero3w.md](docs/kernel-zero3w.md) and
 > [docs/bring-up.md](docs/bring-up.md).
 
 ## Builds

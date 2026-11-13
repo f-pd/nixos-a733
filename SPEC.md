@@ -208,7 +208,7 @@ From `docs/supply-chain-audit.md`:
 
 ## 10. Open decisions
 
-- [ ] **D1 Patch stack per track.** Recommended: stack A (DockSeed) is the single base. `latest` = 7.3.y + stack A. `lts` = the same series backported to 6.18 if that is cheap (time-boxed); otherwise `lts` starts at the next longterm kernel that stack A already targets (7.4 if it is declared longterm; not confirmed), and until then the `lts` slot runs stack B (jonas5, 6.18) as an unsupported experiment. Alternative: stack B on `lts` permanently (two device trees).
+- [ ] **D1 Patch stack per track.** Recommended: stack A (DockSeed) is the single base. `latest` = 7.3.y + stack A. `lts` = the same series backported to 6.18 if that is cheap (time-boxed); otherwise `lts` starts at the next longterm kernel that stack A already targets (7.4 if it is declared longterm; not confirmed), and until then the `lts` slot runs stack B (jonas5, 6.18) as an unsupported experiment. Alternative: stack B on `lts` permanently (two device trees). Not decided; since 2026-11-13 `patches/` holds stack A and a Zero 3W device tree written for it, as an assumption to be confirmed (`docs/kernel-zero3w.md`).
 - [x] **D2 Firmware path.** Decided 2026-11-13: the whole boot chain is ours, built from source, with no vendor binary. U-Boot SPL with a DRAM init written here, after studying boot0 and Radxa's `ddr.bin`. No boot0 fallback.
 - [ ] **D3 Root location.** SD (minimal) + NVMe for `/nix` and data, or everything on NVMe with only firmware and `/boot` on SD.
 - [ ] **D4 Forge and CI.** Stay on GitHub Actions (free arm64 runners), or Codeberg/self-hosted Forgejo primary with a GitHub mirror and a homelab runner.

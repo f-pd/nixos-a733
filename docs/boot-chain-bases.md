@@ -55,8 +55,10 @@ In `bootloader/patches/`, applied by the derivations in the order of `bootloader
 | U-Boot 0001 | `SUNXI_A733_DRAM_SOURCE`: the boot hook no longer copies and runs a blob, it only switches to AArch64. BL31 moves to DRAM (`0x40000000`) and the SCP image goes, for an SPL built that way |
 | U-Boot 0002 | builds the DRAM library into the SPL and implements its platform interface: register access, polling with a 5 s timeout, delays, the DRAM rails on the AXP318W through a small polling driver for R_TWI0, the memory strap on GPADC channel 1. Links the PHY firmware from the file named by `A733_DRAM_PAYLOAD`. Does what boot0 does before DRAM init and nothing else in the SPL does (see below) |
 | U-Boot 0003 | the SPL clocks the card from the 24 MHz oscillator, not from PLL_PERI0 |
-| U-Boot 0004 | the board: `orangepi_zero3w_defconfig` and `sun60i-a733-orangepi-zero3w.dts` (UART0 on PB9/PB10, microSD on mmc0, PMIC on R_TWI0, from `docs/zero3w-wiring.md`) |
+| U-Boot 0004 | the board: `orangepi_zero3w_defconfig` and `sun60i-a733-orangepi-zero3w.dts` (UART0 on PB9/PB10, microSD on mmc0, PMIC on R_TWI0, USB0 as a host with keyboard and storage, from `docs/zero3w-wiring.md`) |
+| U-Boot 0005 | `SUNXI_A733_VENDOR_CLOCKS`, on by default: the system supply, the CPU PLLs and the bus clock as boot0 sets them (see below) |
 | TF-A 0001 | BL31 runs from DRAM by default on the A733, as on the H616 |
+| TF-A 0002 | PSCI `SYSTEM_OFF` powers the board off through the AXP318W |
 
 The DRAM library itself is not a patch: `bootloader/u-boot.nix` copies `bootloader/dram/include`
 and `src` into `arch/arm/mach-sunxi/a733_dram/` of the U-Boot tree, so there is one copy of it,
@@ -71,12 +73,13 @@ base tree the blob did these things; without it they are ours.
 |---|---|
 | UART0 gate, reset, pins, divisor 13 for 115200 at 24 MHz | U-Boot's own console setup, same divisor |
 | PMIC first contact: ID register `0x0e` must read 3; DCDC4 on; bit 7 of `0x13`–`0x1a` | the same, in the glue; a wrong ID stops DRAM init |
-| CPU supply to 800 mV and the three CPU PLLs to 1008, 1008 and 744 MHz | not done: the cores stay on the clock the boot ROM left. Slower, not wrong; to be added with the TF-A power work |
+| `0xa7070025` to `0x08000144`, twice; DCDC2 (register `0x13`) to code `0x1e`, 800 mV, and on (bit 1 of `0x10`) | the same, with `SUNXI_A733_VENDOR_CLOCKS`; a PMIC error here stops DRAM init |
 | bit 24 of thirteen PLL registers | the same, in the glue |
-| bus clock switch at `CCU+0x518`, `+0x580`, `0x07010010` | not done: U-Boot's drivers were written against a chain that had it, so this is the first thing to add if U-Boot proper misbehaves |
+| the three CPU PLLs, factors by the oscillator that bits 14–15 of `0x07090160` report (26 MHz: 1014, 1014 and 780 MHz), then the cores switched to them at `+0x1c` | the same sequence, with `SUNXI_A733_VENDOR_CLOCKS`. A PLL that does not lock within 10 ms leaves the CPU clocks as they are and DRAM init goes on, where boot0 would wait for ever |
+| bus clock switch at `CCU+0x518`, `0x07010010`, `CCU+0x580` | the same, with `SUNXI_A733_VENDOR_CLOCKS`; see "Not known", item 3, for the one field that is assumed |
 | GPADC clock, gate and reset, then setup | the same, in the glue |
 | strap: three samples averaged, repeated until stable within 5 mV, 2 s at most | the same; unlike boot0, no data from the GPADC stops DRAM init instead of selecting block 0 |
-| a write of `0xc` to `0x07090000` after the GPADC setup | not done: purpose not known |
+| a write of `0xc` to `0x07090000` after the GPADC setup | the same, with `SUNXI_A733_VENDOR_CLOCKS`, after the strap is read; purpose not known |
 | DRAM rails by its regulator table | the same table: ELDO1 at "1080 mV" is code 23, 1075 mV, as in boot0 |
 | MMC0 from the 24 MHz oscillator, card capped at 25 MHz | U-Boot 0003: the SPL uses the oscillator for every card clock |
 | after DRAM: no register write | nothing to do |
@@ -133,6 +136,32 @@ signature, the SPL size against the FEL limit, the FIT at `0x4a000`, U-Boot and 
 addresses with BL31 entered first, no SCP image, and the end of the file before the first
 partition.
 
+## USB in U-Boot
+
+The base tree drives USB0 and USB1 of the SoC (EHCI, OHCI, the MUSB controller and their PHY).
+It has no driver for USB2, the DWC3 controller with its USB 2 and combo PHYs.
+
+On the Zero 3W (`docs/zero3w-wiring.md`, "USB") USB1 reaches no connector, the Type-C data
+port is on USB2, and USB0 is on the Type-C port the board is powered through: fixed pull-downs
+on CC, no VBUS switch. So the one port U-Boot can use is the power port, as a host, and only
+with something that puts 5 V into that port while passing data: a powered hub or a Type-C
+adapter with power input. A keyboard or a stick there works at the prompt (`usb start` is
+run before it; `usb storage`, `usb tree`). The data port needs a DWC3 glue and two PHY
+drivers ported from the kernel patches: not done.
+
+## What TF-A lacks for this board
+
+| Function | State |
+|---|---|
+| CPU on and off | in the base branch, tested by its author on a Radxa board |
+| System reset | in the base branch: the reset register of the R-domain watchdog (`0x07021008`) |
+| System off | TF-A 0002: AXP318W register `0x55` bit 7 over R_TWI0. Nothing is needed from the analysis side: the register is in the public AXP318W kernel series |
+| CPU suspend, idle states | not there: the idle state table is empty. The DockSeed set has CPU_SUSPEND; the kernel patches do not rely on it (`cpuidle-psci-no-suspend`) |
+| System suspend | not there, and the kernel patch stack turns suspend off because it resets the board |
+| Cortex-A76 errata | none enabled: `allwinner-common-a76.mk` of the base carries the A55 list commented out. Which revision of the A76 the A733 has, and so which errata apply, has to be read from the board (`MIDR_EL1`) or taken from the DockSeed set |
+| Cortex-A55 errata | `ERRATA_A55_1530923` only |
+| Secure memory, TZC | as the base branch leaves it |
+
 ## Watchdog
 
 `SPEC.md` 3.3 says U-Boot hands a running watchdog to Linux. That described the DockSeed
@@ -167,8 +196,12 @@ SRAM range, what boot0 leaves behind); those are in the table above.
 2. **PLL_PERI0 for U-Boot proper.** The SPL no longer needs it. U-Boot proper still takes
    faster card clocks from it, as it does on the chain with the blob, where it works on what
    the boot ROM left plus bit 24.
-3. **The bus clock switch and the CPU PLLs** that boot0 does and our SPL does not (table
-   above). Not needed to reach U-Boot as far as the code shows; unverified.
+3. **The bus clock switch and the CPU PLLs.** Our SPL now does them as the specification
+   describes boot0 doing them. Four readings of that text are ours and are with the analysis
+   side: which bits of `CCU+0x518` are cleared (the code clears the source field, bits 24–26);
+   that nothing but source, update and gate is written to `CCU+0x580`; that the cores are
+   switched after all three PLLs have locked; and that only the PLLs and the switch are skipped
+   with a 19.2 MHz oscillator. `CONFIG_SUNXI_A733_VENDOR_CLOCKS=n` takes all of it out.
 4. **R_TWI0 clock.** The polling driver sets its divider for 100 kHz from a 24 MHz bus clock;
    the actual bus clock is not known. Any plausible value gives a rate the PMIC accepts.
 5. **SRAM in FEL mode.** `0x47000`–`0xc9500` is RAM and boot0 itself puts its stack at
@@ -176,3 +209,6 @@ SRAM range, what boot0 leaves behind); those are in the table above.
    the boot ROM keeps anything of its own there in FEL mode is not known.
 6. **TF-A on this board.** The branch was tested by its author for power on and off on a
    Radxa board; BL31 in DRAM on the A733 has not run anywhere.
+7. **USB in U-Boot.** USB0 is enabled on the model of the two Radxa boards of the base tree;
+   on this board it is the power port. `usb start` runs before the prompt (U-Boot's default
+   with a USB keyboard configured), so a fault in the USB PHY setup would show there.

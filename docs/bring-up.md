@@ -31,9 +31,10 @@ log. It is the reference for everything after:
   `Actual DRAM SIZE`, and the line that names the selected parameter block;
 - the size the vendor chain finds.
 
-Serial settings: 115200 baud, 8 data bits, no parity, one stop bit, no flow control. If the
-vendor log is readable at 115200 but the mainline SPL prints garbage, try 124800 baud: the
-board's crystal is 26 MHz and U-Boot assumes 24 MHz ("Not known", item 1).
+Serial settings: 115200 baud, 8 data bits, no parity, one stop bit, no flow control. The
+crystal is 26 MHz, but that does not change the baud rate: the boot ROM's reference PLL makes
+24 MHz of it, and the console, like boot0's, divides that (`docs/dram-init-spec.md`,
+"Reference clock").
 
 ## Step 1: build
 
@@ -53,6 +54,19 @@ block fixed. The index is in `docs/dram-init-spec.md`: 0 for 4 GiB, 1 for 6 GiB,
 5 for 12 GiB. Add `CONFIG_SUNXI_A733_DRAM_STRAP=5` to the defconfig in the U-Boot patch, or
 set it with `extraConfig` of the derivation.
 
+One more switch for this session. Before DRAM init the SPL sets the system supply, starts the
+CPU PLLs and switches the bus clock, as boot0 does (`docs/boot-chain-bases.md`, the table of
+what boot0 does). If the SPL stops between `DRAM:` and the strap line, or the console turns
+to garbage there, build with these steps left out and try again:
+
+```
+# CONFIG_SUNXI_A733_VENDOR_CLOCKS is not set
+```
+
+in `configs/orangepi_zero3w_defconfig` (U-Boot patch 0004), or the same line through
+`extraConfig`. The SPL then runs on the clocks the boot ROM left, as the first version of
+this firmware did. Say which of the two builds a log comes from.
+
 ## Step 2: the SPL alone, over FEL
 
 This is the first and most informative test: it runs DRAM init and nothing else, without
@@ -70,7 +84,9 @@ Expected on the serial console, in this order:
 |---|---|
 | `U-Boot SPL 2026.07...` | the BROM loaded the SPL and the switch to AArch64 worked |
 | `DRAM:` | the SPL reached DRAM init |
-| `DRAM: strap at <n> mV, index <i>` | the PMIC answered and the memory strap was read; compare `<i>` with the block the vendor log names |
+| `DRAM: dcdc2 code 0x1e, was 0x..` | the PMIC answered; the system supply is at 800 mV. `was` is what the PMIC had |
+| `DRAM: oscillator select 2` | bits 14–15 of `0x07090160`: 2 is 26 MHz, what the schematic says. 0 or 3 would be 24 MHz, 1 is 19.2 MHz |
+| `DRAM: strap at <n> mV, index <i>` | the CPU PLLs locked and the bus clock switched without a message; the memory strap was read. Compare `<i>` with the block the vendor log names |
 | `DRAM: dcdc7 <mV> mV: code 0x.., was 0x.., on` and the same for `eldo1`, `dcdc6` | each rail: what is asked for, what the PMIC had. `eldo1 1080 mV` has code `0x17`, which is 1075 mV, as in the vendor loader |
 | `DRAM_VCC set to (mV) 560`, `DRAM CLK (MHz) = 2040` or `2400` | the parameter block in use |
 | `Training result is = 7`, `DRAM Pstate trained, frequency (MHz) ...`, four times | the PHY firmware trained each Pstate; 7 is success |
@@ -85,8 +101,12 @@ Where it can stop, and what that says:
 
 | Last output | Likely cause | What to capture |
 |---|---|---|
-| nothing at all | serial wiring or baud rate; or the SPL was not started: too large for the tool, the early stack at `0x90000` is not usable, or the AArch64 switch failed | the full `sunxi-fel -v` output; retry at 124800 baud |
-| garbage | baud rate: try 124800 | which rate gives text |
+| nothing at all | serial wiring; or the SPL was not started: too large for the tool, the early stack at `0x90000` is not usable, or the AArch64 switch failed | the full `sunxi-fel -v` output |
+| garbage from the first character | serial settings or wiring: the vendor log of step 0 says whether the adapter works | the settings used |
+| text, then garbage or silence after `DRAM: oscillator select` | the CPU PLLs or the bus clock switch: build without `SUNXI_A733_VENDOR_CLOCKS` | the last readable line |
+| `DRAM: system supply setup failed` | the PMIC answered at first contact but not here | the line and the ones before it |
+| `DRAM: CPU PLL <n> does not lock, CPU clocks left alone` | not a stop: the SPL goes on with the cores on the boot ROM's clock. The factor or the sequence is wrong for this board | the line, the oscillator line |
+| `DRAM: bus clock update does not finish` | not a stop either; the register did not take the update | the line |
 | `DRAM: no answer from the PMIC` or `unexpected PMIC, ID 0x..` | R_TWI0 (pins, clock gate, the polling driver), or not an AXP318W | the line; the vendor log's PMIC lines |
 | `DRAM: no reading from the memory strap` | the GPADC gave no data | build with the strap index fixed and go on |
 | `DRAM: <rail>: PMIC read failed` | R_TWI0: pins, clock gate, or the polling driver | the error code in the line; the vendor log's PMIC lines |
@@ -113,13 +133,25 @@ it sits `0x4a000` into the file, not right behind the SPL. If it does not, the c
 next step.
 
 Expected: after the SPL's output, `NOTICE:  BL31: v2.12...` and the lines of the Allwinner
-platform, then `U-Boot 2026.07...`, `DRAM:  12 GiB` (or the board's size), and a prompt.
+platform, then `U-Boot 2026.07...`, `DRAM:  12 GiB` (or the board's size), the USB scan
+(`Bus usb@4101000: USB EHCI 1.00`), and a prompt.
+
+At the prompt:
+
+- `reset` should restart the board through the watchdog.
+- `poweroff`, where U-Boot has the command (it is not in every build; Linux's `poweroff` in
+  step 5 goes the same way), should turn the board off through the PMIC: the LED goes dark,
+  and power has to be removed and applied again to start. If the board stays on, BL31 prints
+  why on the console.
+- USB: only the port the board is powered through is driven, so a keyboard or a stick needs
+  a hub or adapter that feeds power into that port (`docs/boot-chain-bases.md`, "USB in
+  U-Boot"). `usb tree` lists what is found.
 
 | Stops after | Likely cause |
 |---|---|
 | the SPL's output, no `BL31` | the tool did not load or start the FIT images; BL31 in DRAM does not start on this SoC |
 | `BL31` lines, no `U-Boot` | BL31's setup of the cores or the GIC, or the jump to `0x4a000000` |
-| `U-Boot` banner, then a hang | the device tree: PMIC, MMC |
+| `U-Boot` banner, then a hang | the device tree: PMIC, MMC; or the USB scan that runs before the prompt. To rule USB out, build without `CONFIG_USB_KEYBOARD` (no scan before the prompt) |
 
 ## Step 4: from the card
 
@@ -163,9 +195,24 @@ Power off, swap the card for the vendor card, power on. Nothing the mainline fir
 persists across a power cycle: PMIC rail settings are volatile, and nothing is written to
 flash. If a rail was set wrongly, a power cycle restores the PMIC's own defaults.
 
-## Not in this guide
+## Step 5: the kernel
 
-The kernel. The mainline kernel track has no A733 patches and no Zero 3W device tree yet, so
-the session ends at the U-Boot prompt. When a kernel is tried, its device tree must reserve
-`0x40000000` to `0x40040000` for BL31, and U-Boot does not hand over a running watchdog
-(`docs/boot-chain-bases.md`).
+Only with step 4 working. `nix build .#sd-image-generic` builds the whole card: the firmware
+at 128 KiB and NixOS on Linux 7.3.4 with the A733 patches and the board's device tree
+(`docs/kernel-zero3w.md`). Like the firmware, this image holds the PHY training firmware and
+is for your own board.
+
+Write it to the spare card and boot. Expected: the SPL, BL31 and U-Boot as before, the
+extlinux menu, `Starting kernel ...`, then kernel messages on the same console and a login
+prompt. The device tree was written from the schematic and compiled, nothing more, so expect
+it to stop somewhere:
+
+| Stops after | Likely cause | What to capture |
+|---|---|---|
+| `Starting kernel ...`, nothing more | the console (`console=ttyS0,115200`, UART0 in the tree), or the memory BL31 occupies. Add `earlycon` to the kernel command line at the extlinux prompt | the U-Boot output up to that line |
+| kernel messages, then silence around the clock or regulator lines | a rail or clock the kernel turned off: the tree names only three PMIC outputs, all always on, and leaves the rest alone, but an unused clock can still be gated | the last 50 lines; retry with `clk_ignore_unused pd_ignore_unused` |
+| `Waiting for root device` | the card: controller, pins, card detect (PF6, low with a card). `broken-cd` in place of `cd-gpios` tells the two apart | the `mmc` lines of the log |
+| a login prompt | the tree is good enough to work from. `dmesg`, `/sys/kernel/debug/clk/clk_summary`, `/sys/kernel/debug/regulator/regulator_summary` and `lsusb` are the next things to save | all four |
+
+The kernel's device tree reserves `0x40000000` to `0x40040000` for BL31, and U-Boot does not
+hand over a running watchdog (`docs/boot-chain-bases.md`).
