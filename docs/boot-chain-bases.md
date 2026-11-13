@@ -160,10 +160,10 @@ What the chain depends on and neither the public trees nor our documents settle.
 side settled the rest on 2026-11-13 (clocks before DRAM init, PMIC encodings, the strap, the
 SRAM range, what boot0 leaves behind); those are in the table above.
 
-1. **Crystal.** The schematic says 26 MHz. boot0 treats the reference as 24 MHz everywhere
-   and reads no strap for it; so does U-Boot. If the vendor log is readable at 115200 baud,
-   the SoC sees 24 MHz and the question is closed. If not, the console runs at 124 800 baud
-   and every delay is 8 % short.
+1. **Crystal.** Settled by the analysis side: the crystal is 26 MHz, the boot ROM's reference
+   PLL makes the 24 MHz that the CCU domain runs on, and only the CPU PLLs see 26 MHz. See
+   "Reference clock" in `docs/dram-init-spec.md`. The console divisor and the delays are right
+   as they are. What is left for the board: confirm that `0x07090160` bits 14–15 read 2.
 2. **PLL_PERI0 for U-Boot proper.** The SPL no longer needs it. U-Boot proper still takes
    faster card clocks from it, as it does on the chain with the blob, where it works on what
    the boot ROM left plus bit 24.

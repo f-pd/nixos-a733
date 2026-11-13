@@ -302,9 +302,26 @@ are shown as bits set or cleared.
 initial stack pointer `0x8d000`, growing down. `ddr.bin` occupies `0x90000`–`0xc94a4`. So
 `0x47000`–`0xc9500` is usable RAM before DRAM is up. No heap is used before DRAM.
 
-**Reference clock.** Everything assumes 24 MHz: the UART divisor is 13 for 115200 baud, PLL
-factors are `frequency / 24`, the delay loop counts 24 ticks per microsecond. Nothing reads a
-crystal-select strap.
+**Reference clock.** The crystal on this board is 26 MHz, and boot0 handles it. The vendor
+kernel's clock driver (public source, `ccu-sun60iw2-rtc.c` and `ccu-sun60iw2.c`) shows how:
+bits 14–15 of `0x07090160` select the oscillator, 0 or 3 for 24 MHz, 1 for 19.2 MHz, 2 for
+26 MHz; a reference PLL at `CCU+0x00` (multiplier in bits 8–15, divider in bits 16–22) turns
+the oscillator into the 24 MHz reference that every other CCU PLL and the peripheral clocks
+(`sys24M`, the UART's parent) are derived from. boot0 never writes `CCU+0x00`: the boot ROM
+has set it. That is why boot0 can use 24 MHz everywhere in the CCU domain: the UART divisor
+13, PLL factors of `frequency / 24`, 24 timer ticks per microsecond (**O** for the driver
+source and for boot0's values; **I** that the boot ROM programs the reference PLL).
+
+The CPU PLLs are the exception: they take the oscillator directly, and boot0 reads
+`0x07090160` to choose their factors (**O**, emulated with each value):
+
+| Bits 14–15 | Oscillator | Little and big cores | DSU |
+|---|---|---|---|
+| 0 | 24 MHz | first `0x14`, then `0x2a` (1008 MHz) | `0x1f` (744 MHz) |
+| 2 | 26 MHz | first `0x14`, then `0x27` (1014 MHz) | `0x1e` (780 MHz) |
+| 1 | 19.2 MHz | the CPU PLLs are left alone | |
+
+On this board the second row applies.
 
 **UART0.** `CCU+0xe00`: write 0, set bit 16 (reset released), set bit 0 (gate). Pins PB9 and
 PB10 to function 2 (`0x02000104` bits for pins 9 and 10), drive level and pull-up set. UART at
@@ -319,7 +336,8 @@ PLLs: write `0xa7070025` to `0x08000144` twice; set register `0x13` to `0x9e` (b
 `+0x160`, `+0x220`, `+0x240`, `+0x260`, `+0x280`, `+0x2a0`, `+0x2e0`. boot0 does not otherwise
 program PLL_PERI0 (`+0xa0`), nor any bus divider: it runs on what the boot ROM left.
 
-**CPU PLLs.** Skipped when bit 14 or bit 15 of `0x07090160` is set. Otherwise, for each of
+**CPU PLLs.** Factors by oscillator as in the table above (the sequence below shows the 24 MHz
+values). For each of
 `0x08871000` (little cores), `0x08872000` (big cores), `0x08873000` (DSU), the register is
 taken through: set bit 30; set bit 27; factor field bits 8–15 = `0x14`; delay 20 us; set bit
 31; set bit 29; set bit 26; wait for lock (bit 28); delay 20 us; clear the source select at
