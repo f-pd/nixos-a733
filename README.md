@@ -9,8 +9,11 @@ modules below from its own flake and builds its own image.
 
 > Status: the vendor variant (the manufacturer's kernel, boot chain, firmware
 > and drivers) builds and is published under Releases. The mainline variants
-> are not in yet: the A733 patches, the device tree and the open boot chain
-> are still to come.
+> are not in yet: the A733 kernel patches and the device tree are still to
+> come. The open boot chain (U-Boot SPL with our own DRAM init, TF-A, U-Boot)
+> builds in CI and has not run on a board yet: see
+> [docs/boot-chain-bases.md](docs/boot-chain-bases.md) and
+> [docs/bring-up.md](docs/bring-up.md).
 
 ## Builds
 
@@ -40,18 +43,23 @@ The manufacturer's kernel, boot chain, firmware and drivers: see [vendor/README.
 
 Latest LTS and latest stable kernel.org kernels with the A733 patches: not available yet.
 
+Firmware: `nix build .#firmware` gives `u-boot-sunxi-with-spl.bin`, to be written at 128 KiB
+of the card, and `sunxi-spl.bin` for FEL. It is built from source except for the training
+firmware of the DRAM PHY, which the build cuts out of the manufacturer's boot0: the result is
+for your own board and is not published. Untested on hardware.
+
 ## Layout
 
 | Path | What it holds |
 |------|---------------|
 | `kernel/` | `version.json` (pinned release), patched source, kernel build and config |
 | `patches/` | A733 patches in two layers, `base/` and `optional/`, listed in `index.json` |
-| `bootloader/` | boot0, TF-A and U-Boot, pinned in `sources.json` |
+| `bootloader/` | the mainline boot chain: TF-A and U-Boot pinned in `sources.json`, our patches for them in `patches/`, the DRAM init library in `dram/` |
 | `modules/` | `hardware.nix` (kernel, console, device tree), `sd-image.nix`, `boot-log.nix` and `welcome.nix` |
 | `images/` | the generic image configuration |
 | `vendor/` | the vendor variant: the manufacturer's kernel, U-Boot, firmware and drivers; their files are copied in `vendor/blobs/`, with their origin |
 | `ci/` | scripts used by the workflows |
-| `docs/` | `mainline-notes.md`: state of A733 support outside the vendor tree and how it maps onto `patches/` and `bootloader/`; `zero3w-wiring.md`: how the Zero 3W is wired, per peripheral; `board/`: the manufacturer's schematics, drawings and manual |
+| `docs/` | `mainline-notes.md`: state of A733 support outside the vendor tree and how it maps onto `patches/` and `bootloader/`; `boot-chain-bases.md`: how the mainline firmware is put together; `bring-up.md`: the first session with the board; `dram-init-spec.md`: how the vendor DRAM init works; `zero3w-wiring.md`: how the Zero 3W is wired, per peripheral; `board/`: the manufacturer's schematics, drawings and manual |
 | `tools/` | `a733-bench.sh`, installed on the generic images as `a733-bench` |
 
 ## Flake outputs
@@ -60,13 +68,15 @@ Latest LTS and latest stable kernel.org kernels with the A733 patches: not avail
 |--------|-------------|
 | `packages.aarch64-linux.kernel` | latest stable kernel with the patches applied |
 | `packages.aarch64-linux.kernel-source` | patched source tree, with `.a733-optional-skipped` |
-| `packages.aarch64-linux.boot0` | boot0 extracted from the official image, hash checked (once pinned) |
-| `packages.aarch64-linux.tf-a`, `uboot` | boot chain built from source (once pinned) |
+| `packages.aarch64-linux.tf-a` | BL31, built from source |
+| `packages.aarch64-linux.firmware` (also `uboot`) | the mainline firmware: SPL with our DRAM init, BL31 and U-Boot in `u-boot-sunxi-with-spl.bin`; also `sunxi-spl.bin` for FEL and the SPL's ELF. Holds the DRAM PHY firmware: not for publishing |
+| `packages.aarch64-linux.dram-payload` | the DRAM PHY firmware, cut out of the manufacturer's boot0. Not for publishing |
+| `packages.aarch64-linux.spl-zero-payload` | the same build with zeros in place of that firmware: what CI uploads |
 | `packages.aarch64-linux.sd-image-generic` | minimal image: root login on the serial console, guided first login |
 | `packages.aarch64-linux.kernel-vendor`, `boot-vendor` | the manufacturer's 6.6 kernel and boot chain |
 | `packages.aarch64-linux.sd-image-vendor` | the minimal image on the manufacturer's kernel and boot chain |
 | `nixosModules.hardware` | kernel, console on `ttyS0` at 115200 baud, device tree, binary cache |
-| `nixosModules.sd-image` | SD image with boot0 and U-Boot written before the first partition |
+| `nixosModules.sd-image` | SD image with the boot chain written before the first partition |
 | `nixosModules.vendor` | `hardware.a733.vendor.enable`: switch to the manufacturer's kernel and boot chain |
 | `nixosModules.boot-log` | `hardware.a733.bootLog.enable`: boot logs on the FAT partition |
 | `nixosModules.welcome` | `hardware.a733.welcome.enable`: slogans, fastfetch, Tokyo Night, starship, comfort tools and aliases, guided first login |
@@ -113,8 +123,8 @@ public key:  nixos-a733.cachix.org-1:rMgMVYYwVjmvg4b8FX59uavFlLCqP0YuR6O8NXgqcWY
 
 | Workflow | When | What |
 |----------|------|------|
-| `ci` | every push and pull request | evaluates the flake, checks formatting, builds nothing |
-| `build` | push to `main` or `develop` touching the build, or by hand | builds the vendor image (kept as an artifact) and, once base patches exist, the mainline kernel and image, on native ARM runners, pushing to Cachix |
+| `ci` | every push and pull request | evaluates the flake, checks formatting, runs the DRAM library against the reference scripts; builds no derivation |
+| `build` | push to `main` or `develop` touching the build, or by hand | builds the vendor image (kept as an artifact), the mainline firmware (layout checked; the SPL without the DRAM PHY firmware kept as an artifact) and, once base patches exist, the mainline kernel and image, on native ARM runners, pushing to Cachix except what holds firmware without a redistribution grant |
 | `release` | push to `main`, or by hand on `develop` | on `main`, publishes the version in `VERSION` as a GitHub Release, tag `v<VERSION>`, with the vendor SD image and its checksum, and skips versions already released; on `develop`, publishes a pre-release `v<next minor>-dev.<run>` to try on the board, never marked as latest |
 | `kernel-bump` | nightly and by hand | pins a new kernel.org stable release on `develop` and starts `build` |
 
