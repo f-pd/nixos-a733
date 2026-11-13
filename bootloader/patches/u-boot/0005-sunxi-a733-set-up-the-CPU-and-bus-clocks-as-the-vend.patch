@@ -1,0 +1,319 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alessio Corsi <alessio.corsi@gmail.com>
+Date: Fri, 13 Nov 2026 11:04:17 +0100
+Subject: [PATCH] sunxi: a733: set up the CPU and bus clocks as the vendor
+ loader does
+
+The boot ROM leaves the cores on a slow clock and the system supply of
+the PMIC at its default. The manufacturer's loader, before DRAM init,
+sets DCDC2 to 0.8 V and turns it on, starts the three CPU PLLs with
+factors for the board's oscillator (read from the RTC domain), moves the
+cores to them, and switches the bus clock. A blob-less SPL did none of
+this.
+
+Do the same before DRAM init, in the same order, under
+SUNXI_A733_VENDOR_CLOCKS, on by default with the DRAM library and
+switched off in one line when the steps are suspected.
+
+A PLL that does not lock leaves the CPU clocks as they are instead of
+hanging the SPL. With a 19.2 MHz oscillator the PLLs are left alone, as
+the loader has no factors for it.
+
+Not established: which bits of CCU register 0x518 the loader clears.
+The source field is assumed.
+---
+ arch/arm/mach-sunxi/Kconfig                   |  13 +
+ arch/arm/mach-sunxi/dram_sun60i_a733_source.c | 227 +++++++++++++++++-
+ 2 files changed, 236 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/mach-sunxi/Kconfig b/arch/arm/mach-sunxi/Kconfig
+index 63ee25b4..b7e06f7b 100644
+--- a/arch/arm/mach-sunxi/Kconfig
++++ b/arch/arm/mach-sunxi/Kconfig
+@@ -632,6 +632,19 @@ config SUNXI_A733_DRAM_STRAP
+ 	  Boards tell their memory fits apart by a resistor on a GPADC
+ 	  input. Set this to a strap index to skip reading it.
+ 
++config SUNXI_A733_VENDOR_CLOCKS
++	bool "A733: CPU supply, CPU PLLs and bus clock as the vendor loader sets them"
++	depends on SUNXI_A733_DRAM_SOURCE
++	default y
++	help
++	  Before DRAM init, do what the manufacturer's loader does and the
++	  boot ROM does not: set the system supply of the PMIC, start the
++	  three CPU PLLs with the factors for the board's oscillator, move
++	  the cores to them, and switch the bus clock.
++
++	  Without it the SPL runs on the clocks the boot ROM left. Say N to
++	  rule these steps out when the SPL stops before DRAM init.
++
+ config SUNXI_LIBDRAM_BASE
+ 	hex "libdram blob runtime address"
+ 	depends on SPL && MACH_SUN60I_A733 && !SUNXI_A733_DRAM_SOURCE
+diff --git a/arch/arm/mach-sunxi/dram_sun60i_a733_source.c b/arch/arm/mach-sunxi/dram_sun60i_a733_source.c
+index 438adb7d..fb2b0d71 100644
+--- a/arch/arm/mach-sunxi/dram_sun60i_a733_source.c
++++ b/arch/arm/mach-sunxi/dram_sun60i_a733_source.c
+@@ -8,8 +8,10 @@
+  * strap, and links the PHY training firmware. It also does the few things
+  * the manufacturer's loader does before DRAM init that nothing else in the
+  * SPL does: the PLL enable bits, the first contact with the PMIC, the clock
+- * of the GPADC. They are described in the DRAM init specification of the
+- * nixos-a733 project, "boot0 before and after the DRAM routine".
++ * of the GPADC and, with CONFIG_SUNXI_A733_VENDOR_CLOCKS, the system supply,
++ * the CPU PLLs and the bus clock. They are described in the DRAM init
++ * specification of the nixos-a733 project, "boot0 before and after the DRAM
++ * routine".
+  *
+  * It runs before relocation: no BSS, no driver model. The PMIC is therefore
+  * reached with a small polling driver for the R_TWI controller here.
+@@ -70,6 +72,60 @@ extern const u8 a733_dram_payload_end[];
+ #define AXP318W_DCDC_ENABLE	0x10
+ #define AXP318W_DCDC2_VOLT	0x13
+ #define AXP318W_DCDC9_VOLT	0x1a
++#define AXP318W_DCDC2_800MV	0x1e	/* (800 - 500) / 10 */
++
++/*
++ * The CPU PLLs: little cores, big cores, DSU. They take the oscillator
++ * itself, not the 24 MHz reference of the CCU, so their factors depend on
++ * the crystal, which bits 14-15 of a register in the RTC domain tell.
++ */
++#define CPU_PLL_LITTLE		0x08871000UL
++#define CPU_PLL_BIG		0x08872000UL
++#define CPU_PLL_DSU		0x08873000UL
++#define CPU_PLL_ENABLE		BIT(31)
++#define CPU_PLL_LDO_ENABLE	BIT(30)
++#define CPU_PLL_LOCK_ENABLE	BIT(29)
++#define CPU_PLL_LOCK		BIT(28)
++#define CPU_PLL_OUTPUT		BIT(27)
++#define CPU_PLL_UPDATE		BIT(26)
++#define CPU_PLL_N_MASK		GENMASK(15, 8)
++#define CPU_PLL_N(n)		((n) << 8)
++#define CPU_PLL_N_START		0x14
++#define CPU_CLK_SRC(pll)	((pll) + 0x1cUL)
++#define CPU_CLK_SRC_MASK	GENMASK(25, 24)
++#define CPU_CLK_SRC_PLL		(3 << 24)
++#define CPU_PLL_STEP_US		20
++#define CPU_PLL_LOCK_TIMEOUT_US	10000
++
++#define RTC_DCXO_CTRL		(SUNXI_RTC_BASE + 0x160UL)
++#define RTC_DCXO_SEL(val)	(((val) >> 14) & 3)
++#define RTC_DCXO_SEL_19M2	1
++#define RTC_DCXO_SEL_26M	2
++
++/*
++ * Written twice by the manufacturer's loader before the system supply is
++ * set. What the register is, is not known.
++ */
++#define VENDOR_REG_8000144	0x08000144UL
++#define VENDOR_REG_8000144_VALUE	0xa7070025
++
++/*
++ * The bus clock switch of the manufacturer's loader. Which bits of the
++ * first register it clears is not established: the source field is assumed.
++ */
++#define CCU_BUS_CLK_A		(SUNXI_CCM_BASE + 0x518UL)
++#define CCU_BUS_CLK_B		(SUNXI_CCM_BASE + 0x580UL)
++#define CCU_BUS_CLK_SRC_MASK	GENMASK(26, 24)
++#define CCU_BUS_CLK_SRC(n)	((n) << 24)
++#define CCU_BUS_CLK_UPDATE	BIT(27)
++#define CCU_BUS_CLK_GATE	BIT(31)
++#define PRCM_BUS_CLK		(SUNXI_PRCM_BASE + 0x10UL)
++#define PRCM_BUS_CLK_VALUE	0x04000000
++#define BUS_CLK_TIMEOUT_US	10000
++
++/* Written after the GPADC is set up; what it selects is not known */
++#define RTC_REG_0		(SUNXI_RTC_BASE + 0x0UL)
++#define RTC_REG_0_VALUE		0xc
+ 
+ /* Bit 24 of every PLL register the manufacturer's loader touches */
+ #define CCU_PLL_ENABLE_BIT	BIT(24)
+@@ -465,6 +521,160 @@ static void pll_enable_bits(void)
+ 			     CCU_PLL_ENABLE_BIT);
+ }
+ 
++static int wait_bits(unsigned long reg, u32 mask, u32 match, u32 timeout_us)
++{
++	u32 waited;
++
++	for (waited = 0; waited <= timeout_us; waited += 5) {
++		if ((readl(reg) & mask) == match)
++			return 0;
++		udelay(5);
++	}
++
++	return -ETIMEDOUT;
++}
++
++/*
++ * The system supply, DCDC2: 0.8 V and on. The manufacturer's loader does
++ * this before it starts the CPU PLLs.
++ */
++static int vendor_supply_init(void)
++{
++	u8 val;
++	int ret;
++
++	writel(VENDOR_REG_8000144_VALUE, VENDOR_REG_8000144);
++	writel(VENDOR_REG_8000144_VALUE, VENDOR_REG_8000144);
++
++	ret = axp_read(AXP318W_DCDC2_VOLT, &val);
++	if (!ret && (val & 0x7f) != AXP318W_DCDC2_800MV)
++		ret = axp_write(AXP318W_DCDC2_VOLT,
++				(val & BIT(7)) | AXP318W_DCDC2_800MV);
++	if (!ret)
++		ret = axp_setbits(AXP318W_DCDC_ENABLE, BIT(1));
++	if (ret)
++		printf("DRAM: system supply setup failed (%d)\n", ret);
++	else
++		printf("DRAM: dcdc2 code 0x%02x, was 0x%02x\n",
++		       AXP318W_DCDC2_800MV, val & 0x7f);
++
++	return ret;
++}
++
++static void cpu_pll_set_n(unsigned long pll, u32 n)
++{
++	clrsetbits_le32(pll, CPU_PLL_N_MASK, CPU_PLL_N(n));
++	udelay(CPU_PLL_STEP_US);
++}
++
++static int cpu_pll_lock(unsigned long pll)
++{
++	int ret;
++
++	ret = wait_bits(pll, CPU_PLL_LOCK, CPU_PLL_LOCK,
++			CPU_PLL_LOCK_TIMEOUT_US);
++	udelay(CPU_PLL_STEP_US);
++
++	return ret;
++}
++
++/*
++ * One CPU PLL, in the steps of the manufacturer's loader: started at a low
++ * factor, then, with the cores on the oscillator and the output closed,
++ * moved to the final one.
++ */
++static int cpu_pll_start(unsigned long pll, u32 n)
++{
++	int ret;
++
++	setbits_le32(pll, CPU_PLL_LDO_ENABLE);
++	setbits_le32(pll, CPU_PLL_OUTPUT);
++	cpu_pll_set_n(pll, CPU_PLL_N_START);
++	setbits_le32(pll, CPU_PLL_ENABLE);
++	setbits_le32(pll, CPU_PLL_LOCK_ENABLE);
++	setbits_le32(pll, CPU_PLL_UPDATE);
++	ret = cpu_pll_lock(pll);
++	if (ret)
++		return ret;
++
++	clrbits_le32(CPU_CLK_SRC(pll), CPU_CLK_SRC_MASK);
++	clrbits_le32(pll, CPU_PLL_OUTPUT);
++	clrbits_le32(pll, CPU_PLL_LOCK_ENABLE);
++	cpu_pll_set_n(pll, n);
++	setbits_le32(pll, CPU_PLL_LOCK_ENABLE);
++	ret = cpu_pll_lock(pll);
++	if (ret)
++		return ret;
++
++	setbits_le32(pll, CPU_PLL_OUTPUT);
++	udelay(CPU_PLL_STEP_US);
++
++	return 0;
++}
++
++struct cpu_pll {
++	unsigned long reg;
++	u8 n_24m;
++	u8 n_26m;
++};
++
++/* 1008 and 744 MHz from 24 MHz, 1014 and 780 MHz from 26 MHz */
++static const struct cpu_pll cpu_plls[] = {
++	{ CPU_PLL_LITTLE, 0x2a, 0x27 },
++	{ CPU_PLL_BIG, 0x2a, 0x27 },
++	{ CPU_PLL_DSU, 0x1f, 0x1e },
++};
++
++static void cpu_plls_init(void)
++{
++	u32 sel = RTC_DCXO_SEL(readl(RTC_DCXO_CTRL));
++	int i, ret;
++
++	printf("DRAM: oscillator select %u\n", sel);
++
++	/* The manufacturer's loader has no factors for 19.2 MHz. */
++	if (sel == RTC_DCXO_SEL_19M2)
++		return;
++
++	for (i = 0; i < ARRAY_SIZE(cpu_plls); i++) {
++		ret = cpu_pll_start(cpu_plls[i].reg,
++				    sel == RTC_DCXO_SEL_26M ?
++				    cpu_plls[i].n_26m : cpu_plls[i].n_24m);
++		if (ret) {
++			/* The cores stay on the clock they have. */
++			printf("DRAM: CPU PLL %d does not lock, CPU clocks left alone\n",
++			       i);
++			return;
++		}
++	}
++
++	for (i = 0; i < ARRAY_SIZE(cpu_plls); i++) {
++		writel(CPU_CLK_SRC_PLL, CPU_CLK_SRC(cpu_plls[i].reg));
++		udelay(CPU_PLL_STEP_US);
++	}
++}
++
++static void bus_clock_init(void)
++{
++	int ret;
++
++	clrbits_le32(CCU_BUS_CLK_A, CCU_BUS_CLK_SRC_MASK);
++	writel(PRCM_BUS_CLK_VALUE, PRCM_BUS_CLK);
++
++	setbits_le32(CCU_BUS_CLK_B, CCU_BUS_CLK_UPDATE);
++	ret = wait_bits(CCU_BUS_CLK_B, CCU_BUS_CLK_UPDATE, 0,
++			BUS_CLK_TIMEOUT_US);
++	if (!ret) {
++		clrsetbits_le32(CCU_BUS_CLK_B, CCU_BUS_CLK_SRC_MASK,
++				CCU_BUS_CLK_SRC(3) | CCU_BUS_CLK_UPDATE |
++				CCU_BUS_CLK_GATE);
++		ret = wait_bits(CCU_BUS_CLK_B, CCU_BUS_CLK_UPDATE, 0,
++				BUS_CLK_TIMEOUT_US);
++	}
++	if (ret)
++		printf("DRAM: bus clock update does not finish\n");
++}
++
+ static unsigned int a733_strap(void *ctx)
+ {
+ 	return *(const unsigned int *)ctx;
+@@ -489,16 +699,25 @@ unsigned long sunxi_dram_init(void)
+ 	int index;
+ 	u32 mib;
+ 
+-	pll_enable_bits();
+-
+ 	twi_init();
+ 	if (axp_init())
+ 		return 0;
++	if (IS_ENABLED(CONFIG_SUNXI_A733_VENDOR_CLOCKS) &&
++	    vendor_supply_init())
++		return 0;
++
++	pll_enable_bits();
++	if (IS_ENABLED(CONFIG_SUNXI_A733_VENDOR_CLOCKS)) {
++		cpu_plls_init();
++		bus_clock_init();
++	}
+ 
+ 	/* Without the strap the wrong memory fit would be trained. */
+ 	index = strap_index();
+ 	if (index < 0)
+ 		return 0;
++	if (IS_ENABLED(CONFIG_SUNXI_A733_VENDOR_CLOCKS))
++		writel(RTC_REG_0_VALUE, RTC_REG_0);
+ 	strap = index;
+ 
+ 	mib = a733_dram_init(&ops, a733_dram_payload,
