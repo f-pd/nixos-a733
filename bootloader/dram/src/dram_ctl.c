@@ -136,7 +136,7 @@ static void ctl_init_timing(struct dram *d, uint32_t base, unsigned int pstate)
 		}
 	}
 
-	udelay(d, 20);
+	dram_udelay(d, 20);
 }
 
 void ctl_init(struct dram *d, unsigned int ch)
@@ -328,10 +328,10 @@ void ctl_handover(struct dram *d)
 		wait32(d, CTL_BASE(ch) + CTL_SWSTAT, 1, 1);
 	for (ch = 0; ch < CHANNELS; ch++)
 		wait32(d, CTL_BASE(ch) + CTL_DFISTAT, 1, 1);
-	udelay(d, 50);
+	dram_udelay(d, 50);
 
 	setbits32(d, PRCM_BASE + PRCM_PAD_HOLD, 1);
-	udelay(d, 2000);
+	dram_udelay(d, 2000);
 
 	for (ch = 0; ch < CHANNELS; ch++)
 		ctl_sw_open(d, ch);
@@ -343,7 +343,7 @@ void ctl_handover(struct dram *d)
 		wait32(d, CTL_BASE(ch) + CTL_STAT, 3u << 4, 0);
 		wait32(d, CTL_BASE(ch) + CTL_STAT, 3u << 0, 1);
 	}
-	udelay(d, 50);
+	dram_udelay(d, 50);
 
 	for (ch = 0; ch < CHANNELS; ch++)
 		clrbits32(d, CTL_BASE(ch) + CTL_DFIMISC,
@@ -352,7 +352,7 @@ void ctl_handover(struct dram *d)
 		ctl_sw_close(d, ch);
 	for (ch = 0; ch < CHANNELS; ch++)
 		wait32(d, CTL_BASE(ch) + CTL_SWSTAT, 1, 1);
-	udelay(d, 2);
+	dram_udelay(d, 2);
 }
 
 struct reg_write {

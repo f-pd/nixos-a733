@@ -9,8 +9,14 @@
 #ifndef A733_DRAM_H
 #define A733_DRAM_H
 
+/* Inside U-Boot the fixed-width types come from its own headers. */
+#ifdef __UBOOT__
+#include <linux/types.h>
+#include <linux/stddef.h>
+#else
 #include <stddef.h>
 #include <stdint.h>
+#endif
 
 /* PMIC rails the DRAM supplies are on. */
 enum a733_dram_rail {

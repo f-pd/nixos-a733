@@ -50,7 +50,7 @@ void wait32(struct dram *d, uint32_t addr, uint32_t mask, uint32_t match)
 		dram_fail(d, "DRAM: timeout waiting on register", addr);
 }
 
-void udelay(struct dram *d, uint32_t usec)
+void dram_udelay(struct dram *d, uint32_t usec)
 {
 	d->ops->udelay(d->ops->ctx, usec);
 }
