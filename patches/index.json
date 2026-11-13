@@ -2664,6 +2664,12 @@
       "layer": "base",
       "origin": "this repository",
       "description": "arm64: dts: allwinner: a733: Add the Xunlong Orange Pi Zero 3W"
+    },
+    {
+      "file": "zero3w-arm64-dts-allwinner-a733-orangepi-zero3w-use-the-cpu-and-dsu-operating-points.patch",
+      "layer": "base",
+      "origin": "this repository",
+      "description": "arm64: dts: allwinner: a733: orangepi-zero3w: use the CPU and DSU operating points"
     }
   ]
 }

@@ -17,7 +17,7 @@ device tree is rewritten for its bindings; nothing else depends on the choice.
 | Kernel | Linux 7.3.4 (`kernel/version.json`), the release the stack is written for |
 | Stack | `DockSeed/a7s-linux-mainline` @ `da00673e098b`, 379 patches, GPL-2.0-only, tested by its author on the Radxa Cubie A7S only |
 | Vendored as | `patches/base/` (245) and `patches/optional/` (134), unchanged, with their authors' trailers; `patches/index.json` names the origin of each |
-| Ours | two patches at the end of the base layer: the board's compatible, and `sun60i-a733-orangepi-zero3w.dts` |
+| Ours | three patches at the end of the base layer: the board's compatible, `sun60i-a733-orangepi-zero3w.dts`, and the CPU and DSU operating points for it |
 
 `SPEC.md` D7 keeps third-party *boot chain* patches out of the tree. For the kernel, section 6
 of the same document says patch stacks are vendored, and that is what this is.
@@ -61,6 +61,7 @@ model of its Cubie A7S tree.
 | Type-C power port | USB0 as a peripheral |
 | PCIe | one lane, reset on PD22, `PCIE_PWREN_H` (PD23) as the adapter's supply enable |
 | LED | PL7, heartbeat |
+| CPU and DSU frequency scaling | a third patch: DCDC5 (`vdd-cpul`, the six Cortex-A55 and the DSU) and DCDC3 (`vdd-cpub`, the two Cortex-A76), 800 to 1050 mV, with the SoC's operating point tables. Not run on the board yet: the first boot with it changes core voltages |
 
 Left out, and why:
 
@@ -69,7 +70,6 @@ Left out, and why:
 | Wi-Fi and Bluetooth (AIC8800D80 on SDIO and UART1) | no mainline driver; the stack has no node for the second MMC controller or UART1 either |
 | HDMI | the stack drives DisplayPort, not HDMI |
 | DisplayPort on the data port, GPU, audio, video engine | optional layer; they need a second, optional device tree patch on top of ours |
-| CPU frequency scaling and the CPU supplies (DCDC3, DCDC5) | the first boot should not change core voltages: the cores stay at what the SPL set (1014 MHz at the PMIC's default voltage). The stack's OPP tables are there to be used once the rails are confirmed on the board |
 | UHS modes of the card | need bank PF at 1.8 V from CLDO5; the stack has the pin states for it, the board side is not written |
 | Fan (PWM0 channel 5 on PD5) | the stack has the PWM driver but no pin group for that pin |
 | 32 kHz crystal | marked optional in the schematic; whether Y2 is fitted has to be seen on the board |

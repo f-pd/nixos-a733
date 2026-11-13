@@ -1,0 +1,111 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Alessio Corsi <alessio.corsi@gmail.com>
+Date: Fri, 13 Nov 2026 20:00:00 +0100
+Subject: [PATCH] arm64: dts: allwinner: a733: orangepi-zero3w: use the CPU and
+ DSU operating points
+
+The board ran without frequency scaling: the cores stayed at the rate the
+boot firmware set, and the cpufreq driver had no operating points to
+register. Name the two CPU rails, DCDC5 for the six Cortex-A55 and the
+DSU and DCDC3 for the two Cortex-A76 as on sheet 6 of the schematic, and
+point the cores and the DSU at the SoC's tables.
+
+The voltage range is the one of the tables. The ramp delay is the
+vendor device tree's value for this board.
+---
+--- a/arch/arm64/boot/dts/allwinner/sun60i-a733-orangepi-zero3w.dts
++++ b/arch/arm64/boot/dts/allwinner/sun60i-a733-orangepi-zero3w.dts
+@@ -9,6 +9,8 @@
+ /dts-v1/;
+ 
+ #include "sun60i-a733.dtsi"
++#include "sun60i-a733-cpu-opp.dtsi"
++#include "sun60i-a733-dsu-opp.dtsi"
+ 
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/leds/common.h>
+@@ -110,6 +112,45 @@
+ 	status = "okay";
+ };
+ 
++&cpu0 {
++	operating-points-v2 = <&cluster0_opp>;
++	cpu-supply = <&reg_dcdc5>;	/* VDD-CPUL */
++};
++
++&cpu1 {
++	operating-points-v2 = <&cluster0_opp>;
++};
++
++&cpu2 {
++	operating-points-v2 = <&cluster0_opp>;
++};
++
++&cpu3 {
++	operating-points-v2 = <&cluster0_opp>;
++};
++
++&cpu4 {
++	operating-points-v2 = <&cluster0_opp>;
++};
++
++&cpu5 {
++	operating-points-v2 = <&cluster0_opp>;
++};
++
++&cpu6 {
++	operating-points-v2 = <&cluster1_opp>;
++	cpu-supply = <&reg_dcdc3>;	/* VDD-CPUB */
++};
++
++&cpu7 {
++	operating-points-v2 = <&cluster1_opp>;
++};
++
++/* the DSU shares VDD-CPUL with the six Cortex-A55 */
++&dsu {
++	dsu-supply = <&reg_dcdc5>;
++};
++
+ /*
+  * microSD. The card supply VCC-CARD comes from DCDC1 through 1 Ohm, with
+  * no switch. Card detect on PF6 is low with a card.
+@@ -164,8 +205,8 @@
+ 		/*
+ 		 * Only the outputs that something here names are described,
+ 		 * all of them always on at the voltage the schematic gives.
+-		 * The others, the CPU, GPU and DRAM rails among them, are left
+-		 * as the boot chain set them. The inputs of the regulator
++		 * The others, the GPU and DRAM rails among them, are left as
++		 * the boot chain set them. The inputs of the regulator
+ 		 * groups are not described: the schematic sheet was not read
+ 		 * for them.
+ 		 */
+@@ -178,6 +219,27 @@
+ 				regulator-always-on;
+ 			};
+ 
++			/*
++			 * VDD-CPUB, the two Cortex-A76. The ramp delay is the
++			 * vendor's for this board, slower than the PMIC's own.
++			 */
++			reg_dcdc3: dcdc3 {
++				regulator-name = "vdd-cpub";
++				regulator-min-microvolt = <800000>;
++				regulator-max-microvolt = <1050000>;
++				regulator-ramp-delay = <250>;
++				regulator-always-on;
++			};
++
++			/* VDD-CPUL, the six Cortex-A55 and the DSU */
++			reg_dcdc5: dcdc5 {
++				regulator-name = "vdd-cpul";
++				regulator-min-microvolt = <800000>;
++				regulator-max-microvolt = <1050000>;
++				regulator-ramp-delay = <250>;
++				regulator-always-on;
++			};
++
+ 			/*
+ 			 * 1.8 V I/O: banks PC, PG, PH, PJ, PK and PM, the Wi-Fi
+ 			 * module's I/O, VDD18 of the LPDDR5.
