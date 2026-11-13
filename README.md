@@ -51,7 +51,7 @@ Latest LTS and latest stable kernel.org kernels with the A733 patches: not avail
 | `images/` | the generic image configuration |
 | `vendor/` | the vendor variant: the manufacturer's kernel, U-Boot, firmware and drivers; their files are copied in `vendor/blobs/`, with their origin |
 | `ci/` | scripts used by the workflows |
-| `docs/` | `mainline-notes.md`: state of A733 support outside the vendor tree and how it maps onto `patches/` and `bootloader/` |
+| `docs/` | `mainline-notes.md`: state of A733 support outside the vendor tree and how it maps onto `patches/` and `bootloader/`; `zero3w-wiring.md`: how the Zero 3W is wired, per peripheral; `board/`: the manufacturer's schematics, drawings and manual |
 | `tools/` | `a733-bench.sh`, installed on the generic images as `a733-bench` |
 
 ## Flake outputs

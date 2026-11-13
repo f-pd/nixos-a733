@@ -1,1 +1,3 @@
 vendor/blobs/** binary
+docs/board/*.pdf binary
+docs/board/*.dxf -diff
