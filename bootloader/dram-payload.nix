@@ -14,6 +14,8 @@
 }:
 let
   files = callPackage ../vendor/files.nix { };
+  source = if zero then "none" else files.boot0;
+  mode = lib.optionalString zero "zero";
 in
 stdenv.mkDerivation {
   pname = "a733-dram-payload" + (if zero then "-zero" else "-nopublish");
@@ -24,7 +26,7 @@ stdenv.mkDerivation {
   buildPhase = ''
     runHook preBuild
     make build/payload-pack
-    build/payload-pack ${if zero then "none" else files.boot0} a733-dram-payload.bin ${lib.optionalString zero "zero"}
+    build/payload-pack ${source} a733-dram-payload.bin ${mode}
     runHook postBuild
   '';
 
