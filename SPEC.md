@@ -1,7 +1,7 @@
 # NixOS-A733: Spec
 
 > Repo: `github.com/f-pd/nixos-a733` · Status: draft v0.3 · 2026-11-12
-> Supersedes v0.2 (Debian and Talos flavors: both dropped). Evidence: `docs/research.md`, `docs/supply-chain-audit.md`.
+> Supersedes v0.2 (Debian and Talos flavors: both dropped). Evidence: `docs/research.md` and a supply chain audit that is not part of this repository.
 
 A Nix flake that builds NixOS for **Allwinner A733 (`sun60iw2`)** boards, starting with the
 **Orange Pi Zero 3W**, from upstream kernels plus an A733 patch stack, on two kernel tracks:
@@ -148,7 +148,7 @@ Verified against disko `1dd30c2` (2026-11-10):
 
 ## 6. Supply chain choices
 
-From `docs/supply-chain-audit.md`:
+From the supply chain audit of 2026-11-12, which is not part of this repository:
 
 | Area | Choice | Why |
 |---|---|---|
